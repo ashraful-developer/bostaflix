@@ -29,7 +29,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 100vw;
   box-sizing: border-box;
 }
 
@@ -79,6 +79,7 @@ header {
   background-color: #333;
   border-radius: 5px;
   overflow: hidden;
+  z-index: 999;
 }
 
 .dropdown-content a {
@@ -87,6 +88,7 @@ header {
   text-align: left;
   color: #fff;
   text-decoration: none;
+  z-index: 999;
 }
 
 .dropdown-content a:hover {
@@ -99,12 +101,15 @@ header {
 }
 
 /* Responsive styles for navigation */
-@media (max-width: 600px) {
+@media (max-width: 639px) {
   .nav-links {
     display: none;
   }
   .dropdown {
     display: block;
+  .channel {
+    width: 100%;
+    max-width: 125px;  
   }
 }
 
@@ -121,7 +126,7 @@ header {
 }
 
 /* Landscape layout */
-@media (min-width: 900px) {
+@media (min-width: 640px) {
   .main-content {
     flex-direction: row;
     align-items: flex-start;
@@ -131,12 +136,13 @@ header {
   }
 
   #player-container {
-    width: 70%;
-    height: 70%;
+    width: 100%;
+    left: 5%;
   }
 
   #more-channels {
     width: 30%;
+    
   }
 }
 
@@ -144,6 +150,7 @@ header {
 #player-container {
   display: flex;
   justify-content: center;
+  width: 100%;
   background-color: #000;
   aspect-ratio: 16 / 9;
   box-sizing: border-box;
@@ -161,7 +168,7 @@ header {
   left: 5%;
   width: 9%;
   max-height: 12%;
-  opacity: 0.8;
+  opacity: 0.0;
   z-index: 2;
   pointer-events: none;
 }
@@ -187,16 +194,16 @@ header {
 .channel-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 15px;
-  width: 100%;
+  gap: 20px;
+  width: 70%;
   align-items: center;
 }
 
 .channel {
   width: 100%;
-  max-width: 120px;
+  max-width: 200px;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   text-align: center;
   cursor: pointer;
