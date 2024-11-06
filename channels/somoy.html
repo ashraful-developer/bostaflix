@@ -13,7 +13,12 @@
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      background-color: #87CEEB; /* Sky blue background */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
     /* Header styling */
@@ -24,7 +29,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .logo {
@@ -92,7 +98,7 @@
       display: block;
     }
 
-    /* Responsive styles */
+    /* Responsive styles for navigation */
     @media (max-width: 600px) {
       .nav-links {
         display: none;
@@ -102,18 +108,48 @@
       }
     }
 
+    /* Main content layout */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+      height: calc(100vh - 70px);
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* Landscape layout */
+    @media (min-width: 900px) {
+      .main-content {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      #player-container {
+        width: 70%;
+      }
+
+      #more-channels {
+        width: 30%;
+      }
+    }
+
     /* Player container */
     #player-container {
       display: flex;
       justify-content: center;
-      padding: 20px;
+      width: 100%;
+      aspect-ratio: 16 / 9;
       background-color: #000;
+      box-sizing: border-box;
+      position: relative;
     }
 
     #dplayer {
       width: 100%;
-      max-width: 800px;
-      height: 450px;
+      height: 100%;
       position: relative;
     }
 
@@ -130,31 +166,36 @@
 
     /* More Channels Section */
     #more-channels {
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      width: 100%;
     }
 
     #more-channels h2 {
       font-size: 1.8em;
-      margin-bottom: 15px;
       text-align: center;
     }
 
     .channel-list {
       display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      align-items: center;
     }
 
     .channel {
-      width: 250px;
+      width: 90%;
+      max-width: 250px;
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
 
     .channel img {
@@ -172,6 +213,10 @@
       padding: 0 10px 10px;
       color: #555;
       font-size: 0.9em;
+    }
+
+    .channel:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -200,32 +245,35 @@
     </div>
   </header>
 
-  <!-- Player Container -->
-  <div id="player-container">
-    <div id="dplayer"></div>
-  </div>
-
-  <!-- More Channels Section -->
-  <section id="more-channels">
-    <h2>More Channels</h2>
-    <div class="channel-list">
-      <div class="channel">
-        <img src="channel1-thumbnail.jpg" alt="Channel 1 Thumbnail">
-        <h3>Channel 1</h3>
-        <p>Watch live sports and exclusive events on Channel 1, bringing you the latest in sports entertainment.</p>
-      </div>
-      <div class="channel">
-        <img src="channel2-thumbnail.jpg" alt="Channel 2 Thumbnail">
-        <h3>Channel 2</h3>
-        <p>Channel 2 offers 24/7 news coverage to keep you informed with breaking news and live updates.</p>
-      </div>
-      <div class="channel">
-        <img src="channel3-thumbnail.jpg" alt="Channel 3 Thumbnail">
-        <h3>Channel 3</h3>
-        <p>Enjoy the latest movies and shows on Channel 3, featuring a wide variety of entertainment options.</p>
-      </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Player Container -->
+    <div id="player-container">
+      <div id="dplayer"></div>
     </div>
-  </section>
+
+    <!-- More Channels Section -->
+    <section id="more-channels">
+      <h2>More Channels</h2>
+      <div class="channel-list">
+        <a href="https://bostaflix.vercel.app/channel1.html" class="channel">
+          <img src="channel1-thumbnail.jpg" alt="Channel 1 Thumbnail">
+          <h3>Channel 1</h3>
+          <p>Watch live sports and exclusive events on Channel 1, bringing you the latest in sports entertainment.</p>
+        </a>
+        <a href="https://bostaflix.vercel.app/channel2.html" class="channel">
+          <img src="channel2-thumbnail.jpg" alt="Channel 2 Thumbnail">
+          <h3>Channel 2</h3>
+          <p>Channel 2 offers 24/7 news coverage to keep you informed with breaking news and live updates.</p>
+        </a>
+        <a href="https://bostaflix.vercel.app/channel3.html" class="channel">
+          <img src="channel3-thumbnail.jpg" alt="Channel 3 Thumbnail">
+          <h3>Channel 3</h3>
+          <p>Enjoy the latest movies and shows on Channel 3, featuring a wide variety of entertainment options.</p>
+        </a>
+      </div>
+    </section>
+  </div>
 
   <script>
     let dp;
