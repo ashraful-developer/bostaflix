@@ -13,34 +13,29 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: #87CEEB; /* Sky blue background */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  overflow: auto;
+  background-color: #f9f9f9;
 }
 
-/* Header styling */
+/* Header styling (similar to YouTube) */
 header {
-  background-color: #333;
+  background-color: #212121;
   color: #fff;
-  padding: 15px 20px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100vw;
   box-sizing: border-box;
+  position: relative;
 }
 
 .logo {
-  color: #fff;
+  color: #ff0000;
   text-decoration: none;
-  font-size: 1.5em;
+  font-size: 1.2em;
   font-weight: bold;
 }
 
-/* Navigation links styling */
 .nav-links {
   display: flex;
   gap: 15px;
@@ -58,167 +53,135 @@ header {
   border-radius: 5px;
 }
 
-/* Dropdown for small screens */
-.dropdown {
+/* Mobile Dropdown Menu */
+.menu-icon {
   display: none;
-  position: relative;
-}
-
-.dropdown button {
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 10px;
+  font-size: 1.5em;
   cursor: pointer;
 }
 
-.dropdown-content {
+.dropdown {
   display: none;
-  position: absolute;
-  right: 0;
+  flex-direction: column;
   background-color: #333;
-  border-radius: 5px;
-  overflow: hidden;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 999;
 }
 
-.dropdown-content a {
-  display: block;
+.dropdown a {
   padding: 10px;
-  text-align: left;
   color: #fff;
   text-decoration: none;
-  z-index: 999;
 }
 
-.dropdown-content a:hover {
-  background-color: #555;
+.dropdown a:hover {
+  background-color: #444;
 }
 
-.dropdown button:focus + .dropdown-content,
-.dropdown-content:hover {
-  display: block;
-}
-
-/* Responsive styles for navigation */
-@media (max-width: 600px) {
+@media (max-width: 639px) {
   .nav-links {
-    display: none;
+    display: none; /* Hide default links */
   }
-  .dropdown {
+  
+  .menu-icon {
     display: block;
   }
 }
 
-/* Main content layout */
-.main-content {
+/* Layout styling */
+.content {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-  height: calc(100vh - 70px);
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
   gap: 20px;
-}
-
-/* Landscape layout */
-@media (min-width: 900px) {
-  .main-content {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 10px;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  #player-container {
-    width: 100%;
-    left: 5%;
-  }
-
-  #more-channels {
-    width: 30%;
-    
-  }
-}
-
-/* Player container */
-#player-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  background-color: #000;
-  aspect-ratio: 16 / 9;
   box-sizing: border-box;
+  flex-direction: row; /* Default to row layout */
+}
+
+/* Video player container */
+#player-container {
+  flex: 3;
+  background-color: #000;
   position: relative;
 }
 
 #dplayer {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
 }
 
-.logo-overlay {
-  position: absolute;
-  bottom: 5%;
-  left: 5%;
-  width: 9%;
-  max-height: 12%;
-  opacity: 0.0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* More Channels Section */
+/* More Channels Section (Sidebar) */
 #more-channels {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  width: 100%;
-  align-items: center;
+  gap: 10px;
+  max-height: 100vh;
   overflow-y: auto;
-  height: 100%;
+  background-color: #fff;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 #more-channels h2 {
-  font-size: 1.5em;
-  text-align: center;
-  margin: 0;
-}
-
-/* Channel List and Channel styling */
-.channel-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 20px;
-  width: 70%;
-  align-items: center;
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
 }
 
 .channel {
-  width: 100%;
-  max-width: 200px;
-  background-color: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   cursor: pointer;
-  transition: transform 0.2s;
+  padding: 10px;
+  transition: background-color 0.2s;
+  border-radius: 5px;
 }
 
 .channel img {
-  width: 100%;
-  height: auto;
+  width: 90px;
+  height: 60px;
   object-fit: cover;
+  border-radius: 5px;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .channel h3 {
-  display: none; /* Hide channel title */
+  font-size: 1em;
+  margin: 0;
+}
+
+.channel p {
+  font-size: 0.85em;
+  color: #666;
+  margin: 5px 0 0;
 }
 
 .channel:hover {
-  transform: scale(1.05);
+  background-color: #f1f1f1;
+}
+
+/* Mobile view adjustments */
+@media (max-width: 639px) {
+  /* Stack the player and channels vertically in portrait mode */
+  .content {
+    flex-direction: column;
+  }
+
+  #player-container, #more-channels {
+    width: 100%;
+  }
 }
 
   </style>
@@ -226,7 +189,7 @@ header {
 <body>
   <!-- Header Section -->
   <header>
-    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX BDIX & FTP</a>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
     <nav class="nav-links">
       <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
       <a href="https://bostaflix.vercel.app/news.html">News</a>
@@ -234,42 +197,47 @@ header {
       <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
-
-    <!-- Dropdown for mobile -->
-    <div class="dropdown">
-      <button>Menu</button>
-      <div class="dropdown-content">
-        <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
-        <a href="https://bostaflix.vercel.app/news.html">News</a>
-        <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
-        <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
-        <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
-      </div>
+    <div class="menu-icon" onclick="toggleDropdown()">☰</div>
+    <div class="dropdown" id="dropdown">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <div class="main-content">
+  <!-- Content Layout -->
+  <div class="content">
     <!-- Player Container -->
     <div id="player-container">
       <div id="dplayer"></div>
     </div>
 
-    <!-- More Channels Section -->
+    <!-- More Channels Section (Sidebar) -->
     <section id="more-channels">
       <h2>More Channels</h2>
       <div class="channel-list">
         <a href="https://bostaflix.vercel.app/channel1.html" class="channel">
           <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Channel 1 Thumbnail">
-          <h3>Channel 1</h3>
+          <div class="channel-info">
+            <h3>Channel 1</h3>
+            <p>24/7 News coverage with live updates and in-depth analysis.</p>
+          </div>
         </a>
         <a href="https://bostaflix.vercel.app/channel2.html" class="channel">
           <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Channel 2 Thumbnail">
-          <h3>Channel 2</h3>
+          <div class="channel-info">
+            <h3>Channel 2</h3>
+            <p>Entertainment hub featuring movies, series, and talk shows.</p>
+          </div>
         </a>
         <a href="https://bostaflix.vercel.app/channel3.html" class="channel">
           <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Channel 3 Thumbnail">
-          <h3>Channel 3</h3>
+          <div class="channel-info">
+            <h3>Channel 3</h3>
+            <p>Kids’ favorite cartoons, animations, and educational shows.</p>
+          </div>
         </a>
       </div>
     </section>
@@ -292,32 +260,21 @@ header {
                 const hls = new Hls();
                 hls.loadSource(video.src);
                 hls.attachMedia(video);
-              } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = video.src;
               }
             }
           }
-        },
-      });
-
-      // Add the logo dynamically inside the player container
-      const logo = document.createElement('img');
-      logo.src = 'logo.png'; // Replace with your logo file path
-      logo.classList.add('logo-overlay');
-      dp.container.appendChild(logo);
-
-      // Keep the logo visible in fullscreen
-      dp.on('fullscreen', function() {
-        logo.style.display = 'block';
-      });
-
-      dp.on('fullscreen_cancel', function() {
-        logo.style.display = 'block';
+        }
       });
     }
 
-    // Initialize the player
-    initPlayer();
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initPlayer();
+    });
   </script>
 </body>
 </html>
