@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="static/DPlayer.min.css" />
+  <script src="static/DPlayer.min.js"></script>
+  <script src="static/hls.min.js"></script>
+  <style>
+    /* General reset */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Header styling */
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    /* Navigation links styling */
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: #555;
+      border-radius: 5px;
+    }
+
+    /* Dropdown for small screens */
+    .dropdown {
+      display: none;
+      position: relative;
+    }
+
+    .dropdown button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #333;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px;
+      text-align: left;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #555;
+    }
+
+    .dropdown button:focus + .dropdown-content,
+    .dropdown-content:hover {
+      display: block;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+      }
+      .dropdown {
+        display: block;
+      }
+    }
+
+    /* Player container */
+    #player-container {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: #000;
+    }
+
+    #dplayer {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      position: relative;
+    }
+
+    .logo-overlay {
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+      width: 9%;
+      max-height: 12%;
+      opacity: 0.5;
+      z-index: 2;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <a href="index.html" class="logo">LiveTV</a>
+    <nav class="nav-links">
+      <a href="sports.html">Sports</a>
+      <a href="news.html">News</a>
+      <a href="entertainment.html">Entertainment</a>
+      <a href="movies.html">Movies</a>
+      <a href="kids.html">Kids</a>
+    </nav>
+
+    <!-- Dropdown for mobile -->
+    <div class="dropdown">
+      <button>Menu</button>
+      <div class="dropdown-content">
+        <a href="sports.html">Sports</a>
+        <a href="news.html">News</a>
+        <a href="entertainment.html">Entertainment</a>
+        <a href="movies.html">Movies</a>
+        <a href="kids.html">Kids</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Player Container -->
+  <div id="player-container">
+    <div id="dplayer"></div>
+  </div>
+
+  <script>
+    let dp;
+
+    function initPlayer() {
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI/somoyt000011226615544544.stream/playlist.m3u8?wmsAuthSign=c2VydmVyX3RpbWU9MTAvMTcvMjAyNCA1OjQyOjQ4IEFNJmhhc2hfdmFsdWU9Q2ZiN0VPWnFEeVBvZ210Q0hQLytyUT09JnZhbGlkbWludXRlcz01MCZpZD01',
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
+              } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = video.src;
+              }
+            }
+          }
+        },
+      });
+
+      // Add the logo dynamically inside the player container
+      const logo = document.createElement('img');
+      logo.src = 'logo.png'; // Replace with your logo file path
+      logo.classList.add('logo-overlay');
+      dp.container.appendChild(logo);
+
+      // Keep the logo visible in fullscreen
+      dp.on('fullscreen', function() {
+        logo.style.display = 'block';
+      });
+
+      dp.on('fullscreen_cancel', function() {
+        logo.style.display = 'block';
+      });
+    }
+
+    // Initialize the player
+    initPlayer();
+  </script>
+</body>
+</html>
