@@ -101,12 +101,12 @@ header {
 }
 
 /* Responsive styles for navigation */
-@media (max-width: 639px) {
+@media (max-width: 600px) {
   .nav-links {
     display: none;
   }
   .dropdown {
-    display: block; 
+    display: block;
   }
 }
 
@@ -123,7 +123,7 @@ header {
 }
 
 /* Landscape layout */
-@media (min-width: 640px) {
+@media (min-width: 900px) {
   .main-content {
     flex-direction: row;
     align-items: flex-start;
@@ -134,7 +134,7 @@ header {
 
   #player-container {
     width: 100%;
-    left: 10%;
+    left: 5%;
   }
 
   #more-channels {
@@ -174,7 +174,7 @@ header {
 #more-channels {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   width: 100%;
   align-items: center;
   overflow-y: auto;
@@ -192,7 +192,7 @@ header {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 20px;
-  width: 60%;
+  width: 70%;
   align-items: center;
 }
 
