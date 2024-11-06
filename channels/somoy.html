@@ -117,28 +117,18 @@
       position: relative;
     }
 
-    .logo-overlay {
-      position: absolute;
-      bottom: 5%;
-      left: 5%;
-      width: 9%;
-      max-height: 12%;
-      opacity: 0.5;
-      z-index: 2;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
   <!-- Header Section -->
   <header>
-    <a href="index.html" class="logo">LiveTV</a>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">LiveTV</a>
     <nav class="nav-links">
-      <a href="sports.html">Sports</a>
-      <a href="news.html">News</a>
-      <a href="entertainment.html">Entertainment</a>
-      <a href="movies.html">Movies</a>
-      <a href="kids.html">Kids</a>
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
 
     <!-- Dropdown for mobile -->
@@ -183,23 +173,6 @@
           }
         },
       });
-
-      // Add the logo dynamically inside the player container
-      const logo = document.createElement('img');
-      logo.src = 'logo.png'; // Replace with your logo file path
-      logo.classList.add('logo-overlay');
-      dp.container.appendChild(logo);
-
-      // Keep the logo visible in fullscreen
-      dp.on('fullscreen', function() {
-        logo.style.display = 'block';
-      });
-
-      dp.on('fullscreen_cancel', function() {
-        logo.style.display = 'block';
-      });
-    }
-
     // Initialize the player
     initPlayer();
   </script>
