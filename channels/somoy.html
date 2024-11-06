@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://bostaflix.vercel.app/static/DPlayer.min.css" />
-  <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
-  <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
+  <link rel="stylesheet" href="static/DPlayer.min.css" />
+  <script src="static/DPlayer.min.js"></script>
+  <script src="static/hls.min.js"></script>
   <style>
     /* General reset */
     body, html {
@@ -117,6 +117,62 @@
       position: relative;
     }
 
+    .logo-overlay {
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+      width: 9%;
+      max-height: 12%;
+      opacity: 0.5;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* More Channels Section */
+    #more-channels {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    #more-channels h2 {
+      font-size: 1.8em;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .channel-list {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .channel {
+      width: 250px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .channel img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .channel h3 {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    .channel p {
+      padding: 0 10px 10px;
+      color: #555;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -135,11 +191,11 @@
     <div class="dropdown">
       <button>Menu</button>
       <div class="dropdown-content">
-        <a href="sports.html">Sports</a>
-        <a href="news.html">News</a>
-        <a href="entertainment.html">Entertainment</a>
-        <a href="movies.html">Movies</a>
-        <a href="kids.html">Kids</a>
+        <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+        <a href="https://bostaflix.vercel.app/news.html">News</a>
+        <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+        <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+        <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
       </div>
     </div>
   </header>
@@ -148,6 +204,28 @@
   <div id="player-container">
     <div id="dplayer"></div>
   </div>
+
+  <!-- More Channels Section -->
+  <section id="more-channels">
+    <h2>More Channels</h2>
+    <div class="channel-list">
+      <div class="channel">
+        <img src="channel1-thumbnail.jpg" alt="Channel 1 Thumbnail">
+        <h3>Channel 1</h3>
+        <p>Watch live sports and exclusive events on Channel 1, bringing you the latest in sports entertainment.</p>
+      </div>
+      <div class="channel">
+        <img src="channel2-thumbnail.jpg" alt="Channel 2 Thumbnail">
+        <h3>Channel 2</h3>
+        <p>Channel 2 offers 24/7 news coverage to keep you informed with breaking news and live updates.</p>
+      </div>
+      <div class="channel">
+        <img src="channel3-thumbnail.jpg" alt="Channel 3 Thumbnail">
+        <h3>Channel 3</h3>
+        <p>Enjoy the latest movies and shows on Channel 3, featuring a wide variety of entertainment options.</p>
+      </div>
+    </div>
+  </section>
 
   <script>
     let dp;
@@ -173,6 +251,23 @@
           }
         },
       });
+
+      // Add the logo dynamically inside the player container
+      const logo = document.createElement('img');
+      logo.src = 'logo.png'; // Replace with your logo file path
+      logo.classList.add('logo-overlay');
+      dp.container.appendChild(logo);
+
+      // Keep the logo visible in fullscreen
+      dp.on('fullscreen', function() {
+        logo.style.display = 'block';
+      });
+
+      dp.on('fullscreen_cancel', function() {
+        logo.style.display = 'block';
+      });
+    }
+
     // Initialize the player
     initPlayer();
   </script>
