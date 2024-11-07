@@ -1,255 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOSTAFLIX BDIX & FTP Server 24/7</title>
-    <style>
-        /* Basic styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* General reset */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
 
-        /* Header styling */
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
+    /* Header styling */
+    header {
+      background-color: #212121;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            text-decoration: none;
-        }
+    .logo {
+      color: #ff0000;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
 
-        /* Navigation links styling */
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
 
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            padding: 5px 10px;
-            transition: background-color 0.3s;
-        }
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+    }
 
-        .nav-links a:hover {
-            background-color: #555;
-            border-radius: 5px;
-        }
+    /* Video grid layout */
+    .video-grid {
+      display: grid;
+      gap: 15px;
+      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
 
-        /* Dropdown for small screens */
-        .dropdown {
-            display: none;
-            position: relative;
-        }
+    /* Video card styling */
+    .video-card {
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
 
-        .dropdown button {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-        }
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-        }
+    .video-card img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
 
-        .dropdown-content a {
-            display: block;
-            padding: 10px;
-            text-align: left;
-        }
+    .video-details {
+      padding: 10px;
+    }
 
-        .dropdown-content a:hover {
-            background-color: #555;
-        }
+    .video-details h3 {
+      margin: 0;
+      font-size: 1em;
+    }
 
-        .dropdown button:focus + .dropdown-content,
-        .dropdown-content:hover {
-            display: block;
-        }
+    .video-details p {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 5px;
+    }
 
-        /* Channel grid styling */
-        .category-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 20px;
-            color: #333;
-        }
-
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            padding: 20px;
-        }
-
-        .channel-item {
-            text-align: center;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            aspect-ratio: 4 / 3;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .channel-item img {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: 5px;
-        }
-
-        .channel-item a {
-            color: #333;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 600px) {
-            .nav-links {
-                display: none;
-            }
-
-            .dropdown {
-                display: block;
-            .channel-grid {
-                grid-template-columns: repeat(2, minmax(120px, 1fr));
-            }
-        }
-    </style>
+    /* Mobile view adjustments */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none; /* Hide links in mobile view */
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Header -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
 
-    <!-- Header Section -->
-    <header>
-        <a href="index.html" class="logo">BOSTAFLIX BDIX & FTP</a>
-        <nav class="nav-links">
-            <a href="sports.html">Sports</a>
-            <a href="news.html">News</a>
-            <a href="entertainment.html">Entertainment</a>
-            <a href="movies.html">Movies</a>
-            <a href="kids.html">Kids</a>
-        </nav>
-
-        <!-- Dropdown for mobile -->
-        <div class="dropdown">
-            <button>Menu</button>
-            <div class="dropdown-content">
-                <a href="sports.html">Sports</a>
-                <a href="news.html">News</a>
-                <a href="entertainment.html">Entertainment</a>
-                <a href="movies.html">Movies</a>
-                <a href="kids.html">Kids</a>
-            </div>
-        </div>
-    </header>
-
-<!-- News Category -->
-<div class="category-title">News</div>
-<div class="channel-grid">
-    <div class="channel-item">
-        <a href="/channels/somoy.html">
-            <img src="/logos/somoy.png" alt="Somoy TV">
-            Somoy TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/dbc.html">
-            <img src="/logos/dbc-news.png" alt="DBC News">
-            DBC News
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/channel24.html">
-            <img src="/logos/channel24.jpg" alt="Channel 24">
-            Channel 24
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/deshtv.html">
-            <img src="/logos/desh.png" alt="Desh TV">
-            Desh TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/ekattortv.html">
-            <img src="/logos/ekattor_tv.png" alt="Ekattor TV">
-            Ekattor TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/ekhon.html">
-            <img src="/logos/ekhon.jpg" alt="Ekhon TV">
-            Ekhon TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/independent.html">
-            <img src="/logos/independent.png" alt="Independent TV">
-            Independent TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/jamuna.html">
-            <img src="/logos/jamuna.png" alt="Jamuna TV">
-            Jamuna TV
-        </a>
-    </div>
-    <div class="channel-item">
-        <a href="/channels/news24.html">
-            <img src="/logos/news24.jpg" alt="News 24">
-            News 24
-        </a>
-    </div>
-</div>
-
-    <!-- Entertainment Category -->
-    <div class="category-title">Entertainment</div>
-    <div class="channel-grid">
-        <div class="channel-item">
-            <a href="entertainment-channel1.html">
-                <img src="channel4-logo.png" alt="Entertainment Channel 1 Logo">
-                Entertainment Channel 1
-            </a>
-        </div>
-        <div class="channel-item">
-            <a href="entertainment-channel2.html">
-                <img src="channel5-logo.png" alt="Entertainment Channel 2 Logo">
-                Entertainment Channel 2
-            </a>
-        </div>
-        <div class="channel-item">
-            <a href="entertainment-channel3.html">
-                <img src="channel6-logo.png" alt="Entertainment Channel 3 Logo">
-                Entertainment Channel 3
-            </a>
-        </div>
-    </div>
-
+  <!-- Video Grid -->
+  <div class="video-grid">
+    <!-- Each video card links to its specific channel page -->
+    <a href="https://bostaflix.vercel.app/channels/somoy.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Somoy TV Thumbnail">
+      <div class="video-details">
+        <h3>Somoy TV</h3>
+        <p>Watch Somoy TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/dbc.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/dbc-news.png" alt="DBC News Thumbnail">
+      <div class="video-details">
+        <h3>DBC News</h3>
+        <p>Watch DBC News live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/channel24.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/channel24.jpg" alt="Channel 24 Thumbnail">
+      <div class="video-details">
+        <h3>Channel 24</h3>
+        <p>Watch Channel 24 live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/deshtv.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/desh.png" alt="Desh TV Thumbnail">
+      <div class="video-details">
+        <h3>Desh TV</h3>
+        <p>Watch Desh TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/ekattortv.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/ekattor_tv.png" alt="Ekattor TV Thumbnail">
+      <div class="video-details">
+        <h3>Ekattor TV</h3>
+        <p>Watch Ekattor TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/ekhon.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/ekhon.jpg" alt="Ekhon TV Thumbnail">
+      <div class="video-details">
+        <h3>Ekhon TV</h3>
+        <p>Watch Ekhon TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/independent.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/independent.png" alt="Independent TV Thumbnail">
+      <div class="video-details">
+        <h3>Independent TV</h3>
+        <p>Watch Independent TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/jamuna.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/jamuna.png" alt="Jamuna TV Thumbnail">
+      <div class="video-details">
+        <h3>Jamuna TV</h3>
+        <p>Watch Jamuna TV live.</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/channels/news24.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/logos/news24.jpg" alt="News 24 Thumbnail">
+      <div class="video-details">
+        <h3>News 24</h3>
+        <p>Watch News 24 live.</p>
+      </div>
+    </a>
+  </div>
 </body>
 </html>
