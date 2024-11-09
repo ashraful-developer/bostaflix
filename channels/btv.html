@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://bostaflix.vercel.app/static/DPlayer.min.css" />
+  <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
+  <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
+  <style>
+/* General reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+
+/* Header styling (similar to YouTube) */
+header {
+  background-color: #212121;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100vw;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.logo {
+  color: #ff0000;
+  text-decoration: none;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 10px;
+  transition: background-color 0.3s;
+}
+
+.nav-links a:hover {
+  background-color: #555;
+  border-radius: 5px;
+}
+
+/* Mobile Dropdown Menu */
+.menu-icon {
+  display: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.dropdown {
+  display: none;
+  flex-direction: column;
+  background-color: #333;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.dropdown a {
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.dropdown a:hover {
+  background-color: #444;
+}
+
+@media (max-width: 639px) {
+  .nav-links {
+    display: none; /* Hide default links */
+  }
+  
+  .menu-icon {
+    display: block;
+  }
+}
+
+/* Layout styling */
+.content {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 20px;
+  box-sizing: border-box;
+  flex-direction: row; /* Default to row layout */
+}
+
+/* Video player container */
+#player-container {
+  flex: 3;
+  background-color: white;
+  position: relative;
+}
+
+#dplayer {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* More Channels Section (Sidebar) */
+#more-channels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 70vh; /* Set maximum height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  background-color: #fff;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#more-channels h2 {
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.channel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px;
+  transition: background-color 0.2s;
+  border-radius: 5px;
+}
+
+.channel img {
+  width: 90px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel h3 {
+  font-size: 1em;
+  margin: 0;
+}
+
+.channel p {
+  font-size: 0.85em;
+  color: #666;
+  margin: 5px 0 0;
+}
+
+.channel:hover {
+  background-color: #f1f1f1;
+}
+
+/* Mobile view adjustments */
+@media (max-width: 639px) {
+  /* Stack the player and channels vertically in portrait mode */
+  .content {
+    flex-direction: column;
+  }
+
+  #player-container, #more-channels {
+    width: 100%;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+    <div class="menu-icon" onclick="toggleDropdown()">☰</div>
+    <div class="dropdown" id="dropdown">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </div>
+  </header>
+
+  <!-- Content Layout -->
+  <div class="content">
+    <!-- Player Container -->
+    <div id="player-container">
+      <div id="dplayer"></div>
+    </div>
+
+    <!-- More Channels Section (Sidebar) -->
+    <section id="more-channels">
+      <h2>More Channels</h2>
+      <div class="channel-list">
+        <a href="https://bostaflix.vercel.app/channels/somoy.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Channel 1 Thumbnail">
+          <div class="channel-info">
+            <h3>Somoy</h3>
+            <p>Watch Somoy TV Live.</p>
+          </div>
+        </a>
+        <a href="https://bostaflix.vercel.app/channels/dbc.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/dbc-news.png" alt="Channel 2 Thumbnail">
+          <div class="channel-info">
+            <h3>DBC News</h3>
+            <p>Watch DBC News Live</p>
+          </div>
+        </a>
+        <a href="https://bostaflix.vercel.app/channels/channel24.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/channel24.jpg" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Channel 24</h3>
+            <p>Watch Channel 24 Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/deshtv.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/desh.png" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Desh TV</h3>
+            <p>Watch Desh TV Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/ekattortv.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/ekattor_tv.png" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Ekattor TV</h3>
+            <p>Watch Ekattor TV Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/ekhon.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/ekhon.jpg" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Ekhon TV</h3>
+            <p>Watch Ekhon TV Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/independent.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/independent.png" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Independent TV</h3>
+            <p>Watch Independent Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/jamuna.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/jamuna.png" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>Jamuna TV</h3>
+            <p>Watch Jamuna TV Live</p>
+          </div>
+                  </a>
+        <a href="https://bostaflix.vercel.app/channels/news24.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/news24.jpg" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>News 24</h3>
+            <p>Watch News 24 Live</p>
+          </div>
+                    </a>
+        <a href="https://bostaflix.vercel.app/channels/atnnews.html" class="channel">
+          <img src="https://bostaflix.vercel.app/logos/atnnews.png" alt="Channel 3 Thumbnail">
+          <div class="channel-info">
+            <h3>ATN News</h3>
+            <p>Watch ATN News Live</p>
+          </div>
+                      </a>
+      <a href="https://bostaflix.vercel.app/channels/rtv.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/rtv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>RTV</h3>
+            <p>Watch RTV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/satv.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/sa-tv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>SATV</h3>
+            <p>Watch SATV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/boishakhi.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/boishakhi-tv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Boishakhi TV</h3>
+            <p>Watch Boishakhi TV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/deepto.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/deepto-tv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Deepto TV</h3>
+            <p>Watch Deepto TV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/ekushey.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/ekushey.jpeg" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Ekushey TV</h3>
+            <p>Watch Ekushey TV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/bijoy.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/bijoy-tv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Bijoy TV</h3>
+            <p>Watch Bijoy TV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/channeli.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/channel-i.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Channel i</h3>
+            <p>Watch Channel i Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/ananda.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/ananda-tv.jpg" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Ananda TV</h3>
+            <p>Watch Ananda TV Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/atnbangla.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/atnbangla.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>ATN Bangla</h3>
+            <p>Watch ATN Bangla Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/banglavision.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/bangla-vision.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>Banglavision</h3>
+            <p>Watch Banglavision Live.</p>
+          </div>
+            </a>
+      <a href="https://bostaflix.vercel.app/channels/satv.html" class="channel">
+      <img src="https://bostaflix.vercel.app/logos/sa-tv.png" alt="Channel 3 Thumbnail">
+      <div class="channel-info">
+            <h3>SATV</h3>
+            <p>Watch SATV Live.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let dp;
+
+    function initPlayer() {
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI/btvbd-office-sg.stream/playlist.m3u8?wmsAuthSign=c2VydmVyX3RpbWU9MTAvMTAvMjAyNCA1OjU2OjQzIEFNJmhhc2hfdmFsdWU9QVBNWi9Kanh1RmhOYTVvNkNoMU03UT09JnZhbGlkbWludXRlcz01MCZpZD01',
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initPlayer();
+    });
+  </script>
+</body>
+</html>
