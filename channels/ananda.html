@@ -130,17 +130,27 @@
       border: none;
     }
 
-    /* Mobile view adjustments */
-    @media (max-width: 639px) {
-      .content {
-        flex-direction: column;
-      }
+/* Mobile view adjustments */
+@media (max-width: 639px) {
+  .content {
+    flex-direction: column;
+  }
 
-      #player-container, #iframe-container {
-        width: 100%;
-      #iframe-container {
-        height: 100%;
-      }
+  #player-container, #iframe-container {
+    width: 100%;
+  }
+  
+  #iframe-container {
+    height: 100%;
+  }
+
+  /* Set iframe width to 100% on mobile but with a minimum width of 600px if the space allows */
+  #iframe-container iframe {
+    width: 100%;
+    min-width: 600px;
+  }
+}
+
     }
   </style>
 </head>
