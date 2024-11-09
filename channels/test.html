@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe Redirect Handling - Same Origin</title>
+</head>
+<body>
+    <iframe id="myIframe" src="https://bostaflix.vercel.app" width="600" height="400"></iframe>
+
+    <script>
+        const iframe = document.getElementById('myIframe');
+
+        iframe.onload = () => {
+            try {
+                // Access the iframe's document and add an event listener for all link clicks
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                
+                iframeDocument.addEventListener('click', function(event) {
+                    const target = event.target.closest('a');
+                    
+                    if (target && target.tagName === 'A' && target.href) {
+                        event.preventDefault();  // Prevent the link from opening in the iframe
+                        window.location.href = target.href;  // Redirect the main page to the link's URL
+                    }
+                });
+            } catch (error) {
+                console.log("Error accessing iframe content:", error);
+            }
+        };
+    </script>
+</body>
+</html>
