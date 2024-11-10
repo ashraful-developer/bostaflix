@@ -14,9 +14,10 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f9f9f9;
+      height: 100vh;
     }
 
-    /* Header styling (similar to YouTube) */
+    /* Header styling */
     header {
       background-color: #212121;
       color: #fff;
@@ -26,7 +27,6 @@
       justify-content: space-between;
       width: 100vw;
       box-sizing: border-box;
-      position: relative;
     }
 
     .logo {
@@ -100,7 +100,8 @@
       padding: 20px;
       gap: 20px;
       box-sizing: border-box;
-      flex-direction: row; /* Default to row layout */
+      flex-direction: row;
+      height: calc(100vh - 60px); /* Adjusted for header */
     }
 
     /* Video player container */
@@ -108,6 +109,7 @@
       flex: 3;
       background-color: white;
       position: relative;
+      min-height: 200px; /* Ensures adequate space for the player */
     }
 
     #dplayer {
@@ -118,8 +120,7 @@
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      max-height: 70vh;
-      overflow-y: auto;
+      overflow-y: none;
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -139,6 +140,20 @@
 
       #player-container, #iframe-container {
         width: 100%;
+      }
+      
+      #player-container {
+        flex: none;
+        height: auto;
+      }
+      
+      #iframe-container {
+        height: calc(100vh - 60px - 56.25vw); /* Full height minus header and player */
+      }
+
+      #iframe-container iframe {
+        width: 100%;
+        height: 100%;
       }
     }
   </style>
