@@ -193,56 +193,90 @@
   </div>
 
   <script>
-    let dp;
+let dp;
+let lastReloadTime = 0; // Timestamp for the last reload
+const reloadThreshold = 3000; // 3 seconds in milliseconds
+const reloadCooldown = 30000; // 30 seconds in milliseconds
 
-    function initPlayer() {
-      dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        live: true,
-        autoplay: true,
-        video: {
-          url: 'https://edge01.iptv.digijadoo.net/live/duronto_tv/playlist.m3u8?md5=rdIApc3zzr1HAqTIlGQj-A&expires=1731975151&user=811838a63b224e85b02b925b31d0fece',
-          type: 'customHls',
-          customType: {
-            customHls: function(video, player) {
-              if (Hls.isSupported()) {
-                const hls = new Hls();
+function initPlayer() {
+  dp = new DPlayer({
+    container: document.getElementById('dplayer'),
+    live: true,
+    autoplay: true,
+    video: {
+      url: 'https://edge01.iptv.digijadoo.net/live/duronto_tv/playlist.m3u8?md5=rdIApc3zzr1HAqTIlGQj-A&expires=1731975151&user=811838a63b224e85b02b925b31d0fece',
+      type: 'customHls',
+      customType: {
+        customHls: function (video, player) {
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(video.src);
+            hls.attachMedia(video);
+
+            let bufferStartTime = null;
+
+            // Event listener for when buffering starts
+            hls.on(Hls.Events.BUFFER_STALLED, () => {
+              if (!bufferStartTime) {
+                bufferStartTime = Date.now();
+              }
+            });
+
+            // Event listener for when buffering ends
+            hls.on(Hls.Events.BUFFER_EOS, () => {
+              bufferStartTime = null;
+            });
+
+            // Periodically check for excessive buffering
+            setInterval(() => {
+              const now = Date.now();
+              if (
+                bufferStartTime &&
+                now - bufferStartTime > reloadThreshold &&
+                now - lastReloadTime > reloadCooldown
+              ) {
+                console.log('Buffering exceeded threshold. Reloading...');
+                bufferStartTime = null;
+                lastReloadTime = now;
+                hls.detachMedia();
                 hls.loadSource(video.src);
                 hls.attachMedia(video);
               }
-            }
+            }, 1000); // Check every second
           }
-        }
-      });
-    }
+        },
+      },
+    },
+  });
+}
 
-    function toggleDropdown() {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-    }
+function toggleDropdown() {
+  const dropdown = document.getElementById('dropdown');
+  dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+}
 
-    document.addEventListener("DOMContentLoaded", () => {
-      initPlayer();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  initPlayer();
+});
 
-    const iframe = document.getElementById('myIframe');
+const iframe = document.getElementById('myIframe');
 
-    iframe.onload = () => {
-      try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        
-        iframeDocument.addEventListener('click', function(event) {
-          const target = event.target.closest('a');
-          
-          if (target && target.tagName === 'A' && target.href) {
-            event.preventDefault();
-            window.location.href = target.href;
-          }
-        });
-      } catch (error) {
-        console.log("Error accessing iframe content:", error);
+iframe.onload = () => {
+  try {
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+    iframeDocument.addEventListener('click', function (event) {
+      const target = event.target.closest('a');
+
+      if (target && target.tagName === 'A' && target.href) {
+        event.preventDefault();
+        window.location.href = target.href;
       }
-    };
-  </script>
+    });
+  } catch (error) {
+    console.log("Error accessing iframe content:", error);
+  }
+};
+</script>
 </body>
 </html>
