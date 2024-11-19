@@ -120,7 +120,7 @@
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: none;
+      overflow-y: false;
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -193,113 +193,56 @@
   </div>
 
   <script>
-let dp;
-let lastReloadTime = 0; // Timestamp for the last reload
-const reloadThreshold = 3000; // 3 seconds in milliseconds
-const reloadCooldown = 30000; // 30 seconds in milliseconds
-const checkInterval = 1000; // Interval for periodic checks (1 second)
+    let dp;
 
-function initPlayer() {
-  dp = new DPlayer({
-    container: document.getElementById('dplayer'),
-    live: true,
-    autoplay: true,
-    video: {
-      url: 'https://edge01.iptv.digijadoo.net/live/duronto_tv/playlist.m3u8?md5=mxld4dhExaDO5WrfbVgxRg&expires=1732230271&user=811838a63b224e85b02b925b31d0fece',
-      type: 'customHls',
-      customType: {
-        customHls: function (video, player) {
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(video.src);
-            hls.attachMedia(video);
-
-            let bufferStartTime = null;
-            let lastPlayheadPosition = 0;
-
-            // Event listener for buffering start
-            hls.on(Hls.Events.BUFFER_STALLED, () => {
-              if (!bufferStartTime) {
-                bufferStartTime = Date.now();
+    function initPlayer() {
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: 'https://edge01.iptv.digijadoo.net/live/duronto_tv/playlist.m3u8?md5=fD32KQLAJC7VlTbLgWOreQ&expires=1732230802&user=811838a63b224e85b02b925b31d0fece',
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
               }
-            });
-
-            // Event listener for errors
-            hls.on(Hls.Events.ERROR, (event, data) => {
-              console.log('Stream error detected:', data);
-              if (data.fatal) {
-                console.log('Fatal error, reloading stream...');
-                reloadStream(hls, video.src);
-              }
-            });
-
-            // Periodic checks for buffering and inactivity
-            setInterval(() => {
-              const now = Date.now();
-
-              // Check for excessive buffering
-              if (
-                bufferStartTime &&
-                now - bufferStartTime > reloadThreshold &&
-                now - lastReloadTime > reloadCooldown
-              ) {
-                console.log('Buffering exceeded threshold. Reloading...');
-                bufferStartTime = null;
-                reloadStream(hls, video.src);
-              }
-
-              // Check for inactivity (stuck playhead)
-              const currentPlayheadPosition = video.currentTime;
-              if (
-                currentPlayheadPosition === lastPlayheadPosition &&
-                !video.paused &&
-                now - lastReloadTime > reloadCooldown
-              ) {
-                console.log('Stuck playhead detected. Reloading...');
-                reloadStream(hls, video.src);
-              }
-
-              lastPlayheadPosition = currentPlayheadPosition;
-            }, checkInterval);
+            }
           }
-        },
-      },
-    },
-  });
-}
+        }
+      });
+    }
 
-function reloadStream(hls, source) {
-  lastReloadTime = Date.now();
-  hls.detachMedia();
-  hls.loadSource(source);
-  hls.attachMedia(dp.video);
-  console.log('Stream reloaded.');
-}
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+    }
 
-function toggleDropdown() {
-  const dropdown = document.getElementById('dropdown');
-  dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initPlayer();
-});
-
-const iframe = document.getElementById('myIframe');
-
-iframe.onload = () => {
-  try {
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-
-    iframeDocument.addEventListener('click', function (event) {
-      const target = event.target.closest('a');
-
-      if (target && target.tagName === 'A' && target.href) {
-        event.preventDefault();
-        window.location.href = target.href;
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+      initPlayer();
     });
-  } catch (error) {
-    console.log('Error accessing iframe content:', error);
-  }
-};
+
+    const iframe = document.getElementById('myIframe');
+
+    iframe.onload = () => {
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        
+        iframeDocument.addEventListener('click', function(event) {
+          const target = event.target.closest('a');
+          
+          if (target && target.tagName === 'A' && target.href) {
+            event.preventDefault();
+            window.location.href = target.href;
+          }
+        });
+      } catch (error) {
+        console.log("Error accessing iframe content:", error);
+      }
+    };
+  </script>
+</body>
+</html>
