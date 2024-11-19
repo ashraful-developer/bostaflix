@@ -197,6 +197,7 @@ let dp;
 let lastReloadTime = 0; // Timestamp for the last reload
 const reloadThreshold = 3000; // 3 seconds in milliseconds
 const reloadCooldown = 30000; // 30 seconds in milliseconds
+const checkInterval = 1000; // Interval for periodic checks (1 second)
 
 function initPlayer() {
   dp = new DPlayer({
@@ -214,22 +215,29 @@ function initPlayer() {
             hls.attachMedia(video);
 
             let bufferStartTime = null;
+            let lastPlayheadPosition = 0;
 
-            // Event listener for when buffering starts
+            // Event listener for buffering start
             hls.on(Hls.Events.BUFFER_STALLED, () => {
               if (!bufferStartTime) {
                 bufferStartTime = Date.now();
               }
             });
 
-            // Event listener for when buffering ends
-            hls.on(Hls.Events.BUFFER_EOS, () => {
-              bufferStartTime = null;
+            // Event listener for errors
+            hls.on(Hls.Events.ERROR, (event, data) => {
+              console.log('Stream error detected:', data);
+              if (data.fatal) {
+                console.log('Fatal error, reloading stream...');
+                reloadStream(hls, video.src);
+              }
             });
 
-            // Periodically check for excessive buffering
+            // Periodic checks for buffering and inactivity
             setInterval(() => {
               const now = Date.now();
+
+              // Check for excessive buffering
               if (
                 bufferStartTime &&
                 now - bufferStartTime > reloadThreshold &&
@@ -237,12 +245,22 @@ function initPlayer() {
               ) {
                 console.log('Buffering exceeded threshold. Reloading...');
                 bufferStartTime = null;
-                lastReloadTime = now;
-                hls.detachMedia();
-                hls.loadSource(video.src);
-                hls.attachMedia(video);
+                reloadStream(hls, video.src);
               }
-            }, 1000); // Check every second
+
+              // Check for inactivity (stuck playhead)
+              const currentPlayheadPosition = video.currentTime;
+              if (
+                currentPlayheadPosition === lastPlayheadPosition &&
+                !video.paused &&
+                now - lastReloadTime > reloadCooldown
+              ) {
+                console.log('Stuck playhead detected. Reloading...');
+                reloadStream(hls, video.src);
+              }
+
+              lastPlayheadPosition = currentPlayheadPosition;
+            }, checkInterval);
           }
         },
       },
@@ -250,12 +268,20 @@ function initPlayer() {
   });
 }
 
+function reloadStream(hls, source) {
+  lastReloadTime = Date.now();
+  hls.detachMedia();
+  hls.loadSource(source);
+  hls.attachMedia(dp.video);
+  console.log('Stream reloaded.');
+}
+
 function toggleDropdown() {
   const dropdown = document.getElementById('dropdown');
   dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   initPlayer();
 });
 
@@ -274,9 +300,6 @@ iframe.onload = () => {
       }
     });
   } catch (error) {
-    console.log("Error accessing iframe content:", error);
+    console.log('Error accessing iframe content:', error);
   }
 };
-</script>
-</body>
-</html>
