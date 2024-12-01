@@ -2,6 +2,7 @@
 const game = document.getElementById("game");
 const paddle = document.getElementById("paddle");
 const ball = document.getElementById("ball");
+const scoreDisplay = document.getElementById("score");
 const startButton = document.getElementById("start");
 const pauseButton = document.getElementById("pause");
 const playAgainButton = document.getElementById("play-again");
@@ -16,24 +17,30 @@ const paddleSpeed = 15; // Increased speed
 
 let gameInterval;
 let isPaused = false;
+let score = 0;
+let blocks = [];
+let level = 1;
 
-const blocks = [];
-
-// Create blocks
+// Create blocks with difficulty
 function createBlocks() {
   blocks.forEach(block => block.remove()); // Clear previous blocks
   blocks.length = 0; // Reset the blocks array
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 8; j++) {
-      const block = document.createElement("div");
-      block.classList.add("block");
-      block.style.left = `${j * 50}px`;
-      block.style.top = `${i * 20}px`;
-      block.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`; // Random color
-      game.appendChild(block);
-      blocks.push(block);
-    }
+  let blockCount = level * 5; // Increase number of blocks with difficulty
+  for (let i = 0; i < blockCount; i++) {
+    const block = document.createElement("div");
+    block.classList.add("block");
+    block.style.left = `${(i % 8) * 50}px`;
+    block.style.top = `${Math.floor(i / 8) * 20}px`;
+    block.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`; // Random color
+    game.appendChild(block);
+    blocks.push(block);
   }
+}
+
+// Update score
+function updateScore(points) {
+  score += points;
+  scoreDisplay.textContent = `Score: ${score}`;
 }
 
 // Handle paddle movement via keyboard
@@ -85,6 +92,9 @@ function gameLoop() {
       ballSpeedY *= -1;
       block.remove();
       blocks.splice(index, 1);
+
+      // Score based on the block's position or difficulty
+      updateScore(10); // For now, each block gives 10 points
     }
   });
 
@@ -98,7 +108,9 @@ function gameLoop() {
   ball.style.left = `${ballX}px`;
   ball.style.top = `${ballY}px`;
 
+  // Level up when all blocks are cleared
   if (blocks.length === 0) {
+    level++;
     createBlocks(); // Regenerate blocks when all are cleared
   }
 }
@@ -122,11 +134,14 @@ function resetGame() {
   paddleX = 150;
   ballSpeedX = 3;
   ballSpeedY = 3;
+  score = 0;
+  level = 1;
   paddle.style.left = `${paddleX}px`;
   ball.style.left = `${ballX}px`;
   ball.style.top = `${ballY}px`;
   createBlocks();
   playAgainButton.style.display = "none";
+  updateScore(0);
   startGame();
 }
 
