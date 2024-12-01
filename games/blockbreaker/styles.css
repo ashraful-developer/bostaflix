@@ -35,3 +35,11 @@ body {
   top: 300px;
   left: 190px;
 }
+
+.block {
+  position: absolute;
+  width: 48px;
+  height: 18px;
+  background: linear-gradient(45deg, #ff6347, #ffd700, #8a2be2);
+  border: 1px solid #fff;
+}
