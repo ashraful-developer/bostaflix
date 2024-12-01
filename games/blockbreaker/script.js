@@ -21,17 +21,31 @@ let score = 0;
 let blocks = [];
 let level = 1;
 
+// Define block difficulties
+const blockDifficulty = {
+  easy: { color: "hsl(120, 70%, 50%)", hits: 1, size: 48 },
+  medium: { color: "hsl(30, 70%, 50%)", hits: 2, size: 50 },
+  hard: { color: "hsl(0, 70%, 50%)", hits: 3, size: 52 }
+};
+
 // Create blocks with difficulty
 function createBlocks() {
   blocks.forEach(block => block.remove()); // Clear previous blocks
   blocks.length = 0; // Reset the blocks array
   let blockCount = level * 5; // Increase number of blocks with difficulty
   for (let i = 0; i < blockCount; i++) {
+    let blockType = blockDifficulty.easy; // Default easy
+    if (i % 3 === 0) blockType = blockDifficulty.medium; // Medium for some
+    else if (i % 3 === 1) blockType = blockDifficulty.hard; // Hard for others
+
     const block = document.createElement("div");
     block.classList.add("block");
-    block.style.left = `${(i % 8) * 50}px`;
+    block.style.left = `${(i % 8) * blockType.size}px`;
     block.style.top = `${Math.floor(i / 8) * 20}px`;
-    block.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`; // Random color
+    block.style.width = `${blockType.size}px`;
+    block.style.height = "18px";
+    block.style.background = blockType.color;
+    block.dataset.hits = blockType.hits; // Store how many hits the block needs
     game.appendChild(block);
     blocks.push(block);
   }
@@ -70,13 +84,15 @@ function gameLoop() {
   if (ballX <= 0 || ballX >= 380) ballSpeedX *= -1;
   if (ballY <= 0) ballSpeedY *= -1;
 
-  // Ball collision with paddle
+  // Ball collision with paddle (improved)
   if (
-    ballY >= 560 &&
+    ballY + 20 >= 560 &&
     ballX + 20 >= paddleX &&
     ballX <= paddleX + 100
   ) {
     ballSpeedY *= -1;
+    let collisionPoint = (ballX - (paddleX + 50)) / 50; // Calculate collision point on paddle
+    ballSpeedX = collisionPoint * 5; // Make ball's horizontal speed based on where it hits the paddle
   }
 
   // Ball collision with blocks
@@ -90,11 +106,14 @@ function gameLoop() {
       ballRect.bottom > rect.top
     ) {
       ballSpeedY *= -1;
-      block.remove();
-      blocks.splice(index, 1);
+      block.dataset.hits -= 1; // Decrease block's remaining hits
 
-      // Score based on the block's position or difficulty
-      updateScore(10); // For now, each block gives 10 points
+      // Remove block if all hits are used up
+      if (block.dataset.hits == 0) {
+        block.remove();
+        blocks.splice(index, 1);
+        updateScore(10); // Add score for each block cleared
+      }
     }
   });
 
