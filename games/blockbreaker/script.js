@@ -57,7 +57,7 @@ function updateScore(points) {
   scoreDisplay.textContent = `Score: ${score}`;
 }
 
-// Handle paddle movement via keyboard
+// Handle paddle movement via keyboard (no delay in holding)
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && paddleX > 0) {
     paddleX -= paddleSpeed;
@@ -74,6 +74,25 @@ game.addEventListener("mousemove", (e) => {
   paddle.style.left = `${paddleX}px`;
 });
 
+// Add mobile touch controls
+const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
+
+leftButton.addEventListener("touchstart", () => {
+  if (paddleX > 0) {
+    paddleX -= paddleSpeed;
+    paddle.style.left = `${paddleX}px`;
+  }
+});
+
+rightButton.addEventListener("touchstart", () => {
+  if (paddleX < 300) {
+    paddleX += paddleSpeed;
+    paddle.style.left = `${paddleX}px`;
+  }
+});
+
+// Handle game loop
 function gameLoop() {
   if (isPaused) return;
 
