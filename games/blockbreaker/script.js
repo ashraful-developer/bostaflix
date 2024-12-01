@@ -9,7 +9,7 @@ let ballX = 190;
 let ballY = 300;
 
 let paddleX = 150;
-const paddleSpeed = 5;
+const paddleSpeed = 10; // Increased speed
 
 const blocks = [];
 
@@ -21,6 +21,7 @@ function createBlocks() {
       block.classList.add("block");
       block.style.left = `${j * 50}px`;
       block.style.top = `${i * 20}px`;
+      block.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`; // Random color
       game.appendChild(block);
       blocks.push(block);
     }
