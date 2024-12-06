@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe: You vs Smart PC</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #333;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    .cell.taken {
+      cursor: not-allowed;
+      color: #666;
+    }
+    .winner {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: green;
+    }
+    .reset {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .reset:hover {
+      background-color: #0056b3;
+    }
+        /* Header styling */
+    header {
+      background-color: #212121;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100vw;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      color: #ff0000;
+      text-decoration: none;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: #555;
+      border-radius: 5px;
+    }
+
+    /* Mobile Dropdown Menu */
+    .menu-icon {
+      display: none;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      background-color: #333;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 100%;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    .dropdown a {
+      padding: 10px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .dropdown a:hover {
+      background-color: #444;
+    }
+
+    @media (max-width: 639px) {
+      .nav-links {
+        display: none; /* Hide default links */
+      }
+      
+      .menu-icon {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- Header Section -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+    <div class="menu-icon" onclick="toggleDropdown()">☰</div>
+    <div class="dropdown" id="dropdown">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </div>
+  </header>
+  <h1>Tic Tac Toe: You vs Smart PC</h1>
+  <div class="board" id="board"></div>
+  <div class="winner" id="winner"></div>
+  <button class="reset" onclick="resetGame()">Reset Game</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const winnerDisplay = document.getElementById('winner');
+    let currentPlayer = 'X'; // You are 'X', PC is 'O'
+    let gameActive = true;
+    let boardState = ['', '', '', '', '', '', '', '', ''];
+
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    function createBoard() {
+      board.innerHTML = '';
+      boardState.forEach((cell, index) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.classList.add('cell');
+        cellDiv.dataset.index = index;
+        cellDiv.innerText = cell;
+        cellDiv.addEventListener('click', handleCellClick);
+        board.appendChild(cellDiv);
+      });
+    }
+
+    function handleCellClick(event) {
+      const cellIndex = event.target.dataset.index;
+
+      if (boardState[cellIndex] !== '' || !gameActive || currentPlayer !== 'X') return;
+
+      makeMove(cellIndex, 'X'); // Player's move
+      if (gameActive) {
+        setTimeout(pcMove, 500); // PC's move after a delay
+      }
+    }
+
+    function makeMove(index, player) {
+      boardState[index] = player;
+      const cell = document.querySelector(`.cell[data-index="${index}"]`);
+      cell.innerText = player;
+      cell.classList.add('taken');
+      checkWinner();
+    }
+
+    function checkWinner() {
+      for (const condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+          gameActive = false;
+          winnerDisplay.innerText = `Player ${boardState[a]} Wins!`;
+          return;
+        }
+      }
+
+      if (!boardState.includes('')) {
+        gameActive = false;
+        winnerDisplay.innerText = 'It\'s a Draw!';
+      }
+    }
+
+    function pcMove() {
+      const bestMove = getBestMove();
+      if (bestMove !== null) {
+        makeMove(bestMove, 'O'); // PC is 'O'
+      }
+    }
+
+    function getBestMove() {
+      let bestScore = -Infinity;
+      let move = null;
+
+      boardState.forEach((cell, index) => {
+        if (cell === '') {
+          boardState[index] = 'O';
+          const score = minimax(boardState, 0, false);
+          boardState[index] = '';
+          if (score > bestScore) {
+            bestScore = score;
+            move = index;
+          }
+        }
+      });
+
+      return move;
+    }
+
+    function minimax(board, depth, isMaximizing) {
+      const winner = getWinner();
+      if (winner === 'O') return 10 - depth;
+      if (winner === 'X') return depth - 10;
+      if (!board.includes('')) return 0; // Draw
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        board.forEach((cell, index) => {
+          if (cell === '') {
+            board[index] = 'O';
+            bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+            board[index] = '';
+          }
+        });
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        board.forEach((cell, index) => {
+          if (cell === '') {
+            board[index] = 'X';
+            bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+            board[index] = '';
+          }
+        });
+        return bestScore;
+      }
+    }
+
+    function getWinner() {
+      for (const condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+          return boardState[a];
+        }
+      }
+      return null;
+    }
+
+    function resetGame() {
+      currentPlayer = 'X';
+      gameActive = true;
+      boardState = ['', '', '', '', '', '', '', '', ''];
+      winnerDisplay.innerText = '';
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
