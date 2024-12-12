@@ -194,7 +194,6 @@
 <script>
     let dp;
     let hlsInstance;
-    let freezeTimer;
 
     function initPlayer() {
         dp = new DPlayer({
@@ -211,8 +210,8 @@
                             hlsInstance.loadSource(video.src);
                             hlsInstance.attachMedia(video);
 
-                            // Add stream freeze protection
-                            addStreamProtection(hlsInstance, video);
+                            // Add buffer monitoring for stream freeze protection
+                            monitorBuffer(hlsInstance, video);
                         }
                     }
                 }
@@ -220,32 +219,22 @@
         });
     }
 
-    function addStreamProtection(hls, videoElement) {
-        // Monitor playback events to detect freezes
-        videoElement.addEventListener('timeupdate', () => {
-            clearTimeout(freezeTimer);
-            freezeTimer = setTimeout(() => {
-                // If no timeupdate event after 3 seconds, reload the stream
-                if (!videoElement.paused && videoElement.readyState < 3) {
-                    console.warn("Stream freeze detected, attempting to recover...");
+    function monitorBuffer(hls, videoElement) {
+        const bufferCheckInterval = setInterval(() => {
+            const buffered = videoElement.buffered;
+            if (buffered.length > 0) {
+                const currentBuffer = buffered.end(buffered.length - 1) - videoElement.currentTime;
+                
+                // Reload if buffer exceeds 10 seconds and playback is stalled
+                if (currentBuffer > 10 && !videoElement.paused && videoElement.readyState < 3) {
+                    console.warn("Buffer exceeded 10 seconds. Reloading stream...");
                     reloadStream(hls, videoElement);
                 }
-            }, 3000);
-        });
-
-        // Reload on critical errors
-        hls.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-                console.error("HLS fatal error:", data.type);
-                reloadStream(hls, videoElement);
             }
-        });
+        }, 2000);
 
-        // Monitor stalled events
-        videoElement.addEventListener('stalled', () => {
-            console.warn("Stream stalled, attempting to recover...");
-            reloadStream(hls, videoElement);
-        });
+        // Clear the interval on video unload
+        videoElement.addEventListener('ended', () => clearInterval(bufferCheckInterval));
     }
 
     function reloadStream(hls, videoElement) {
@@ -253,15 +242,10 @@
             hls.detachMedia();
             hls.loadSource(videoElement.src);
             hls.attachMedia(videoElement);
-            console.info("Stream recovery attempted.");
+            console.info("Stream reloaded successfully.");
         } catch (error) {
-            console.error("Error during stream recovery:", error);
+            console.error("Error reloading the stream:", error);
         }
-    }
-
-    function toggleDropdown() {
-        const dropdown = document.getElementById('dropdown');
-        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
 
     document.addEventListener("DOMContentLoaded", () => {
