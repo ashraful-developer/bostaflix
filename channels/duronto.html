@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -191,10 +191,10 @@
       <iframe id="myIframe" src="https://bostaflix.vercel.app" width="600" height="400"></iframe>
     </div>
   </div>
-
 <script>
     let dp;
     let hlsInstance;
+    let freezeTimer;
 
     function initPlayer() {
         dp = new DPlayer({
@@ -221,48 +221,42 @@
     }
 
     function addStreamProtection(hls, videoElement) {
-        let errorCount = 0;
-
-        // Retry logic for errors
-        hls.on(Hls.Events.ERROR, function(event, data) {
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR || data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                console.warn("Stream error detected:", data.details);
-
-                // Retry logic
-                errorCount++;
-                if (errorCount <= 3) {
-                    console.log(`Attempting to recover from error (${errorCount}/3)...`);
-                    hls.recoverMediaError();
-                } else {
-                    console.error("Maximum retry attempts reached. Reloading stream...");
-                    hls.destroy();
-                    hls.loadSource(videoElement.src);
-                    hls.attachMedia(videoElement);
-                    errorCount = 0;
+        // Monitor playback events to detect freezes
+        videoElement.addEventListener('timeupdate', () => {
+            clearTimeout(freezeTimer);
+            freezeTimer = setTimeout(() => {
+                // If no timeupdate event after 3 seconds, reload the stream
+                if (!videoElement.paused && videoElement.readyState < 3) {
+                    console.warn("Stream freeze detected, attempting to recover...");
+                    reloadStream(hls, videoElement);
                 }
+            }, 3000);
+        });
+
+        // Reload on critical errors
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                console.error("HLS fatal error:", data.type);
+                reloadStream(hls, videoElement);
             }
         });
 
-        // Monitor 'stalled' events
+        // Monitor stalled events
         videoElement.addEventListener('stalled', () => {
-            console.warn("Stream stalled. Attempting to recover...");
-            hls.destroy();
+            console.warn("Stream stalled, attempting to recover...");
+            reloadStream(hls, videoElement);
+        });
+    }
+
+    function reloadStream(hls, videoElement) {
+        try {
+            hls.detachMedia();
             hls.loadSource(videoElement.src);
             hls.attachMedia(videoElement);
-        });
-
-        // Optional: Reload stream if playback is stuck for a certain time
-        let playbackCheckInterval = setInterval(() => {
-            if (videoElement.readyState < 3 && !videoElement.paused) {
-                console.warn("Playback stuck. Reloading stream...");
-                hls.destroy();
-                hls.loadSource(videoElement.src);
-                hls.attachMedia(videoElement);
-            }
-        }, 5000); // Check every 5 seconds
-
-        // Clean up interval on unload
-        window.addEventListener("unload", () => clearInterval(playbackCheckInterval));
+            console.info("Stream recovery attempted.");
+        } catch (error) {
+            console.error("Error during stream recovery:", error);
+        }
     }
 
     function toggleDropdown() {
@@ -273,25 +267,6 @@
     document.addEventListener("DOMContentLoaded", () => {
         initPlayer();
     });
-
-    const iframe = document.getElementById('myIframe');
-
-    iframe.onload = () => {
-        try {
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            
-            iframeDocument.addEventListener('click', function(event) {
-                const target = event.target.closest('a');
-                
-                if (target && target.tagName === 'A' && target.href) {
-                    event.preventDefault();
-                    window.location.href = target.href;
-                }
-            });
-        } catch (error) {
-            console.log("Error accessing iframe content:", error);
-        }
-    };
 </script>
 
 </body>
