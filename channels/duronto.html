@@ -192,57 +192,107 @@
     </div>
   </div>
 
-  <script>
+<script>
     let dp;
+    let hlsInstance;
 
     function initPlayer() {
-      dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        live: true,
-        autoplay: true,
-        video: {
-          url: 'https://bostaflix.vercel.app/api/duronto.m3u8',
-          type: 'customHls',
-          customType: {
-            customHls: function(video, player) {
-              if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(video.src);
-                hls.attachMedia(video);
-              }
+        dp = new DPlayer({
+            container: document.getElementById('dplayer'),
+            live: true,
+            autoplay: true,
+            video: {
+                url: 'https://bostaflix.vercel.app/api/duronto.m3u8',
+                type: 'customHls',
+                customType: {
+                    customHls: function(video, player) {
+                        if (Hls.isSupported()) {
+                            hlsInstance = new Hls();
+                            hlsInstance.loadSource(video.src);
+                            hlsInstance.attachMedia(video);
+
+                            // Add stream freeze protection
+                            addStreamProtection(hlsInstance, video);
+                        }
+                    }
+                }
             }
-          }
-        }
-      });
+        });
+    }
+
+    function addStreamProtection(hls, videoElement) {
+        let errorCount = 0;
+
+        // Retry logic for errors
+        hls.on(Hls.Events.ERROR, function(event, data) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR || data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                console.warn("Stream error detected:", data.details);
+
+                // Retry logic
+                errorCount++;
+                if (errorCount <= 3) {
+                    console.log(`Attempting to recover from error (${errorCount}/3)...`);
+                    hls.recoverMediaError();
+                } else {
+                    console.error("Maximum retry attempts reached. Reloading stream...");
+                    hls.destroy();
+                    hls.loadSource(videoElement.src);
+                    hls.attachMedia(videoElement);
+                    errorCount = 0;
+                }
+            }
+        });
+
+        // Monitor 'stalled' events
+        videoElement.addEventListener('stalled', () => {
+            console.warn("Stream stalled. Attempting to recover...");
+            hls.destroy();
+            hls.loadSource(videoElement.src);
+            hls.attachMedia(videoElement);
+        });
+
+        // Optional: Reload stream if playback is stuck for a certain time
+        let playbackCheckInterval = setInterval(() => {
+            if (videoElement.readyState < 3 && !videoElement.paused) {
+                console.warn("Playback stuck. Reloading stream...");
+                hls.destroy();
+                hls.loadSource(videoElement.src);
+                hls.attachMedia(videoElement);
+            }
+        }, 5000); // Check every 5 seconds
+
+        // Clean up interval on unload
+        window.addEventListener("unload", () => clearInterval(playbackCheckInterval));
     }
 
     function toggleDropdown() {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        const dropdown = document.getElementById('dropdown');
+        dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      initPlayer();
+        initPlayer();
     });
 
     const iframe = document.getElementById('myIframe');
 
     iframe.onload = () => {
-      try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        
-        iframeDocument.addEventListener('click', function(event) {
-          const target = event.target.closest('a');
-          
-          if (target && target.tagName === 'A' && target.href) {
-            event.preventDefault();
-            window.location.href = target.href;
-          }
-        });
-      } catch (error) {
-        console.log("Error accessing iframe content:", error);
-      }
+        try {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            
+            iframeDocument.addEventListener('click', function(event) {
+                const target = event.target.closest('a');
+                
+                if (target && target.tagName === 'A' && target.href) {
+                    event.preventDefault();
+                    window.location.href = target.href;
+                }
+            });
+        } catch (error) {
+            console.log("Error accessing iframe content:", error);
+        }
     };
-  </script>
+</script>
+
 </body>
 </html>
