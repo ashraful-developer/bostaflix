@@ -120,7 +120,7 @@
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: false;
+      overflow-y: auto;
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -178,8 +178,7 @@
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </div>
   </header>
-
-  <!-- Content Layout -->
+   <!-- Content Layout -->
   <div class="content">
     <!-- Player Container -->
     <div id="player-container">
@@ -191,67 +190,58 @@
       <iframe id="myIframe" src="https://bostaflix.vercel.app" width="600" height="400"></iframe>
     </div>
   </div>
-<script>
+
+  <script>
     let dp;
-    let hlsInstance;
 
     function initPlayer() {
-        dp = new DPlayer({
-            container: document.getElementById('dplayer'),
-            live: true,
-            autoplay: true,
-            video: {
-                url: 'https://bostaflix.vercel.app/api/duronto.m3u8',
-                type: 'customHls',
-                customType: {
-                    customHls: function(video, player) {
-                        if (Hls.isSupported()) {
-                            hlsInstance = new Hls();
-                            hlsInstance.loadSource(video.src);
-                            hlsInstance.attachMedia(video);
-
-                            // Add buffer monitoring for stream freeze protection
-                            monitorBuffer(hlsInstance, video);
-                        }
-                    }
-                }
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: 'https://bostaflix.vercel.app/api/duronto.m3u8',
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
+              }
             }
-        });
-    }
-
-    function monitorBuffer(hls, videoElement) {
-        const bufferCheckInterval = setInterval(() => {
-            const buffered = videoElement.buffered;
-            if (buffered.length > 0) {
-                const currentBuffer = buffered.end(buffered.length - 1) - videoElement.currentTime;
-                
-                // Reload if buffer exceeds 10 seconds and playback is stalled
-                if (currentBuffer > 10 && !videoElement.paused && videoElement.readyState < 3) {
-                    console.warn("Buffer exceeded 10 seconds. Reloading stream...");
-                    reloadStream(hls, videoElement);
-                }
-            }
-        }, 2000);
-
-        // Clear the interval on video unload
-        videoElement.addEventListener('ended', () => clearInterval(bufferCheckInterval));
-    }
-
-    function reloadStream(hls, videoElement) {
-        try {
-            hls.detachMedia();
-            hls.loadSource(videoElement.src);
-            hls.attachMedia(videoElement);
-            console.info("Stream reloaded successfully.");
-        } catch (error) {
-            console.error("Error reloading the stream:", error);
+          }
         }
+      });
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        initPlayer();
+      initPlayer();
     });
-</script>
 
+    const iframe = document.getElementById('myIframe');
+
+    iframe.onload = () => {
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        
+        iframeDocument.addEventListener('click', function(event) {
+          const target = event.target.closest('a');
+          
+          if (target && target.tagName === 'A' && target.href) {
+            event.preventDefault();
+            window.location.href = target.href;
+          }
+        });
+      } catch (error) {
+        console.log("Error accessing iframe content:", error);
+      }
+    };
+  </script>
 </body>
 </html>
