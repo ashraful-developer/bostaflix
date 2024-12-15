@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Fixed URL to proxy from
-  const httpUrl = "https://edge01.iptv.digijadoo.net/live/duronto_tv/playlist.m3u8?md5=ywQNSqqwO2Gqhv4fTWhliQ&expires=1734460310&user=811838a63b224e85b02b925b31d0fece";
+  const httpUrl = "https://bdixtv247.xyz/m3u8.php?id=duronto_tv&e=.m3u8";
 
   try {
     // Fetch the HTTP URL
