@@ -6,37 +6,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch the master M3U8 file
+    // Fetch the master M3U8 playlist
     const masterResponse = await fetch(masterUrl);
     if (!masterResponse.ok) {
       return res.status(masterResponse.status).send("Failed to fetch master playlist.");
     }
     const masterPlaylist = await masterResponse.text();
 
-    // Extract the base URL of the master M3U8 file
+    // Extract the base URL from the master URL
     const baseUrl = new URL(masterUrl).origin + new URL(masterUrl).pathname.replace(/\/[^/]*$/, "/");
 
-    // Find the chunks.m3u8 URL (resolve relative URL if needed)
-    const chunkRegex = /#EXT-X-STREAM-INF:[^\n]+\n([^\n]+)/g;
-    const match = chunkRegex.exec(masterPlaylist);
-    if (!match) {
-      return res.status(404).send("No 'chunks.m3u8' found in the master playlist.");
-    }
-    const chunksPath = match[1].trim();
-    const chunksUrl = new URL(chunksPath, baseUrl).href;
+    // Convert relative URLs to absolute URLs
+    const modifiedPlaylist = masterPlaylist.replace(
+      /^(?!#)([^#\n]+)/gm, // Match lines that are not comments (do not start with #)
+      (relativePath) => new URL(relativePath, baseUrl).href
+    );
 
-    // Fetch the chunks.m3u8 file
-    const chunkResponse = await fetch(chunksUrl);
-    if (!chunkResponse.ok) {
-      return res.status(chunkResponse.status).send("Failed to fetch chunks playlist.");
-    }
-    const chunkPlaylist = await chunkResponse.text();
-
-    // Proxy the chunks.m3u8 content
+    // Proxy the modified playlist back to the client
     res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-    res.status(200).send(chunkPlaylist);
+    res.status(200).send(modifiedPlaylist);
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error processing playlist:", error);
     res.status(500).send("An internal server error occurred.");
   }
 }
