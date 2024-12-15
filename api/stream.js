@@ -13,14 +13,17 @@ export default async function handler(req, res) {
     }
     const masterPlaylist = await masterResponse.text();
 
-    // Find the chunks.m3u8 URL
-    const chunkRegex = /(https?:\/\/[^\s]+)/g;
-    const matches = [...masterPlaylist.matchAll(chunkRegex)];
-    const chunksUrl = matches.find((match) => match[0].includes("chunks.m3u8"))?.[0];
+    // Extract the base URL of the master M3U8 file
+    const baseUrl = new URL(masterUrl).origin + new URL(masterUrl).pathname.replace(/\/[^/]*$/, "/");
 
-    if (!chunksUrl) {
+    // Find the chunks.m3u8 URL (resolve relative URL if needed)
+    const chunkRegex = /#EXT-X-STREAM-INF:[^\n]+\n([^\n]+)/g;
+    const match = chunkRegex.exec(masterPlaylist);
+    if (!match) {
       return res.status(404).send("No 'chunks.m3u8' found in the master playlist.");
     }
+    const chunksPath = match[1].trim();
+    const chunksUrl = new URL(chunksPath, baseUrl).href;
 
     // Fetch the chunks.m3u8 file
     const chunkResponse = await fetch(chunksUrl);
