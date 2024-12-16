@@ -8,8 +8,7 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         'Referer': 'https://mafiatv.live/ayna/?watch=37', // Replace with your desired referrer URL
-        'User-Agent': req.headers['Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.188 Safari/537.36 CrKey/1.54.250320
-'], // Pass the user's original user agent (optional)
+        'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.188 Safari/537.36 CrKey/1.54.250320', // Correct User-Agent string
       },
     });
 
