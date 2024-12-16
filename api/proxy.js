@@ -1,36 +1,31 @@
-export default async function handler(req, res) {
+export default async function proxy(req, res) {
   const { url } = req.query;
 
   if (!url) {
-    return res.status(400).json({ error: "Missing URL parameter" });
+    return res.status(400).send('Missing URL parameter');
   }
 
-  // Ensure the provided URL is HTTP if it doesn't support HTTPS
-  const httpUrl = decodeURIComponent(url).replace(/^https:/, 'http:');
-
   try {
-    // Fetch the HTTP URL
-    const response = await fetch(httpUrl);
+    // Fetch the media segment with custom headers
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Referer': 'https://mafiatv.live/ayna/?watch=37',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.188 Safari/537.36 CrKey/1.54.250320',
+      },
+    });
 
-    // Check if the response is successful
     if (!response.ok) {
       return res.status(response.status).send('Error fetching the resource');
     }
 
-    // Set CORS headers to allow cross-origin requests
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Stream the media segment back to the client
+    const contentType = response.headers.get('content-type');
+    res.setHeader('Content-Type', contentType);
 
-    // Set the appropriate content-type header from the proxied resource
-    res.setHeader('Content-Type', response.headers.get('content-type'));
-
-    // Send the response data back to the client
     const body = await response.arrayBuffer();
     res.status(200).send(Buffer.from(body));
-
   } catch (error) {
-    // Handle any errors during the fetch or streaming process
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }
