@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
-  // Fixed URL to proxy from
-  const baseUrl = "https://mafiatv.live/ayna"; // Base URL for relative paths in the playlist
+  // Base URL for the proxied source
+  const baseUrl = "https://mafiatv.live/ayna";
   const httpUrl = `${baseUrl}/stream.m3u8?id=37&e=.m3u8`;
 
   try {
@@ -13,18 +13,16 @@ export default async function handler(req, res) {
       },
     });
 
-    // Check if the response is successful
     if (!response.ok) {
       return res.status(response.status).send('Error fetching the resource');
     }
 
-    // Get the playlist content as text
     const playlist = await response.text();
 
-    // Rewrite relative URLs to absolute URLs
-    const updatedPlaylist = playlist.replace(
+    // Rewrite URLs to route through the proxy
+    const proxiedPlaylist = playlist.replace(
       /^(?!#)([^#\s]+)/gm, // Matches lines that are not comments and not empty
-      `${baseUrl}/$1` // Prefixes each relative path with the base URL
+      `${req.headers.host}/api/proxy?url=${encodeURIComponent(baseUrl)}/$1`
     );
 
     // Set CORS headers to allow cross-origin requests
@@ -36,9 +34,8 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
 
     // Send the modified playlist back to the client
-    res.status(200).send(updatedPlaylist);
+    res.status(200).send(proxiedPlaylist);
   } catch (error) {
-    // Handle any errors during the fetch or processing
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }
