@@ -19,11 +19,11 @@ export default async function handler(req, res) {
 
     const playlist = await response.text();
 
-    // Rewrite URLs to route through the proxy
-    const proxiedPlaylist = playlist.replace(
-      /^(?!#)([^#\s]+)/gm, // Matches lines that are not comments and not empty
-      `${req.headers.host}/api/proxy?url=${encodeURIComponent(baseUrl)}/$1`
-    );
+const proxiedPlaylist = playlist.replace(
+  /^(?!#)([^#\s]+)/gm, // Matches lines that are not comments and not empty
+  (match, group1) => `${req.protocol || 'https'}://${req.headers.host}/api/proxy?url=${encodeURIComponent(`${baseUrl}/${group1}`)}`
+);
+
 
     // Set CORS headers to allow cross-origin requests
     res.setHeader('Access-Control-Allow-Origin', '*');
