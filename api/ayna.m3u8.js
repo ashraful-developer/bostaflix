@@ -1,11 +1,11 @@
 // /api/ayna.js
 
 export default async function handler(req, res) {
-    const { channel, e } = req.query;
+    const { channel } = req.query;
 
     // Validate input
-    if (!channel || !e) {
-        return res.status(400).json({ error: "Please provide both 'channel' and 'e' query parameters." });
+    if (!channel) {
+        return res.status(400).json({ error: "Please provide a 'channel' query parameter." });
     }
 
     try {
@@ -20,30 +20,33 @@ export default async function handler(req, res) {
 
         const m3uContent = await response.text();
 
-        // Search for the channel and URL
+        // Split the content by lines
         const lines = m3uContent.split('\n');
         let found = false;
         let streamUrl = '';
+        let logoUrl = '';
 
         for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes(channel)) {
-                // Look for the next line containing the URL
-                for (let j = i + 1; j < lines.length; j++) {
-                    if (lines[j].trim().endsWith(e)) {
-                        streamUrl = lines[j].trim();
-                        found = true;
-                        break;
-                    }
+            if (lines[i].includes(`#EXTINF`) && lines[i].includes(channel)) {
+                // Extract the logo URL from the metadata
+                const logoMatch = lines[i].match(/tvg-logo="(.*?)"/);
+                logoUrl = logoMatch ? logoMatch[1] : '';
+
+                // Fetch the next line as the stream URL
+                if (lines[i + 1] && lines[i + 1].startsWith('http')) {
+                    streamUrl = lines[i + 1].trim();
+                    found = true;
                 }
+                break;
             }
-            if (found) break;
         }
 
-        if (!streamUrl) {
+        if (!found) {
             return res.status(404).json({ error: "Channel URL not found." });
         }
 
-        return res.status(200).json({ channel, url: streamUrl });
+        // Return the stream URL and logo
+        return res.status(200).json({ channel, streamUrl, logoUrl });
     } catch (error) {
         return res.status(500).json({ error: "An error occurred while processing your request." });
     }
