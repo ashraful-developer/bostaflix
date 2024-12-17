@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
     try {
         // URL of the M3U playlist
-        const m3uUrl = 'https://path-to-your-m3u-playlist-file.com/playlist.m3u';
+        const m3uUrl = 'https://byte-capsule.vercel.app/api/aynaott/hybrid.m3u';
 
         // Fetch the M3U content
         const response = await fetch(m3uUrl);
