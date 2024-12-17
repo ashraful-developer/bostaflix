@@ -35,12 +35,19 @@ export default async function handler(req, res) {
             if (includeNextUrl && line.startsWith('http')) {
                 // Remove the referer query parameter from the URL
                 let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
-                output.push(cleanedUrl);  // Add the cleaned stream URL to the output
+
+                // Create EXTINF tag (specify the duration, e.g., -1 for live streams)
+                const extinfTag = '#EXTINF:-1, ' + channel;
+
+                // Push EXTINF and the cleaned URL to the output
+                output.push(extinfTag);
+                output.push(cleanedUrl);
+
                 includeNextUrl = false; // Reset flag after including the URL
             }
         }
 
-        // If the channel is found, return the stream URL(s)
+        // If the channel is found, return the stream URL(s) with EXTINF
         if (output.length > 0) {
             res.setHeader('Content-Type', 'application/x-mpegURL');
             res.status(200).send('#EXTM3U\n' + output.join('\n'));
