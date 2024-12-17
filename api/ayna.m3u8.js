@@ -33,7 +33,9 @@ export default async function handler(req, res) {
 
             // If we should include the next URL (the stream URL)
             if (includeNextUrl && line.startsWith('http')) {
-                output.push(line);  // Add the stream URL to the output
+                // Remove the referer query parameter from the URL
+                let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
+                output.push(cleanedUrl);  // Add the cleaned stream URL to the output
                 includeNextUrl = false; // Reset flag after including the URL
             }
         }
