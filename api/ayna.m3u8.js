@@ -1,5 +1,3 @@
-// /api/ayna.js
-
 export default async function handler(req, res) {
     const { channel } = req.query;
 
@@ -10,7 +8,7 @@ export default async function handler(req, res) {
 
     try {
         // URL of the M3U playlist
-        const m3uUrl = 'https://byte-capsule.vercel.app/api/aynaott/hybrid.m3u';
+        const m3uUrl = 'https://path-to-your-m3u-playlist-file.com/playlist.m3u';
 
         // Fetch the M3U content
         const response = await fetch(m3uUrl);
@@ -27,15 +25,19 @@ export default async function handler(req, res) {
         let logoUrl = '';
 
         for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes(`#EXTINF`) && lines[i].includes(channel)) {
-                // Extract the logo URL from the metadata
+            // Look for the #EXTINF line containing the channel name
+            if (lines[i].startsWith('#EXTINF') && lines[i].includes(channel)) {
+                // Extract the logo URL
                 const logoMatch = lines[i].match(/tvg-logo="(.*?)"/);
                 logoUrl = logoMatch ? logoMatch[1] : '';
 
-                // Fetch the next line as the stream URL
-                if (lines[i + 1] && lines[i + 1].startsWith('http')) {
-                    streamUrl = lines[i + 1].trim();
-                    found = true;
+                // Look for the stream URL on the following lines
+                for (let j = i + 1; j < lines.length; j++) {
+                    if (lines[j].startsWith('http')) {
+                        streamUrl = lines[j].split('|')[0].trim(); // Ignore any headers
+                        found = true;
+                        break;
+                    }
                 }
                 break;
             }
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
             return res.status(404).json({ error: "Channel URL not found." });
         }
 
-        // Return the stream URL and logo
+        // Return the channel info
         return res.status(200).json({ channel, streamUrl, logoUrl });
     } catch (error) {
         return res.status(500).json({ error: "An error occurred while processing your request." });
