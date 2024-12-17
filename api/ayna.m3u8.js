@@ -37,8 +37,8 @@ export default async function handler(req, res) {
                 // Remove the referer query parameter from the URL
                 let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
 
-                // Create EXTINF tag (specify the duration, e.g., -1 for live streams)
-                const extinfTag = `#EXTINF:-1, ${channel}`;
+                // Generate EXT-X-STREAM-INF tag for adaptive bitrate
+                const extinfTag = `#EXT-X-STREAM-INF:BANDWIDTH=1500000`;
 
                 // Push EXTINF and the cleaned URL to the output
                 output.push(extinfTag);
@@ -48,8 +48,9 @@ export default async function handler(req, res) {
             }
         }
 
-        // If the channel is found, return the stream URL(s) with EXTINF
+        // If the channel is found, return the stream URL(s) with EXT-X-STREAM-INF
         if (output.length > 0) {
+            // Add the #EXTM3U header for the master playlist
             res.setHeader('Content-Type', 'application/x-mpegURL');
             res.status(200).send('#EXTM3U\n' + output.join('\n') + '\n');
         } else {
