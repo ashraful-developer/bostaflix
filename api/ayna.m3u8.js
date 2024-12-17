@@ -18,13 +18,14 @@ export default async function handler(req, res) {
         const m3uContent = await response.text();
 
         // Split the content by lines
-        const lines = m3uContent.split('\n');
+        const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
+
         let output = [];
         let includeNextUrl = false;
 
         // Iterate through the lines to find the channel and its URL
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
+            const line = lines[i];
 
             // If the line contains the channel name
             if (line.includes(channel)) {
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
                 let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
 
                 // Create EXTINF tag (specify the duration, e.g., -1 for live streams)
-                const extinfTag = '#EXTINF:-1, ' + channel;
+                const extinfTag = `#EXTINF:-1, ${channel}`;
 
                 // Push EXTINF and the cleaned URL to the output
                 output.push(extinfTag);
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
         // If the channel is found, return the stream URL(s) with EXTINF
         if (output.length > 0) {
             res.setHeader('Content-Type', 'application/x-mpegURL');
-            res.status(200).send('#EXTM3U\n' + output.join('\n'));
+            res.status(200).send('#EXTM3U\n' + output.join('\n') + '\n');
         } else {
             res.status(404).json({ error: `Channel "${channel}" not found` });
         }
