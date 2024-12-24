@@ -215,7 +215,23 @@
         }
       });
     }
+// Function to handle reloading the video on error
+function reloadOnError(dplayerInstance) {
+    dplayerInstance.on('error', () => {
+        console.log('Playback error occurred. Reloading the source...');
+        
+        // Optional: Delay before retrying playback
+        setTimeout(() => {
+            const currentSource = dplayerInstance.video.src; // Get the current video source
+            dplayerInstance.switchVideo({ url: currentSource }); // Reload the source
+            dplayerInstance.seek(0); // Seek to the start
+            dplayerInstance.play(); // Attempt to play again
+        }, 3000); // Retry after 3 seconds
+    });
+}
 
+// Apply the reload-on-error handler
+reloadOnError(dplayer);
     function toggleDropdown() {
       const dropdown = document.getElementById('dropdown');
       dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
