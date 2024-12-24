@@ -10,7 +10,7 @@ export default async function proxy(req, res) {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Referer': 'https://iptv.jadoodigital.com/',
+        'Referer': 'https://drmlive.in/',
         'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.188 Safari/537.36 CrKey/1.54.250320',
       },
     });
