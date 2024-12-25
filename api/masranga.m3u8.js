@@ -5,8 +5,21 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(httpUrl, {
       headers: {
-        'Referer': 'https://maasranga.tv/', // Replace with the required referer
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Accept-Language': 'en-US,en;q=0.9,bn;q=0.8',
+        'Connection': 'keep-alive',
+        'DNT': '1',
+        'Host': 'mtv.sunplex.live',
+        'Origin': 'https://maasranga.tv',
+        'Referer': 'https://maasranga.tv/',
+        'Sec-CH-UA': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        'Sec-CH-UA-Mobile': '?1',
+        'Sec-CH-UA-Platform': '"Android"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'cross-site',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36'
       }
     });
 
