@@ -10,13 +10,16 @@ async function getAnswerLibrary() {
 // Function to match the question to the closest answer.
 function findAnswer(library, question) {
   const questionKey = '#AIINF-QUE-';  // Key identifier for the question
-
+  const extraKey = 'AIINF-EXT'; // Key identifier for the extra answers
+  
   let matchedAnswers = [];
+  let extraAnswers = [];
 
   // Iterate through the library to find the closest match
   for (let i = 0; i < library.length; i++) {
     const line = library[i];
     
+    // If the line contains a question, check if it matches
     if (line.includes(questionKey)) {
       const questionText = line.split(questionKey)[1].trim();
 
@@ -31,11 +34,17 @@ function findAnswer(library, question) {
         }
       }
     }
+
+    // Collect extra answers from the AIINF-EXT section
+    if (line.includes(extraKey)) {
+      let extraAnswer = line.split(extraKey + ' : ')[1].trim();
+      extraAnswers.push(extraAnswer);
+    }
   }
 
-  // If no matches, return extra answer
+  // If no matches, return a random extra answer from AIINF-EXT
   if (matchedAnswers.length === 0) {
-    return "Extra ans";
+    return extraAnswers.length > 0 ? extraAnswers[Math.floor(Math.random() * extraAnswers.length)] : "Extra ans";
   }
 
   // If multiple answers, return a random one
