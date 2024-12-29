@@ -1,13 +1,13 @@
 // Serverless function (Node.js) without external dependencies
 
-// Function to fetch the answer library and process it (using fetch built into the platform like Vercel or AWS Lambda)
+// Function to fetch the answer library and process it
 async function getAnswerLibrary() {
   const response = await fetch('https://bostaflix.vercel.app/static/database.txt');
   const text = await response.text();
   return text.split('\n').filter(line => line.trim() !== '');  // Split the text into lines and remove empty ones
 }
 
-// Function to match the question to the closest answer.
+// Function to match the question to the closest answer
 function findAnswer(library, question) {
   const questionKey = '#AIINF-QUE-';  // Key identifier for the question
   const answerKey = '#AIINF-ANS-';   // Key identifier for the answer
@@ -15,53 +15,32 @@ function findAnswer(library, question) {
   
   let matchedAnswers = [];
   let extraAnswers = [];
+  let currentQuestionID = null;
 
-  // Create a map of synonyms for various question types
-  const questionSynonyms = {
-    "অংক": ["অংক", "ইজি অংক", "ম্যাথ", "গণিত", "সাধারণ অংক", "অংক দেন"],
-    "অর্থ": ["অর্থ", "মূল্য", "বাজার মূল্য", "দাম", "খরচ"]
-    // Add more synonym mappings if necessary
-  };
+  // Iterate through the library to find matching answers based on sequence number
+  for (let i = 0; i < library.length; i++) {
+    const line = library[i];
 
-  // Normalize the question to match with the key categories
-  function normalizeQuestion(query) {
-    for (let key in questionSynonyms) {
-      for (let synonym of questionSynonyms[key]) {
-        if (query.toLowerCase().includes(synonym)) {
-          return key;  // Return the normalized key (e.g., "অংক")
+    // If the line contains a question, get the sequence number (e.g., 11 from AIINF-QUE-11)
+    if (line.includes(questionKey)) {
+      currentQuestionID = line.split(questionKey)[1].trim();  // Get sequence number of the question
+
+      // Check if the question matches the user's query
+      if (line.toLowerCase().includes(question.toLowerCase())) {
+        // If the question matches, look for corresponding answers
+        let answer = library[i + 1];
+        while (answer && answer.includes(answerKey + currentQuestionID)) {
+          matchedAnswers.push(answer.split(answerKey + currentQuestionID + ' : ')[1].trim());
+          answer = library[i + 2];  // Move to the next answer
+          i++; // Increment to check the next answer
         }
       }
     }
-    return null;
-  }
 
-  const normalizedQuestion = normalizeQuestion(question);
-
-  if (normalizedQuestion) {
-    // Iterate through the library to find the closest match
-    for (let i = 0; i < library.length; i++) {
-      const line = library[i];
-
-      // If the line contains a question, check if it matches
-      if (line.includes(questionKey)) {
-        const questionText = line.split(questionKey)[1].trim();
-
-        if (questionText.toLowerCase().includes(normalizedQuestion.toLowerCase())) {
-          // If the question matches, find all answers associated with it
-          let answer = library[i + 1];
-          while (answer && answer.includes(answerKey)) {
-            matchedAnswers.push(answer.split(answerKey)[1].trim().replace(/^\d+\s*[:;]?\s*/, ''));
-            answer = library[i + 2];  // Move to the next answer
-            i++; // Increment to check the next answer
-          }
-        }
-      }
-
-      // Collect extra answers from the AIINF-EXT section
-      if (line.includes(extraKey)) {
-        let extraAnswer = line.split(extraKey + ' : ')[1].trim();
-        extraAnswers.push(extraAnswer);
-      }
+    // Collect extra answers from the AIINF-EXT section
+    if (line.includes(extraKey)) {
+      let extraAnswer = line.split(extraKey + ' : ')[1].trim();
+      extraAnswers.push(extraAnswer);
     }
   }
 
