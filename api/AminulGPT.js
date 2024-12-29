@@ -16,29 +16,52 @@ function findAnswer(library, question) {
   let matchedAnswers = [];
   let extraAnswers = [];
 
-  // Iterate through the library to find the closest match
-  for (let i = 0; i < library.length; i++) {
-    const line = library[i];
+  // Create a map of synonyms for various question types
+  const questionSynonyms = {
+    "অংক": ["অংক", "ইজি অংক", "ম্যাথ", "গণিত", "সাধারণ অংক", "অংক দেন"],
+    "অর্থ": ["অর্থ", "মূল্য", "বাজার মূল্য", "দাম", "খরচ"]
+    // Add more synonym mappings if necessary
+  };
 
-    // If the line contains a question, check if it matches
-    if (line.includes(questionKey)) {
-      const questionText = line.split(questionKey)[1].trim();
-
-      if (questionText.toLowerCase().includes(question.toLowerCase())) {
-        // If the question matches, find all answers associated with it
-        let answer = library[i + 1];
-        while (answer && answer.includes(answerKey)) {
-          matchedAnswers.push(answer.split(answerKey)[1].trim().replace(/^\d+\s*[:;]?\s*/, ''));
-          answer = library[i + 2];  // Move to the next answer
-          i++; // Increment to check the next answer
+  // Normalize the question to match with the key categories
+  function normalizeQuestion(query) {
+    for (let key in questionSynonyms) {
+      for (let synonym of questionSynonyms[key]) {
+        if (query.toLowerCase().includes(synonym)) {
+          return key;  // Return the normalized key (e.g., "অংক")
         }
       }
     }
+    return null;
+  }
 
-    // Collect extra answers from the AIINF-EXT section
-    if (line.includes(extraKey)) {
-      let extraAnswer = line.split(extraKey + ' : ')[1].trim();
-      extraAnswers.push(extraAnswer);
+  const normalizedQuestion = normalizeQuestion(question);
+
+  if (normalizedQuestion) {
+    // Iterate through the library to find the closest match
+    for (let i = 0; i < library.length; i++) {
+      const line = library[i];
+
+      // If the line contains a question, check if it matches
+      if (line.includes(questionKey)) {
+        const questionText = line.split(questionKey)[1].trim();
+
+        if (questionText.toLowerCase().includes(normalizedQuestion.toLowerCase())) {
+          // If the question matches, find all answers associated with it
+          let answer = library[i + 1];
+          while (answer && answer.includes(answerKey)) {
+            matchedAnswers.push(answer.split(answerKey)[1].trim().replace(/^\d+\s*[:;]?\s*/, ''));
+            answer = library[i + 2];  // Move to the next answer
+            i++; // Increment to check the next answer
+          }
+        }
+      }
+
+      // Collect extra answers from the AIINF-EXT section
+      if (line.includes(extraKey)) {
+        let extraAnswer = line.split(extraKey + ' : ')[1].trim();
+        extraAnswers.push(extraAnswer);
+      }
     }
   }
 
