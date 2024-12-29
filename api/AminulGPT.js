@@ -10,7 +10,8 @@ async function getAnswerLibrary() {
 // Function to match the question to the closest answer.
 function findAnswer(library, question) {
   const questionKey = '#AIINF-QUE-';  // Key identifier for the question
-  const extraKey = 'AIINF-EXT'; // Key identifier for the extra answers
+  const answerKey = '#AIINF-ANS-';   // Key identifier for the answer
+  const extraKey = 'AIINF-EXT';      // Key identifier for the extra answers
   
   let matchedAnswers = [];
   let extraAnswers = [];
@@ -18,17 +19,16 @@ function findAnswer(library, question) {
   // Iterate through the library to find the closest match
   for (let i = 0; i < library.length; i++) {
     const line = library[i];
-    
+
     // If the line contains a question, check if it matches
     if (line.includes(questionKey)) {
       const questionText = line.split(questionKey)[1].trim();
 
       if (questionText.toLowerCase().includes(question.toLowerCase())) {
-        // If we have multiple answers for this question, collect them
+        // If the question matches, find all answers associated with it
         let answer = library[i + 1];
-        while (answer && answer.includes('#AIINF-ANS-')) {
-          // Remove extra formatting such as "1 : " or " ;"
-          matchedAnswers.push(answer.split('#AIINF-ANS-')[1].trim().replace(/^\d+\s*[:;]?\s*/, ''));
+        while (answer && answer.includes(answerKey)) {
+          matchedAnswers.push(answer.split(answerKey)[1].trim().replace(/^\d+\s*[:;]?\s*/, ''));
           answer = library[i + 2];  // Move to the next answer
           i++; // Increment to check the next answer
         }
