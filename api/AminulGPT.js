@@ -25,16 +25,12 @@ function findAnswer(library, question) {
     if (line.includes(questionKey)) {
       currentQuestionID = line.split(questionKey)[1].trim();  // Get sequence number of the question
 
-      console.log(`Found Question ID: ${currentQuestionID} - ${line}`);  // Debugging statement
-
       // Check if the question matches the user's query (using partial matching)
       if (line.toLowerCase().includes(question.toLowerCase())) {
-        console.log(`Question matched: ${line}`);  // Debugging statement
-        
+
         // If the question matches, look for corresponding answers
         let answer = library[i + 1];
         while (answer && answer.includes(answerKey + currentQuestionID)) {
-          console.log(`Found Answer: ${answer}`);  // Debugging statement
           matchedAnswers.push(answer.split(answerKey + currentQuestionID + ' : ')[1].trim());
           answer = library[i + 2];  // Move to the next answer
           i++; // Increment to check the next answer
@@ -51,7 +47,6 @@ function findAnswer(library, question) {
 
   // If no matches, return a random extra answer from AIINF-EXT
   if (matchedAnswers.length === 0) {
-    console.log('No match found, returning extra answers');  // Debugging statement
     return extraAnswers.length > 0 ? extraAnswers[Math.floor(Math.random() * extraAnswers.length)] : "Extra ans";
   }
 
