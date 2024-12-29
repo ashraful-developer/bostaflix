@@ -89,7 +89,7 @@
 
             // Send the message to the backend
             try {
-                const response = await fetch(`https://bosta-live.vercel.app/api/AminulGPT?text=${encodeURIComponent(message)}`);
+                const response = await fetch(`https://bostaflix.vercel.app/api/AminulGPT?text=${encodeURIComponent(message)}`);
                 const data = await response.json();
 
                 // Display the backend's response
