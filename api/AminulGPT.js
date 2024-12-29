@@ -25,7 +25,7 @@ function findAnswer(library, question) {
     if (line.includes(questionKey)) {
       currentQuestionID = line.split(questionKey)[1].trim();  // Get sequence number of the question
 
-      // Check if the question matches the user's query
+      // Check if the question matches the user's query (using partial matching)
       if (line.toLowerCase().includes(question.toLowerCase())) {
         // If the question matches, look for corresponding answers
         let answer = library[i + 1];
