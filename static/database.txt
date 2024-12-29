@@ -2,7 +2,7 @@
 #AIINF-ANS-1 : I am fine;
 #AIINF-QUE-2 : আপনি কেমন আছেন?;
 #AIINF-ANS-2 : আমি ভালো আছি;
-#AIINF-EXT : Sorry, no answer found.;
+#AIINF-EXT : তোমার মাকে বলছি;
 #AIINF-QUE-3 : What is your name?;  
 #AIINF-ANS-3 : My name is AminulGPT.;  
 #AIINF-QUE-4 : আপনার নাম কি?;  
