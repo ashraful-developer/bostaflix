@@ -7,53 +7,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
     }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-gap: 5px;
-    }
-    .cell {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #333;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-    .cell.taken {
-      cursor: not-allowed;
-      color: #666;
-    }
-    .winner {
-      margin-top: 20px;
-      font-size: 1.5rem;
-      color: green;
-    }
-    .reset {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .reset:hover {
-      background-color: #0056b3;
-    }
-        /* Header styling */
+
     header {
       background-color: #212121;
       color: #fff;
@@ -61,9 +18,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100vw;
+      width: 100%;
       box-sizing: border-box;
-      position: top;
     }
 
     .logo {
@@ -128,10 +84,50 @@
         display: block;
       }
     }
+
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #333;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+      color: #666;
+    }
+
+    .winner {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: green;
+    }
+
+    .reset, .difficulty-select {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
-    <!-- Header Section -->
   <header>
     <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
     <nav class="nav-links">
@@ -150,27 +146,31 @@
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </div>
   </header>
-  <h1>Tic Tac Toe: You vs Smart PC</h1>
-  <div class="board" id="board"></div>
-  <div class="winner" id="winner"></div>
-  <button class="reset" onclick="resetGame()">Reset Game</button>
+
+  <main>
+    <h1>Tic Tac Toe: You vs Smart PC</h1>
+    <select class="difficulty-select" id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="impossible">Impossible</option>
+    </select>
+    <div class="board" id="board"></div>
+    <div class="winner" id="winner"></div>
+    <button class="reset" onclick="resetGame()">Reset Game</button>
+  </main>
 
   <script>
     const board = document.getElementById('board');
     const winnerDisplay = document.getElementById('winner');
-    let currentPlayer = 'X'; // You are 'X', PC is 'O'
+    const difficultySelect = document.getElementById('difficulty');
+    let currentPlayer = 'X';
     let gameActive = true;
     let boardState = ['', '', '', '', '', '', '', '', ''];
 
     const winningConditions = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
     ];
 
     function createBoard() {
@@ -221,10 +221,25 @@
     }
 
     function pcMove() {
-      const bestMove = getBestMove();
-      if (bestMove !== null) {
-        makeMove(bestMove, 'O'); // PC is 'O'
+      const difficulty = difficultySelect.value;
+
+      let bestMove;
+      if (difficulty === 'easy') {
+        bestMove = randomMove();
+      } else if (difficulty === 'medium') {
+        bestMove = Math.random() < 0.5 ? randomMove() : getBestMove();
+      } else {
+        bestMove = getBestMove();
       }
+
+      if (bestMove !== null) {
+        makeMove(bestMove, 'O');
+      }
+    }
+
+    function randomMove() {
+      const emptyIndices = boardState.map((cell, index) => cell === '' ? index : null).filter(index => index !== null);
+      return emptyIndices.length > 0 ? emptyIndices[Math.floor(Math.random() * emptyIndices.length)] : null;
     }
 
     function getBestMove() {
