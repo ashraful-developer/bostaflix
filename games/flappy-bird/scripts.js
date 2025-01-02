@@ -1,112 +1,108 @@
-// Game Constants
-const gameContainer = document.getElementById('game-container');
-const birdElement = document.createElement('div');
-const ground = document.getElementById('ground');
-let birdY = 200;
-let birdVelocity = 0;
-let gravity = 0.5;
-let gameRunning = true;
-let score = 0;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.src = "https://i.ibb.co/Q9yv5Jk/flappy-bird-set.png";
 
-// Create Bird
-gameContainer.appendChild(birdElement);
-birdElement.className = 'bird';
-birdElement.style.top = `${birdY}px`;
-birdElement.style.left = '100px';
+// general settings
+let gamePlaying = false;
+const gravity = .5;
+const speed = 6.2;
+const size = [51, 36];
+const jump = -11.5;
+const cTenth = (canvas.width / 10);
 
-// Create Pipes
-function createPipe() {
-  const pipeTop = document.createElement('div');
-  const pipeBottom = document.createElement('div');
-  const pipeGap = 150;
-  const pipeHeight = Math.random() * (window.innerHeight - pipeGap - 200) + 50;
+let index = 0,
+    bestScore = 0, 
+    flight, 
+    flyHeight, 
+    currentScore, 
+    pipe;
 
-  pipeTop.className = 'pipe pipe-top';
-  pipeBottom.className = 'pipe pipe-bottom';
+// pipe settings
+const pipeWidth = 78;
+const pipeGap = 270;
+const pipeLoc = () => (Math.random() * ((canvas.height - (pipeGap + pipeWidth)) - pipeWidth)) + pipeWidth;
 
-  pipeTop.style.height = `${pipeHeight}px`;
-  pipeTop.style.right = '-60px';
+const setup = () => {
+  currentScore = 0;
+  flight = jump;
 
-  pipeBottom.style.height = `${window.innerHeight - pipeHeight - pipeGap}px`;
-  pipeBottom.style.right = '-60px';
+  // set initial flyHeight (middle of screen - size of the bird)
+  flyHeight = (canvas.height / 2) - (size[1] / 2);
 
-  gameContainer.appendChild(pipeTop);
-  gameContainer.appendChild(pipeBottom);
-
-  // Move pipes
-  let pipePosition = window.innerWidth;
-  const pipeInterval = setInterval(() => {
-    if (!gameRunning) {
-      clearInterval(pipeInterval);
-      return;
-    }
-
-    pipePosition -= 3;
-    pipeTop.style.right = `${pipePosition}px`;
-    pipeBottom.style.right = `${pipePosition}px`;
-
-    if (pipePosition + 60 < 0) {
-      clearInterval(pipeInterval);
-      pipeTop.remove();
-      pipeBottom.remove();
-      score++;
-      document.getElementById('score').innerText = score;
-    }
-
-    // Check collision
-    const birdRect = birdElement.getBoundingClientRect();
-    const topRect = pipeTop.getBoundingClientRect();
-    const bottomRect = pipeBottom.getBoundingClientRect();
-
-    if (
-      birdRect.right > topRect.left &&
-      birdRect.left < topRect.right &&
-      (birdRect.top < topRect.bottom || birdRect.bottom > bottomRect.top)
-    ) {
-      endGame();
-    }
-  }, 16);
-
-  setTimeout(createPipe, 3000);
+  // setup first 3 pipes
+  pipes = Array(3).fill().map((a, i) => [canvas.width + (i * (pipeGap + pipeWidth)), pipeLoc()]);
 }
 
-// Handle Bird Movement
-function updateBird() {
-  birdVelocity += gravity;
-  birdY += birdVelocity;
-  birdElement.style.top = `${birdY}px`;
+const render = () => {
+  // make the pipe and bird moving 
+  index++;
 
-  if (birdY + birdElement.offsetHeight >= window.innerHeight - ground.offsetHeight) {
-    endGame();
+  // ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // background first part 
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height, -((index * (speed / 2)) % canvas.width) + canvas.width, 0, canvas.width, canvas.height);
+  // background second part
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height, -(index * (speed / 2)) % canvas.width, 0, canvas.width, canvas.height);
+  
+  // pipe display
+  if (gamePlaying){
+    pipes.map(pipe => {
+      // pipe moving
+      pipe[0] -= speed;
+
+      // top pipe
+      ctx.drawImage(img, 432, 588 - pipe[1], pipeWidth, pipe[1], pipe[0], 0, pipeWidth, pipe[1]);
+      // bottom pipe
+      ctx.drawImage(img, 432 + pipeWidth, 108, pipeWidth, canvas.height - pipe[1] + pipeGap, pipe[0], pipe[1] + pipeGap, pipeWidth, canvas.height - pipe[1] + pipeGap);
+
+      // give 1 point & create new pipe
+      if(pipe[0] <= -pipeWidth){
+        currentScore++;
+        // check if it's the best score
+        bestScore = Math.max(bestScore, currentScore);
+        
+        // remove & create new pipe
+        pipes = [...pipes.slice(1), [pipes[pipes.length-1][0] + pipeGap + pipeWidth, pipeLoc()]];
+        console.log(pipes);
+      }
+    
+      // if hit the pipe, end
+      if ([
+        pipe[0] <= cTenth + size[0], 
+        pipe[0] + pipeWidth >= cTenth, 
+        pipe[1] > flyHeight || pipe[1] + pipeGap < flyHeight + size[1]
+      ].every(elem => elem)) {
+        gamePlaying = false;
+        setup();
+      }
+    })
   }
-}
-
-// Flap the bird
-function flap() {
-  birdVelocity = -8;
-}
-
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') {
-    flap();
+  // draw bird
+  if (gamePlaying) {
+    ctx.drawImage(img, 432, Math.floor((index % 9) / 3) * size[1], ...size, cTenth, flyHeight, ...size);
+    flight += gravity;
+    flyHeight = Math.min(flyHeight + flight, canvas.height - size[1]);
+  } else {
+    ctx.drawImage(img, 432, Math.floor((index % 9) / 3) * size[1], ...size, ((canvas.width / 2) - size[0] / 2), flyHeight, ...size);
+    flyHeight = (canvas.height / 2) - (size[1] / 2);
+      // text accueil
+    ctx.fillText(`Best score : ${bestScore}`, 85, 245);
+    ctx.fillText('Click to play', 90, 535);
+    ctx.font = "bold 30px courier";
   }
-});
 
-// End the game
-function endGame() {
-  gameRunning = false;
-  alert(`Game Over! Your score: ${score}`);
-  window.location.reload();
+  document.getElementById('bestScore').innerHTML = `Best : ${bestScore}`;
+  document.getElementById('currentScore').innerHTML = `Current : ${currentScore}`;
+
+  // tell the browser to perform anim
+  window.requestAnimationFrame(render);
 }
 
-// Start Game
-function startGame() {
-  setInterval(() => {
-    if (gameRunning) {
-      updateBird();
-    }
-  }, 16);
-  createPipe();
-}
+// launch setup
+setup();
+img.onload = render;
 
-startGame();
+// start game
+document.addEventListener('click', () => gamePlaying = true);
+window.onclick = () => flight = jump;
