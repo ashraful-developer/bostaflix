@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Fixed URL to proxy from
-  const httpUrl = "https://jadoo.iptvbd.xyz/jadoo.php?id=t_sports";
+  const httpUrl = "https://uspro.click/jadoo/jadoo.php?id=t_sports";
 
   try {
     // Fetch the HTTP URL
