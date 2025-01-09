@@ -8,14 +8,15 @@
   <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
   <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
   <style>
-    /* General reset */
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      height: 100vh;
-    }
+ /* General reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  height: 100vh;
+  overflow: hidden; /* Prevent scrolling */
+}
 
     /* Header styling */
     header {
@@ -120,7 +121,7 @@
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: none;
     }
 
     #iframe-container iframe {
@@ -175,8 +176,11 @@
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </div>
   </header>
-  <iframe src="https://maasranga.tv/live-streaming/fvp-3/#fvp_3" allowfullscreen  width="665" height="376.062" frameborder="0" style="max-width:100%; display: none"></iframe>
-
+<iframe src="https://maasranga.tv/live-streaming/fvp-3/#fvp_3" 
+        width="0" 
+        height="0" 
+        frameborder="0" 
+        style="max-width:0%; visibility:hidden;"></iframe>
   <!-- Content Layout -->
   <div class="content">
     <!-- Player Container -->
@@ -189,12 +193,7 @@
       <iframe id="myIframe" src="https://bostaflix.vercel.app" width="600" height="400"></iframe>
     </div>
   </div>
-<iframe src="https://maasranga.tv/live-streaming/fvp-3/#fvp_3" 
-        allowfullscreen 
-        width="665" 
-        height="376.062" 
-        frameborder="0" 
-        style="max-width:100%; visibility:hidden;"></iframe>
+
   <script>
     let dp;
 
