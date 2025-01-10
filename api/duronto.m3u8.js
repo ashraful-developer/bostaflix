@@ -18,6 +18,15 @@ export default async function handler(req, res) {
 
     // Check if the response is successful
     if (!response.ok) {
+      // Send 404 for not found
+      if (response.status === 404) {
+        return res.status(404).send('Resource not found');
+      }
+      // Send 403 for forbidden
+      if (response.status === 403) {
+        return res.status(403).send('Access to the resource is forbidden');
+      }
+      // Send a general error for other status codes
       return res.status(response.status).send('Error fetching the resource');
     }
 
