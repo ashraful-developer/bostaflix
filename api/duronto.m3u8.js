@@ -1,10 +1,20 @@
 export default async function handler(req, res) {
   // Fixed URL to proxy from
-  const httpUrl = "https://jadoo.iptvbd.xyz/jadoo.php?id=duronto_tv";
+  const httpUrl = "https://tvs1.aynaott.com/durontotv/index.m3u8?hdnts=st=1736502895~exp=1736546095~acl=/byte-capsule/*~data=103.185.251.136-WEB~hmac=5631f695d500e11509f4c0f2c4d9a92c29af1ff8aa65664dfbe5f58cbeb62254";
 
   try {
-    // Fetch the HTTP URL
-    const response = await fetch(httpUrl);
+    // Define request headers
+    const requestHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+      'Accept': 'application/vnd.apple.mpegurl',
+      'Referer': 'https://cloudtv.akamaized.net/',
+    };
+
+    // Fetch the HTTP URL with headers
+    const response = await fetch(httpUrl, {
+      method: 'GET',
+      headers: requestHeaders,
+    });
 
     // Check if the response is successful
     if (!response.ok) {
@@ -22,7 +32,6 @@ export default async function handler(req, res) {
     // Send the response data back to the client
     const body = await response.arrayBuffer();
     res.status(200).send(Buffer.from(body));
-
   } catch (error) {
     // Handle any errors during the fetch or streaming process
     return res.status(500).json({ error: 'Internal server error', details: error.message });
