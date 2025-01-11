@@ -8,8 +8,8 @@ export default async function handler(req, res) {
 
   // Construct the target URL based on the server parameter
   const baseUrls = {
-    1: "https://t.kyni.us/live.php?id=",
-    2: "https://uspro.click/toffee/tango/?id="
+    1: "https://uspro.click/jadoo/jadoo.php",
+    2: "https://t.kyni.us/jadu/jadoo.php"
   };
   const targetBaseUrl = baseUrls[server];
 
@@ -29,14 +29,22 @@ export default async function handler(req, res) {
     const response = await fetch(targetUrl, { headers });
 
     if (!response.ok) {
-      return res.status(response.status).send('Error fetching the resource');
+      // Handle specific HTTP errors from the fetch request
+      const errorMessageMap = {
+        403: 'Forbidden: Access denied to the target resource.',
+        404: 'Not Found: The requested resource could not be found.',
+        500: 'Internal Server Error: An error occurred on the target server.',
+        502: 'Bad Gateway: The target server returned an invalid response.'
+      };
+
+      const errorMessage = errorMessageMap[response.status] || 'Error fetching the resource';
+      return res.status(response.status).json({ error: errorMessage });
     }
 
     // Transform the M3U content
     let m3uContent = await response.text();
     const lines = m3uContent.split('\n');
     const transformedLines = lines.map(line => {
-      // Prepend the base URL to relative URLs
       if (line.startsWith('live.php')) {
         return `${baseUrl}/${line}`;
       }
@@ -55,6 +63,10 @@ export default async function handler(req, res) {
     res.status(200).send(transformedM3UContent);
 
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+    // Handle network or other unexpected errors
+    return res.status(500).json({
+      error: 'Internal server error: Unable to process the request.',
+      details: error.message
+    });
   }
 }
