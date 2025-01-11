@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Extract query parameters
-  const { id, server } = req.query;
+  const { id, server, referer } = req.query;
 
   // Validate required parameters
   if (!id || !server) {
@@ -21,8 +21,13 @@ export default async function handler(req, res) {
   const targetUrl = `${targetBaseUrl}?id=${encodeURIComponent(id)}`;
 
   try {
-    // Fetch the target URL
-    const response = await fetch(targetUrl);
+    // Fetch the target URL with a custom Referer header if provided
+    const headers = {};
+    if (referer) {
+      headers['Referer'] = referer;
+    }
+
+    const response = await fetch(targetUrl, { headers });
 
     // Check if the response is successful
     if (!response.ok) {
