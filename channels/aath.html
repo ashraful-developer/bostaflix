@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://bostaflix.vercel.app/static/DPlayer.min.css" />
+  <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
+  <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
   <style>
     /* General reset */
     body, html {
@@ -101,24 +104,23 @@
       height: calc(100vh - 60px); /* Adjusted for header */
     }
 
-    /* Iframe container */
+    /* Video player container */
     #player-container {
       flex: 3;
       background-color: white;
       position: relative;
-      min-height: 200px; /* Ensures adequate space */
+      min-height: 200px; /* Ensures adequate space for the player */
     }
 
-    #player-container iframe {
+    #dplayer {
       width: 100%;
-      height: 100%;
-      border: none;
+      aspect-ratio: 16 / 9;
     }
 
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: none;
+      overflow-y: auto;
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -179,12 +181,9 @@
 
   <!-- Content Layout -->
   <div class="content">
-    <!-- Embedded Page -->
+    <!-- Player Container -->
     <div id="player-container">
-      <iframe 
-        src="https://t.bdixtv24.com/?play=sonyaath" 
-        title="Embedded Page">
-      </iframe>
+      <div id="dplayer"></div>
     </div>
 
     <!-- Iframe Container -->
@@ -194,10 +193,37 @@
   </div>
 
   <script>
+    let dp;
+
+    function initPlayer() {
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: 'https://t.kyni.us/live.php?id=sonyaath',
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
+              }
+            }
+          }
+        }
+      });
+    }
+
     function toggleDropdown() {
       const dropdown = document.getElementById('dropdown');
       dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initPlayer();
+    });
 
     const iframe = document.getElementById('myIframe');
 
