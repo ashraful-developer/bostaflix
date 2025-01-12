@@ -79,19 +79,38 @@
       height: calc(100vh - 60px); /* Adjusted for header */
     }
 
-    #iframe-container {
-      flex: 3;
-      position: relative;
-      min-height: 200px;
-    }
+/* Main Iframe Container */
+#iframe-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: black; /* Black bars if needed */
+  overflow: hidden; /* Prevents overflow */
+}
 
-    #iframe {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: contain;
-      background-color: black;
-      border: none;
-    }
+/* Wrapper for Aspect Ratio Enforcement */
+#iframe-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black; /* Black bars outside iframe */
+  overflow: hidden;
+  position: relative;
+}
+
+/* Dynamic Iframe */
+#iframe {
+  border: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensures iframe adapts */
+  background-color: black; /* Optional, in case of white content edges */
+}
 
     #fullscreen-btn {
       display: none;
