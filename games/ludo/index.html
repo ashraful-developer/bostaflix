@@ -91,6 +91,24 @@
       border: none;
     }
 
+    #fullscreen-btn {
+      display: none;
+      position: relative;
+      margin-top: 10px;
+      margin-left: 0;
+      padding: 10px 20px;
+      background-color: #212121;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    #fullscreen-btn:hover {
+      background-color: #333;
+    }
+
     #mobile-open-btn {
       display: none;
       position: absolute;
@@ -158,12 +176,18 @@
         top: 60px; /* Below the header */
         left: 0;
         width: 100vw;
-        height: calc(100vh - 60px); /* Full height minus header */
+        height: calc(100vw / 16 * 9); /* Maintain 16:9 aspect ratio */
         z-index: 9999;
       }
 
       #close-player-btn {
         display: block; /* Show close button when player is opened */
+      }
+    }
+
+    @media (min-width: 769px) {
+      #fullscreen-btn {
+        display: block; /* Show fullscreen button on PC */
       }
     }
   </style>
@@ -188,6 +212,7 @@
     <div id="iframe-container">
       <iframe id="iframe" src="https://zv1y2i8p.play.gamezop.com/g/SkhljT2fdgb"></iframe>
       <button id="mobile-open-btn">Open Player</button>
+      <button id="fullscreen-btn">Fullscreen</button>
     </div>
 
     <!-- Sidebar Iframe -->
@@ -200,11 +225,11 @@
     const iframe = document.getElementById('iframe');
     const mobileOpenBtn = document.getElementById('mobile-open-btn');
     const closePlayerBtn = document.getElementById('close-player-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     function resetView() {
       if (window.innerWidth > 768) {
         iframe.style.display = 'block';
-        iframe.classList.remove('fullscreen');
         mobileOpenBtn.style.display = 'none';
         closePlayerBtn.style.display = 'none';
       } else {
@@ -228,6 +253,17 @@
       iframe.style.display = 'none';
       mobileOpenBtn.style.display = 'block';
       closePlayerBtn.style.display = 'none';
+    });
+
+    // Fullscreen button handler for PC
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        iframe.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     });
 
     // Reset view on resize
