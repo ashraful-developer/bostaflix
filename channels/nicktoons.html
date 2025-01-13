@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://bostaflix.vercel.app/static/DPlayer.min.css" />
-  <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
-  <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
+  <title>BOSTAFLIX</title>
   <style>
     /* General reset */
     body, html {
@@ -53,7 +51,6 @@
       border-radius: 5px;
     }
 
-    /* Mobile Dropdown Menu */
     .menu-icon {
       display: none;
       font-size: 1.5em;
@@ -84,9 +81,8 @@
 
     @media (max-width: 639px) {
       .nav-links {
-        display: none; /* Hide default links */
+        display: none;
       }
-      
       .menu-icon {
         display: block;
       }
@@ -101,26 +97,27 @@
       gap: 20px;
       box-sizing: border-box;
       flex-direction: row;
-      height: calc(100vh - 60px); /* Adjusted for header */
+      height: calc(100vh - 60px);
     }
 
-    /* Video player container */
+    /* Video iframe container */
     #player-container {
       flex: 3;
       background-color: white;
       position: relative;
-      min-height: 200px; /* Ensures adequate space for the player */
+      min-height: 200px;
     }
 
-    #dplayer {
+    #video-iframe {
       width: 100%;
-      aspect-ratio: 16 / 9;
+      height: 100%;
+      border: none;
     }
 
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: none;
+      overflow-y: auto;
       background-color: #fff;
       padding: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -132,7 +129,6 @@
       border: none;
     }
 
-    /* Mobile view adjustments */
     @media (max-width: 639px) {
       .content {
         flex-direction: column;
@@ -141,19 +137,14 @@
       #player-container, #iframe-container {
         width: 100%;
       }
-      
+
       #player-container {
         flex: none;
         height: auto;
       }
-      
-      #iframe-container {
-        height: calc(100vh - 60px - 56.25vw); /* Full height minus header and player */
-      }
 
-      #iframe-container iframe {
-        width: 100%;
-        height: 100%;
+      #iframe-container {
+        height: calc(100vh - 60px - 56.25vw);
       }
     }
   </style>
@@ -183,7 +174,11 @@
   <div class="content">
     <!-- Player Container -->
     <div id="player-container">
-      <div id="dplayer"></div>
+      <iframe
+        id="video-iframe"
+        src="https://www.bosta.rf.gd/nicktoons.html"
+        allowfullscreen>
+      </iframe>
     </div>
 
     <!-- Iframe Container -->
@@ -193,56 +188,10 @@
   </div>
 
   <script>
-    let dp;
-
-    function initPlayer() {
-      dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        live: true,
-        autoplay: true,
-        video: {
-          url: 'https://www.bosta.rf.gd/live.php?https://d20opqftbkv2z0.cloudfront.net/live13/nicktoons/bitrate1-clear.isml/live.m3u8',
-          type: 'customHls',
-          customType: {
-            customHls: function(video, player) {
-              if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(video.src);
-                hls.attachMedia(video);
-              }
-            }
-          }
-        }
-      });
-    }
-
     function toggleDropdown() {
       const dropdown = document.getElementById('dropdown');
       dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      initPlayer();
-    });
-
-    const iframe = document.getElementById('myIframe');
-
-    iframe.onload = () => {
-      try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        
-        iframeDocument.addEventListener('click', function(event) {
-          const target = event.target.closest('a');
-          
-          if (target && target.tagName === 'A' && target.href) {
-            event.preventDefault();
-            window.location.href = target.href;
-          }
-        });
-      } catch (error) {
-        console.log("Error accessing iframe content:", error);
-      }
-    };
   </script>
 </body>
 </html>
