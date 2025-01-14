@@ -14,10 +14,10 @@ export default async function handler(req, res) {
 
     // Process the content
     const modifiedContent = m3u8Content.replace(
-      /(https?:\/\/.+\/)([^\/]+\/)?(\d{2}\/)(0*)(\d+\.\w+)/g,
-      (_, base, optionalDir, subDir, leadingZeros, file) => {
-        const updatedFile = file.replace(/^0/, ""); // Remove one leading zero
-        return `${base}${optionalDir || ""}${subDir.replace(/\/$/, "")}${updatedFile}`;
+      /(https?:\/\/.+\/)([^\/]+\/)([^\/]+\.\w+)/g,
+      (_, base, directory, file) => {
+        const updatedFile = file.replace(/-/, "-0"); // Add a leading zero
+        return `${base}${directory.replace(/\/$/, "")}${updatedFile}`;
       }
     );
 
