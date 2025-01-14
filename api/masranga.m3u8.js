@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Define the specific URL to fetch the m3u8 content
-  const m3u8Url = "https://bosta-live.vercel.app/api/masranga.m3u8";
+  const m3u8Url = "https://example.com/path/to/your/file.m3u8";
 
   try {
     // Fetch the m3u8 file content
@@ -12,10 +12,13 @@ export default async function handler(req, res) {
 
     const m3u8Content = await response.text();
 
-    // Process the content to remove only the last "/" in segment URLs
+    // Process the content
     const modifiedContent = m3u8Content.replace(
-      /(https?:\/\/.+\/)([^\/]+\/)([^\/]+\.\w+)/g,
-      (_, base, directory, file) => `${base}${directory.replace(/\/$/, "")}${file}`
+      /(https?:\/\/.+\/)([^\/]+\/)(0*)([^\/]+\.\w+)/g,
+      (_, base, directory, zeros, file) => {
+        const updatedFile = file.replace(/^0/, ""); // Remove one leading zero
+        return `${base}${directory.replace(/\/$/, "")}${updatedFile}`;
+      }
     );
 
     // Return the modified m3u8 content
