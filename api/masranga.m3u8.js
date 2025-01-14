@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Define the specific URL to fetch the m3u8 content
-  const m3u8Url = "https://example.com/path/to/your/file.m3u8";
+  const m3u8Url = "https://bosta-live.vercel.app/api/masranga.m3u8";
 
   try {
     // Fetch the m3u8 file content
