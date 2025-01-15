@@ -1,18 +1,19 @@
 export default async function handler(req, res) {
-  const { id, server, referer, baseUrl } = req.query;
+  // Extract query parameters
+  const { id, server, referer } = req.query;
 
   // Validate required parameters
-  if (!id || !server || !baseUrl) {
-    return res.status(400).json({ error: 'Missing required query parameters: id, server, or baseUrl' });
+  if (!id || !server) {
+    return res.status(400).json({ error: 'Missing required query parameters: id or server' });
   }
 
   // Construct the target URL based on the server parameter
   const baseUrls = {
-    1: "https://uspro.click/jadoo/jadoo.php",
-    2: "https://t.kyni.us/jadu/jadoo.php"
+    1: "https://bdixtv24.site/toffee/live.php",
+    2: "https://t.kyni.us/live.php"
   };
   const targetBaseUrl = baseUrls[server];
-
+  
   if (!targetBaseUrl) {
     return res.status(400).json({ error: 'Invalid server parameter' });
   }
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
   const targetUrl = `${targetBaseUrl}?id=${encodeURIComponent(id)}`;
 
   try {
-    // Fetch the M3U playlist
+    // Fetch the target URL with a custom Referer header if provided
     const headers = {};
     if (referer) {
       headers['Referer'] = referer;
@@ -28,45 +29,25 @@ export default async function handler(req, res) {
 
     const response = await fetch(targetUrl, { headers });
 
+    // Check if the response is successful
     if (!response.ok) {
-      // Handle specific HTTP errors from the fetch request
-      const errorMessageMap = {
-        403: 'Forbidden: Access denied to the target resource.',
-        404: 'Not Found: The requested resource could not be found.',
-        500: 'Internal Server Error: An error occurred on the target server.',
-        502: 'Bad Gateway: The target server returned an invalid response.'
-      };
-
-      const errorMessage = errorMessageMap[response.status] || 'Error fetching the resource';
-      return res.status(response.status).json({ error: errorMessage });
+      return res.status(response.status).send('Error fetching the resource');
     }
 
-    // Transform the M3U content
-    let m3uContent = await response.text();
-    const lines = m3uContent.split('\n');
-    const transformedLines = lines.map(line => {
-      if (line.startsWith('live.php')) {
-        return `${baseUrl}/${line}`;
-      }
-      return line;
-    });
-
-    const transformedM3UContent = transformedLines.join('\n');
-
-    // Set CORS headers
+    // Set CORS headers to allow cross-origin requests
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Set content-type header and send the modified playlist
-    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-    res.status(200).send(transformedM3UContent);
+    // Set the appropriate content-type header from the proxied resource
+    res.setHeader('Content-Type', response.headers.get('content-type'));
+
+    // Send the response data back to the client
+    const body = await response.arrayBuffer();
+    res.status(200).send(Buffer.from(body));
 
   } catch (error) {
-    // Handle network or other unexpected errors
-    return res.status(500).json({
-      error: 'Internal server error: Unable to process the request.',
-      details: error.message
-    });
+    // Handle any errors during the fetch or streaming process
+    return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }
