@@ -1,31 +1,47 @@
-export default async function handler(req, res) {
-  // Define the specific URL to fetch the m3u8 content
-  const m3u8Url = "https://bosta-live.vercel.app/api/masranga.m3u8";
+// Set the content type to indicate an M3U8 file
+const headers = new Headers();
+headers.append('Content-Type', 'application/vnd.apple.mpegurl');
 
-  try {
-    // Fetch the m3u8 file content
-    const response = await fetch(m3u8Url);
+// Validate and retrieve the GMT parameter from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const gmtParam = urlParams.get('gmt');
 
-    if (!response.ok) {
-      return res.status(response.status).send("Failed to fetch the m3u8 file.");
-    }
-
-    const m3u8Content = await response.text();
-
-    // Process the content
-    const modifiedContent = m3u8Content.replace(
-      /(https?:\/\/.+\/)([^\/]+\/)([^\/]+\.\w+)/g,
-      (_, base, directory, file) => {
-        const updatedFile = file.replace(/-/, "-0"); // Add a leading zero
-        return `${base}${directory.replace(/\/$/, "")}${updatedFile}`;
-      }
-    );
-
-    // Return the modified m3u8 content
-    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-    res.status(200).send(modifiedContent);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred while processing the m3u8 file.");
-  }
+if (!gmtParam || isNaN(gmtParam)) {
+    // Bad Request
+    console.error("Invalid or missing 'gmt' parameter.");
+    throw new Error("Invalid or missing 'gmt' parameter.");
 }
+
+const gmtOffset = parseInt(gmtParam); // GMT offset in hours
+
+// Convert the GMT offset to seconds
+const currentUtcTime = Math.floor(Date.now() / 1000);
+const gmtInSeconds = currentUtcTime + (gmtOffset * 3600);
+
+// Define the base URL for the segments
+const baseUrl = "https://mtv.sunplex.live/MAASRANGA-TV/tracks-v1a1";
+
+// Calculate the timestamp for the program date
+const programDateTime = new Date(gmtInSeconds * 1000).toISOString();
+
+// Define the number of segments and their duration
+const segmentsCount = 4;
+const segmentDuration = 1.200; // seconds
+
+// Start generating the M3U8 content
+let m3u8Content = "#EXTM3U\n";
+m3u8Content += "#EXT-X-TARGETDURATION:2\n";
+m3u8Content += "#EXT-X-VERSION:3\n";
+m3u8Content += "#EXT-X-MEDIA-SEQUENCE:" + Math.floor(gmtInSeconds / segmentDuration) + "\n";
+m3u8Content += "#EXT-X-PROGRAM-DATE-TIME:" + programDateTime + "\n";
+
+// Generate the segments
+for (let i = 0; i < segmentsCount; i++) {
+    const segmentTime = new Date((gmtInSeconds + i * segmentDuration) * 1000).toISOString().replace(/T/, '/').replace(/:/g, '/').split('.')[0];
+    m3u8Content += "#EXTINF:" + segmentDuration + ",\n";
+    m3u8Content += `${baseUrl}/${segmentTime}-01200.ts\n`;
+}
+
+// Output the M3U8 content
+console.log(m3u8Content);
+
