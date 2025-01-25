@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Fixed URL to proxy from
-  const httpUrl = "https://bdixtv247.xyz/m3u8.php?id=ntv&e=.m3u8";
+  const httpUrl = "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8";
 
   try {
     // Fetch the HTTP URL
