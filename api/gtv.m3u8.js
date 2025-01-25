@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Fixed URL to proxy from
   const httpUrl = "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8";
 
   try {
@@ -11,20 +10,37 @@ export default async function handler(req, res) {
       return res.status(response.status).send('Error fetching the resource');
     }
 
+    // Get the M3U8 file content
+    const text = await response.text();
+
+    // Base URL for resolving relative URLs
+    const baseUrl = new URL(httpUrl).origin;
+
+    // Update relative URLs in the M3U8 file
+    const updatedText = text.replace(/^(?!#)(.+)$/gm, (line) => {
+      try {
+        // If the line is a URL, resolve it if it's relative
+        const url = new URL(line, baseUrl);
+        return url.toString();
+      } catch {
+        // Return the line as is if it's not a valid URL
+        return line;
+      }
+    });
+
     // Set CORS headers to allow cross-origin requests
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Set the appropriate content-type header from the proxied resource
-    res.setHeader('Content-Type', response.headers.get('content-type'));
+    // Set the appropriate content-type header
+    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
 
-    // Send the response data back to the client
-    const body = await response.arrayBuffer();
-    res.status(200).send(Buffer.from(body));
+    // Send the modified M3U8 file back to the client
+    res.status(200).send(updatedText);
 
   } catch (error) {
-    // Handle any errors during the fetch or streaming process
+    // Handle any errors during the fetch or processing
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }
