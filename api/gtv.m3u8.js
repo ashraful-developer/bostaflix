@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
   const httpUrl = "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8";
+  const specificBaseUrl = "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/"; // Replace with your specific base URL
 
   try {
     // Fetch the HTTP URL
@@ -13,14 +14,11 @@ export default async function handler(req, res) {
     // Get the M3U8 file content
     const text = await response.text();
 
-    // Base URL for resolving relative URLs
-    const baseUrl = new URL(httpUrl).origin;
-
-    // Update relative URLs in the M3U8 file
+    // Update relative URLs in the M3U8 file with the specific base URL
     const updatedText = text.replace(/^(?!#)(.+)$/gm, (line) => {
       try {
-        // If the line is a URL, resolve it if it's relative
-        const url = new URL(line, baseUrl);
+        // Resolve the line as a relative URL against the specific base URL
+        const url = new URL(line, specificBaseUrl);
         return url.toString();
       } catch {
         // Return the line as is if it's not a valid URL
