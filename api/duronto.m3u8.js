@@ -1,5 +1,5 @@
 export default function handler(req, res) {
-  const baseTsUrl = "https://starshare.live/live/KVSingh/KVSingh/433_";
+  const baseTsUrl = "https://allinonereborn.com/test.m3u8/ts.php?ts=https://starshare.live/live/KVSingh/KVSingh/433_";
   const segments = [];
   const mediaSequence = Math.floor(Date.now() / 1000); // Using timestamp for dynamic sequence
 
