@@ -1,44 +1,20 @@
-export default async function handler(req, res) {
-  const httpUrl = "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/mono.m3u8";
-  const specificBaseUrl = "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/"; // Replace with your specific base URL
+export default function handler(req, res) {
+  const baseTsUrl = "https://starshare.live/live/KVSingh/KVSingh/433_";
+  const segments = [];
+  const mediaSequence = Math.floor(Date.now() / 1000); // Using timestamp for dynamic sequence
 
-  try {
-    // Fetch the HTTP URL
-    const response = await fetch(httpUrl);
-
-    // Check if the response is successful
-    if (!response.ok) {
-      return res.status(response.status).send('Error fetching the resource');
-    }
-
-    // Get the M3U8 file content
-    const text = await response.text();
-
-    // Update relative URLs in the M3U8 file with the specific base URL
-    const updatedText = text.replace(/^(?!#)(.+)$/gm, (line) => {
-      try {
-        // Resolve the line as a relative URL against the specific base URL
-        const url = new URL(line, specificBaseUrl);
-        return url.toString();
-      } catch {
-        // Return the line as is if it's not a valid URL
-        return line;
-      }
-    });
-
-    // Set CORS headers to allow cross-origin requests
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    // Set the appropriate content-type header
-    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-
-    // Send the modified M3U8 file back to the client
-    res.status(200).send(updatedText);
-
-  } catch (error) {
-    // Handle any errors during the fetch or processing
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+  for (let i = 0; i < 5; i++) {
+    const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+    const duration = (Math.random() * 10).toFixed(2); // Random duration
+    segments.push(`#EXTINF:${duration},\n${baseTsUrl}${randomNumber}.ts`);
   }
+
+  const m3u8Content = `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:${mediaSequence}
+${segments.join('\n')}
+#EXT-X-ENDLIST`;
+
+  res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+  res.status(200).send(m3u8Content);
 }
