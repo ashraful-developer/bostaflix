@@ -6,7 +6,7 @@ export default function handler(req, res) {
   for (let i = 0; i < 5; i++) {
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
     const duration = (Math.random() * 10).toFixed(2); // Random duration
-    segments.push(`#EXTINF:${duration},\n${baseTsUrl}${randomNumber}.ts`);
+    segments.push(`#EXTINF:,\n${baseTsUrl}${randomNumber}.ts`);
   }
 
   const m3u8Content = `#EXTM3U
