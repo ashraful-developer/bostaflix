@@ -16,7 +16,7 @@ export default function handler(req, res) {
 
   const m3u8Content = `#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10
+#EXT-X-TARGETDURATION:12
 #EXT-X-MEDIA-SEQUENCE:${mediaSequence}
 ${segments.join('\n')}
 #EXT-X-ENDLIST`;
