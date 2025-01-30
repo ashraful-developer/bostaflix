@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     duronto: "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/",
     gtv: "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/",
     tsports: "https://cdn.hoichoi24.com/t-sports-tv5.hoichoi24.com/tracks-v1a1/",
-    tsports-2: "https://www.its-ferdos-alom.top/rajpondit/ts/"
+    tsports-2: "https://www.its-ferdos-alom.top/rajpondit/ts/",
   };
 
   // Get the ID from query parameters
