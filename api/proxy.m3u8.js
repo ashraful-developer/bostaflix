@@ -1,35 +1,33 @@
 export default async function handler(req, res) {
+  const { id, server } = req.query; // Changed 'string' to 'server'
+  if (!id || !server) {
+    return res.status(400).send("Missing parameters");
+  }
+
+  // Define hardcoded M3U8 links
+  const playlists = {
+    "1": "https://bostaflix.vercel.app/api/stream.m3u8?id=4",
+    "2": "https://example.com/playlist2.m3u8",
+  };
+
+  const m3u8Url = playlists[id];
+  if (!m3u8Url) {
+    return res.status(404).send("Playlist not found");
+  }
+
   try {
-    const { url } = req.query;
-
-    if (!url) {
-      return res.status(400).send('Missing URL parameter.');
-    }
-
-    // Fetch the original m3u8 file
-    const response = await fetch(url);
+    const response = await fetch(m3u8Url);
     if (!response.ok) {
-      return res.status(response.status).send(`Failed to fetch m3u8: ${response.statusText}`);
+      return res.status(500).send("Failed to fetch playlist");
     }
+    let content = await response.text();
 
-    const baseUrl = url.split('?')[0].substring(0, url.split('?')[0].lastIndexOf('/') + 1);
-    const content = await response.text();
+    // Modify the M3U8 file by appending the server URL to each segment
+    content = content.replace(/^(?!#)(.*\.ts)/gm, `https://allinonereborn.com/test.m3u8/ts.php?url=$1`);
 
-    // Rewrite URLs in the m3u8 file
-    const rewrittenContent = content.replace(/^(?!#)(.*?)(\\.m3u8|\\.ts)$/gm, (match, relativePath, extension) => {
-      const resolvedUrl = new URL(relativePath, baseUrl).href;
-      if (extension === '.m3u8') {
-        return `https://bostaflix.vercel.app/api/proxy.m3u8?url=${encodeURIComponent(resolvedUrl)}`;
-      } else if (extension === '.ts') {
-        return resolvedUrl;
-      }
-      return match;
-    });
-
-    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-    res.status(200).send(rewrittenContent);
+    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+    res.send(content);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Error processing playlist");
   }
 }
