@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
   // Define a mapping of IDs to URLs
   const urlMap = {
