@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     // Hardcoded M3U8 URL
-    const m3u8Url = "https://bostaflix.vercel.app/api/stream.m3u8?id=5";
+    const m3u8Url = "https://bostaflix.vercel.app/api/stream.m3u8?id=4";
     const prefix = "https://allinonereborn.com/test.m3u8/ts.php?url=";
 
     try {
