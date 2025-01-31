@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
     // Hardcoded M3U8 URL
-    const m3u8Url = "https://bostaflix.vercel.app/api/stream.m3u8?id=4";
-    const prefix = "https://allinonereborn.com/test.m3u8/ts.php?url=";
+    const m3u8Url = "http://allinonereborn.com/test.m3u8/ts.php?ts=http://stvlive.net:8080/tsports2/tracks-v1a1/mono.m3u8";
+    const prefix = "https://allinonereborn.com/test.m3u8/ts.php?ts=http://stvlive.net:8080/tsports2/tracks-v1a1/";
 
     try {
         // Fetch the M3U8 playlist
