@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     2: "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8",
     3: "https://cdn.hoichoi24.com/t-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8",
     4: "http://stvlive.net:8080/tsports2/tracks-v1a1/mono.m3u8",
-    5: "stream.m3u8?id=4",
+    5: "https://bostaflix.vercel.app/api/stream.m3u8?id=4",
   };
 
   // Define corresponding base URLs
