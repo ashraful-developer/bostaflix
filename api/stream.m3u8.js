@@ -12,12 +12,12 @@ export default async function handler(req, res) {
     1: "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/",
     2: "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/",
     3: "https://cdn.hoichoi24.com/t-sports-tv5.hoichoi24.com/tracks-v1a1/",
-    4: "http://stvlive.net:8080/tsports2/tracks-v1a1/",
+    4: "https://allinonereborn.com/test.m3u8/ts.php?id=http://stvlive.net:8080/tsports2/tracks-v1a1/",
   };
 
   // Get the ID from query parameters
   const { id } = req.query;
-  
+
   // Validate ID
   if (!urlMap[id]) {
     return res.status(400).json({ error: "Invalid ID" });
@@ -35,14 +35,9 @@ export default async function handler(req, res) {
 
     const text = await response.text();
 
-    // Update relative URLs in the M3U8 file
-    const updatedText = text.replace(/^(?!#)(.+)$/gm, (line) => {
-      try {
-        const url = new URL(line, specificBaseUrl);
-        return url.toString();
-      } catch {
-        return line;
-      }
+    // Update only relative URLs in the M3U8 file
+    const updatedText = text.replace(/^(?!#)(?!https?:\/\/)(.+)$/gm, (line) => {
+      return specificBaseUrl + line;
     });
 
     // Set CORS headers
