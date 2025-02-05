@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Removed DPlayer CSS/JS -->
+  <style>
+    /* General reset */
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      height: 100vh;
+    }
+
+    /* Header styling */
+    header {
+      background-color: #212121;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100vw;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      color: #ff0000;
+      text-decoration: none;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: #555;
+      border-radius: 5px;
+    }
+
+    /* Mobile Dropdown Menu */
+    .menu-icon {
+      display: none;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      display: none;
+      flex-direction: column;
+      background-color: #333;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 100%;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    .dropdown a {
+      padding: 10px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .dropdown a:hover {
+      background-color: #444;
+    }
+
+    @media (max-width: 639px) {
+      .nav-links {
+        display: none; /* Hide default links */
+      }
+
+      .menu-icon {
+        display: block;
+      }
+    }
+
+    /* Layout styling */
+    .content {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      gap: 20px;
+      box-sizing: border-box;
+      flex-direction: row;
+      height: calc(100vh - 60px); /* Adjusted for header */
+    }
+
+    /* Video player container using an iframe */
+    #player-container {
+      flex: 3;
+      background-color: white;
+      position: relative;
+      min-height: 200px; /* Ensures adequate space for the player */
+    }
+
+    #videoIframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Iframe container styling */
+    #iframe-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow: hidden;
+    }
+
+    #iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Mobile view adjustments */
+    @media (max-width: 639px) {
+      .content {
+        flex-direction: column;
+      }
+
+      #player-container,
+      #iframe-container {
+        width: 100%;
+      }
+
+      #player-container {
+        flex: none;
+        height: auto;
+      }
+
+      #iframe-container {
+        height: calc(100vh - 60px - 56.25vw); /* Full height minus header and player */
+      }
+
+      #iframe-container iframe {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+    <div class="menu-icon" onclick="toggleDropdown()">☰</div>
+    <div class="dropdown" id="dropdown">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </div>
+  </header>
+
+  <!-- Content Layout -->
+  <div class="content">
+    <!-- Video Player Container using iframe instead of DPlayer -->
+    <div id="player-container">
+      <!-- Replace the src URL with your actual video embed URL -->
+      <iframe
+        id="videoIframe"
+        src="https://bdixtv24.site/bdix/play.php?id=NGO-GEROPHY"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <!-- Iframe Container -->
+    <div id="iframe-container">
+      <iframe
+        id="myIframe"
+        src="https://bostaflix.vercel.app"
+        width="600"
+        height="400"
+      ></iframe>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display =
+        dropdown.style.display === "flex" ? "none" : "flex";
+    }
+
+    // Optional: intercept link clicks within the second iframe
+    const iframe = document.getElementById("myIframe");
+
+    iframe.onload = () => {
+      try {
+        const iframeDocument =
+          iframe.contentDocument || iframe.contentWindow.document;
+        iframeDocument.addEventListener("click", function (event) {
+          const target = event.target.closest("a");
+          if (target && target.tagName === "A" && target.href) {
+            event.preventDefault();
+            window.location.href = target.href;
+          }
+        });
+      } catch (error) {
+        console.log("Error accessing iframe content:", error);
+      }
+    };
+  </script>
+</body>
+</html>
