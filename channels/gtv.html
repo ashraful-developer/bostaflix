@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://bostaflix.vercel.app/static/DPlayer.min.css" />
-  <script src="https://bostaflix.vercel.app/static/DPlayer.min.js"></script>
-  <script src="https://bostaflix.vercel.app/static/hls.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Removed DPlayer CSS/JS -->
   <style>
     /* General reset */
-    body, html {
+    body,
+    html {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
@@ -86,7 +85,7 @@
       .nav-links {
         display: none; /* Hide default links */
       }
-      
+
       .menu-icon {
         display: block;
       }
@@ -104,7 +103,7 @@
       height: calc(100vh - 60px); /* Adjusted for header */
     }
 
-    /* Video player container */
+    /* Video player container using an iframe */
     #player-container {
       flex: 3;
       background-color: white;
@@ -112,18 +111,17 @@
       min-height: 200px; /* Ensures adequate space for the player */
     }
 
-    #dplayer {
+    #videoIframe {
       width: 100%;
-      aspect-ratio: 16 / 9;
+      height: 100%;
+      border: none;
     }
 
     /* Iframe container styling */
     #iframe-container {
       flex: 1;
-      overflow-y: none;
-      background-color: #fff;
-      padding: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      overflow: hidden;
     }
 
     #iframe-container iframe {
@@ -138,15 +136,16 @@
         flex-direction: column;
       }
 
-      #player-container, #iframe-container {
+      #player-container,
+      #iframe-container {
         width: 100%;
       }
-      
+
       #player-container {
         flex: none;
         height: auto;
       }
-      
+
       #iframe-container {
         height: calc(100vh - 60px - 56.25vw); /* Full height minus header and player */
       }
@@ -181,60 +180,44 @@
 
   <!-- Content Layout -->
   <div class="content">
-    <!-- Player Container -->
+    <!-- Video Player Container using iframe instead of DPlayer -->
     <div id="player-container">
-      <div id="dplayer"></div>
+      <!-- Replace the src URL with your actual video embed URL -->
+      <iframe
+        id="videoIframe"
+        src="https://bdixtv24.site/bdix/play.php?id=GTV"
+        allowfullscreen
+      ></iframe>
     </div>
 
     <!-- Iframe Container -->
     <div id="iframe-container">
-      <iframe id="myIframe" src="https://bostaflix.vercel.app" width="600" height="400"></iframe>
+      <iframe
+        id="myIframe"
+        src="https://bostaflix.vercel.app"
+        width="600"
+        height="400"
+      ></iframe>
     </div>
   </div>
 
   <script>
-    let dp;
-
-    function initPlayer() {
-      dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        live: true,
-        autoplay: true,
-        video: {
-          url: 'https://cdneu.ncare.live/gazi/gazitv249dd9ed1e/playlist.m3u8?t=02de70e0281844f08530ceb7d4b34fdb',
-          type: 'customHls',
-          customType: {
-            customHls: function(video, player) {
-              if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(video.src);
-                hls.attachMedia(video);
-              }
-            }
-          }
-        }
-      });
-    }
-
     function toggleDropdown() {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display =
+        dropdown.style.display === "flex" ? "none" : "flex";
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      initPlayer();
-    });
-
-    const iframe = document.getElementById('myIframe');
+    // Optional: intercept link clicks within the second iframe
+    const iframe = document.getElementById("myIframe");
 
     iframe.onload = () => {
       try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        
-        iframeDocument.addEventListener('click', function(event) {
-          const target = event.target.closest('a');
-          
-          if (target && target.tagName === 'A' && target.href) {
+        const iframeDocument =
+          iframe.contentDocument || iframe.contentWindow.document;
+        iframeDocument.addEventListener("click", function (event) {
+          const target = event.target.closest("a");
+          if (target && target.tagName === "A" && target.href) {
             event.preventDefault();
             window.location.href = target.href;
           }
