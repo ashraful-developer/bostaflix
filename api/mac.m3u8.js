@@ -1,22 +1,33 @@
-export default function handler(req, res) {
-  const { id } = req.query;
-  if (!id) {
-    return res.status(400).send("Missing required 'id' query parameter");
-  }
+export default async function handler(req, res) {
+    try {
+        // Get the ID from the query parameter
+        const { id } = req.query;
+        if (!id) {
+            return res.status(400).send("Missing 'id' parameter");
+        }
 
-  const baseTsUrl = `https://allinonereborn.com/test.m3u8/ts.php?ts=https://starshare.live/live/KVSingh/KVSingh/${id}_`;
-  const mediaSequence = Math.floor(Date.now() / 10); // Slower increment to simulate live
-  const now = new Date();
-  const randomNumber = `${now.getMinutes()}${now.getSeconds()}`; // Minute + Second format
-  const duration = (Math.random() * 10).toFixed(2); // Random duration
+        // Construct the M3U8 URL
+        const m3u8Url = `https://starshare.live/live/KVSingh/KVSingh/${id}.m3u8`;
+        
+        // Fetch the M3U8 file
+        const response = await fetch(m3u8Url);
+        if (!response.ok) {
+            return res.status(response.status).send("Failed to fetch M3U8 file");
+        }
+        const m3u8Content = await response.text();
 
-  const m3u8Content = `#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:12
-#EXT-X-MEDIA-SEQUENCE:${mediaSequence}
-#EXTINF:12,
-${baseTsUrl}${randomNumber}.ts`;
+        // Base URL to prepend to each link
+        const baseUrl = "https://allinonereborn.com/test.m3u8/ts.php?ts=https://live6.ostv.pro/";
+        
+        // Modify the M3U8 content
+        const modifiedM3U8 = m3u8Content.split('\n').map(line => {
+            return line.startsWith("/") ? baseUrl + line.substring(1) : line;
+        }).join('\n');
 
-  res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-  res.status(200).send(m3u8Content);
+        // Return the modified M3U8
+        res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+        res.status(200).send(modifiedM3U8);
+    } catch (error) {
+        res.status(500).send("Server error: " + error.message);
+    }
 }
