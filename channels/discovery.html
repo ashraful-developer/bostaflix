@@ -121,6 +121,9 @@
     #iframe-container {
       flex: 1;
       overflow-y: auto;
+      background-color: #fff;
+      padding: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
@@ -176,8 +179,7 @@
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </div>
   </header>
-
-  <!-- Content Layout -->
+   <!-- Content Layout -->
   <div class="content">
     <!-- Player Container -->
     <div id="player-container">
@@ -199,7 +201,7 @@
         live: true,
         autoplay: true,
         video: {
-          url: 'https://bdixtv24.site/toffee/live.php?id=discovery_hd&e=.m3u8',
+          url: 'https://bostaflix.vercel.app/api/stream.m3u8?id=2',
           type: 'customHls',
           customType: {
             customHls: function(video, player) {
