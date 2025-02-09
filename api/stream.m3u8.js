@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     2: "https://cdn.hoichoi24.com/DiscoveryHD/tracks-v1a1/",
     3: "https://cdn.hoichoi24.com/Nagorik-TV-Hoichoi24.com/tracks-v1a1/",
     4: "https://cdn.hoichoi24.com/hoichoi24.com-T-sports/tracks-v1a1/",
-    5: "https://cdn.hoichoi24.com/SP-GTV-hoichoi24.com/tracks-v1a1/
+    5: "https://cdn.hoichoi24.com/SP-GTV-hoichoi24.com/tracks-v1a1/",
   };
 
   const { id } = req.query;
