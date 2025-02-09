@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const baseUrls = {
     1: "https://cdn.hoichoi24.com/Duronto/tracks-v1a1/",
     2: "https://cdn.hoichoi24.com/DiscoveryHD/tracks-v1a1/",
-    3: "https://cdn.hoichoi24.com/Nagorik-TV-Hoichoi24.com/",
+    3: "https://cdn.hoichoi24.com/Nagorik-TV-Hoichoi24.com/tracks-v1a1/",
   };
 
   const { id } = req.query;
