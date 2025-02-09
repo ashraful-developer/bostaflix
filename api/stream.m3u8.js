@@ -1,16 +1,14 @@
 export default async function handler(req, res) {
   const urlMap = {
-    1: "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/mono.m3u8",
-    2: "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8",
-    3: "https://cdn.hoichoi24.com/t-sports-tv5.hoichoi24.com/tracks-v1a1/mono.m3u8",
-    4: "https://allinonereborn.com/test.m3u8/ts.php?ts=http://stvlive.net:8080/tsports2/tracks-v1a1/mono.m3u8",
+    1: "https://cdn.hoichoi24.com/Duronto/tracks-v1a1/mono.ts.m3u8",
+    2: "https://cdn.hoichoi24.com/DiscoveryHD/tracks-v1a1/mono.ts.m3u8",
+    3: "https://cdn.hoichoi24.com/Nagorik-TV-Hoichoi24.com/tracks-v1a1/mono.ts.m3u8",
   };
 
   const baseUrls = {
-    1: "https://cdn.hoichoi24.com/carton-duronto/tracks-v1a1/",
-    2: "https://cdn.hoichoi24.com/gtv-sports-tv5.hoichoi24.com/tracks-v1a1/",
-    3: "https://cdn.hoichoi24.com/t-sports-tv5.hoichoi24.com/tracks-v1a1/",
-    4: "http://stvlive.net:8080/tsports2/tracks-v1a1/",
+    1: "https://cdn.hoichoi24.com/Duronto/tracks-v1a1/",
+    2: "https://cdn.hoichoi24.com/DiscoveryHD/tracks-v1a1/",
+    3: "https://cdn.hoichoi24.com/Nagorik-TV-Hoichoi24.com/",
   };
 
   const { id } = req.query;
