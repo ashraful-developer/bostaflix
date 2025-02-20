@@ -1,309 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
-    <style>
-        body {
-            background: url('bosta.png') center center / cover no-repeat;
-            margin: 0;
-            padding: 0;
-            color: white;
-            font-family: Arial, sans-serif;
-            scroll-behavior: smooth;
-        }
-            /* Header styling */
-    header {
-      background-color: #212121;
-      color: #fff;
-      padding: 10px 20px;
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://bosta-live.vercel.app/DPlayer.min.css" />
+  <script src="https://bosta-live.vercel.app/DPlayer.min.js"></script>
+  <script src="https://bosta-live.vercel.app/hls.min.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
       display: flex;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
+      position: relative;
+    }
+
+    #dplayer {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     .logo {
-      color: #ff0000;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+      width: 9%;
+      max-height: 12%;
+      opacity: 0.5;
+      z-index: 2;
+      pointer-events: none;
     }
-
-    .nav-links {
-      display: flex;
-      gap: 15px;
-    }
-
-    .nav-links a {
-      color: #fff;
-      text-decoration: none;
-      padding: 5px 10px;
-    }
-
-        /* Iframe container */
-        .iframe-container {
-            padding-bottom: auto;
-            aspect-ratio: 16 / 9;
-            position: relative;
-            margin: 20px auto;
-            max-width: 100%;
-        }
-
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Server buttons */
-        .server-buttons-container {
-            width: 100%;
-            padding: 20px 0;
-            background: rgba(0, 0, 0, 0.8);
-            text-align: center;
-            display: none;
-            transition: all 0.3s ease;
-            color: white;
-        }
-
-        .server-buttons-container.show {
-            display: block;
-        }
-
-        .server-buttons-container button {
-            background-color: #444;
-            border: 1px solid #fff;
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            color: white;
-        }
-
-        .server-buttons-container button:hover {
-            background-color: #666;
-        }
-
-        /* Logo container */
-        .logos-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            padding: 10px;
-            margin: 10px auto;
-        }
-
-        .logos-container img {
-            width: 160px;
-            height: 120px;
-            background-color: white;
-            object-fit: contain;
-            aspect-ratio: 4 / 3;
-            padding: 5px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .logos-container img:hover {
-            transform: scale(1.1);
-        }
-
-        /* Category filter */
-        .category-filter {
-            margin: 20px auto;
-            text-align: center;
-        }
-
-        .category-filter select {
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        @media (min-width: 720px) {
-            .iframe-container {
-                max-height: 70vh;
-                max-width: 80%;
-            }
-        }
-
-        @media (max-width: 720px) {
-            .iframe-container {
-                width: 100%;
-            }
-            .nav-links {
-        display: none;
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <header>
-    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
-    <nav class="nav-links">
-      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
-      <a href="https://bostaflix.vercel.app/news.html">News</a>
-      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
-      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
-      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
-    </nav>
-  </header>
-    <!-- Iframe container for the player -->
-    <div class="iframe-container">
-        <iframe id="videoFrame" allowfullscreen></iframe>
-    </div>
+  <div id="dplayer"></div>
 
-    <!-- Server buttons section -->
-    <div id="serverButtons" class="server-buttons-container"></div>
+  <script>
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
 
-    <!-- Category filter dropdown -->
-    <div class="category-filter">
-        <label for="categorySelect">Sort by Category: </label>
-        <select id="categorySelect" onchange="filterChannels()">
-            <option value="all">All</option>
-            <option value="News">News</option>
-            <option value="Featured">Featured</option>
-            <option value="Kids">Kids</option>
-            <option value="Sports">Sports</option>
-            <option value="Religious">Religious</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Documentary">Documentary</option>
-        </select>
-    </div>
+    const streamId = getQueryParam('id');
+    const streamUrl = `${streamId}`;
 
-<div class="logos-container">
-<img src="logos/somoy.png" alt="Somoy TV" data-category="News" onclick="loadServers(['jago.html?id=somoyt000011226615544544.stream', 'ythls.html?id=4hAzkFtRp70'], 'Somoy TV')">
+    let dp;
 
-<img src="logos/dbc-news.png" alt="DBC News" data-category="News" onclick="loadServers(['jago.html?id=dbcnews.stream', 'ythls.html?id=6i5RTd05Cr4'], 'DBC News')">
+    function initPlayer() {
+      if (!streamId) {
+        console.error('No stream ID provided');
+        return;
+      }
+      
+      dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        live: true,
+        autoplay: true,
+        video: {
+          url: streamUrl,
+          type: 'customHls',
+          customType: {
+            customHls: function(video, player) {
+              if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(video.src);
+                hls.attachMedia(video);
+              } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = video.src;
+              }
+            }
+          }
+        },
+      });
+    }
 
-<img src="logos/channel24.jpg" alt="Channel 24" data-category="News" onclick="loadServers(['jago.html?id=channel24-sg-e8e.stream', 'ythls.html?id=SHOjF8HvtSE'], 'Channel 24')">
-
-<img src="logos/desh.png" alt="Desh TV" data-category="News" onclick="loadServers(['jago.html?id=deshtv.stream', 'ythls.html?id=DibdJ6Tu_tY'], 'Desh TV')">
-
-<img src="logos/ekattor_tv.png" alt="Ekattor TV" data-category="News" onclick="loadServers(['jago.html?id=ekattor.stream', 'ythls.html?id=4qZI7nlE-js'], 'Ekattor TV')">
-
-<img src="logos/ekhon.jpg" alt="Ekhon TV" data-category="News" onclick="loadServers(['jago.html?id=globaltv.stream', 'ythls.html?id=i-mWMkYmaxs'], 'Ekhon TV')">
-
-<img src="logos/independent.png" alt="Independent TV" data-category="News" onclick="loadServers(['jago.html?id=independent-8-org.stream', 'ythls.html?id=4T317DX6FK8'], 'Independent TV')">
-
-<img src="logos/jamuna.png" alt="Jamuna TV" data-category="News" onclick="loadServers(['jago.html?id=jamuna-test-sample-ok.stream', 'ythls.html?id=gfzHLmpAJvE'], 'Jamuna TV')">
-
-<img src="logos/news24.jpg" alt="News 24" data-category="News" onclick="loadServers(['jago.html?id=news24local.stream', 'ythls.html?id=SXXsaIApIzk'], 'News 24')">
-
-<img src="logos/atnnews.png" alt="ATN News" data-category="News" onclick="loadServers(['jago.html?id=atnws-rg.stream', 'ythls.html?id=eeC37mGdFSw'], 'ATN News')">
-
-<img src="logos/rtv.png" alt="RTV" data-category="Entertainment" onclick="loadServers(['jago.html?id=rtv-sg.stream'], 'RTV')">
-
-<img src="logos/global-tv.jpg" alt="Global TV" data-category="News" onclick="loadServers(['jago.html?id=Global-tv.stream'], 'Global TV')">
-
-<img src="logos/nagorik_tv.png" alt="Nagorik" data-category="Entertainment, Sports" onclick="loadServers(['hoichoi.html?id=Nagorik-TV-Hoichoi24.com'], 'Nagorik')">
-
-<img src="logos/boishakhi-tv.png" alt="Boishakhi" data-category="Entertainment" onclick="loadServers(['jago.html?id=boishakhitv-org.stream'], 'Boishakhi')">
-
-<img src="logos/boishakhi-tv.png" alt="TSports" data-category="Sports" onclick="loadServers(['hoichoi.html?id=hoichoi24.com-T-sports', 'hoichoi.html?id=SP-T-SPORTS-hoichoi24.com'], 'TSports')">
-
-<img src="logos/ntv.png" alt="NTV" data-category="Entertainment" onclick="loadServers(['jago.html?id=ntvk00332211.stream'], 'NTV')">
-
-<img src="logos/boishakhi-tv.png" alt="GTV" data-category="Entertainment, Sports" onclick="loadServers(['jago.html?id=gazibdz.stream', 'hoichoi.html?id=hoichoi24.com-Gazi-TV', 'https://cdn.hoichoi24.com/SP-GTV-hoichoi24.com/video.m3u8'], 'GTV')">
-
-<img src="logos/ekushey.jpeg" alt="Ekushey TV" data-category="Entertainment" onclick="loadServers(['stream.html?id=https://ekusheyserver.com/etvlivesn.m3u8', 'jago.html?id=ekusheytv-8-org.stream], 'Ekushey TV')">
- 
-<img src="logos/bijoy-tv.png" alt="Bijoy TV" data-category="Entertainment" onclick="loadServers(['jago.html?id=bijoy00.stream'], 'Bijoy TV')">
-
-<img src="logos/channel-i.png" alt="Channel i" data-category="Entertainment" onclick="loadServers(['jago.html?id=channeli-8-org.stream', 'ythls.html?id=3Us91R-gGx8'], 'Channel i')">
-
-<img src="logos/ananda-tv.jpg" alt="Ananda TV" data-category="Entertainment" onclick="loadServers(['jago.html?id=anandatv.stream'], 'Ananda TV')">
-
-<img src="logos/atnbangla.png" alt="ATN Bangla" data-category="Entertainment" onclick="loadServers(['jago.html?id=atnbd-8-org.stream'], 'ATN Bangla')">
-
-<img src="logos/atnislamic.png" alt="ATN Islamic" data-category="News" onclick="loadServers(['jago.html?id=atnislamictv.stream'], 'ATN Islamic')">
-
-<img src="logos/bangla-vision.png" alt="Banglavision" data-category="Entertainment" onclick="loadServers(['jago.html?id=banglav00.stream'], 'Banglavision')">
-
-<img src="logos/sa-tv.png" alt="SATV" data-category="Entertainment" onclick="loadServers(['jago.html?id=satvoff5666.stream'], 'SATV')">
-
-<img src="logos/asian.jpeg" alt="Asian TV" data-category="Entertainment" onclick="loadServers(['jago.html?id=asian-test-sample-ok-d.stream'], 'Asian TV')">
-
-<img src="/logos/deepto-tv.png" alt="Deepto TV" data-category="Entertainment" onclick="loadServers(['stream.html?id=https://byphdgllyk.gpcdn.net/hls/deeptotv/index.m3u8'], 'Deepto')">
-
-<img src="logos/mytv.jpeg" alt="My TV" data-category="Entertainment" onclick="loadServers(['jago.html?id=mytv-up-off.stream'], 'Mytv')">
-
-<img src="logos/sangsad.png" alt="Sangsad TV" data-category="News" onclick="loadServers(['jago.html?id=songsodtv-world.stream'], 'Sangsad TV')">
-
-<img src="logos/btv_news.png" alt="BTV News" data-category="News" onclick="loadServers(['jago.html?id=btv-office-sg.stream'], 'BTV News')">
-
-<img src="logos/btv.png" alt="BTV National" data-category="Entertainment" onclick="loadServers(['jago.html?id=btvnational1.stream'], 'BTV National')">
-
-<img src="logos/btv_world.png" alt="BTV Chittagong" data-category="Entertainment" onclick="loadServers(['jago.html?id=btvbd-office-sg.stream'], 'BTV Chittagong')">
-    
-<img src="logos/discovery.png" alt="Discovery" data-category="Documentary,Featured" onclick="loadServers(['hoichoi.html?id=DiscoveryHD'], 'Discovery')">
-                 
-        <!-- Add more logos with appropriate data-category attributes -->
-    </div>
-
-
-    <script>
-        // Load iframe with server link
-        function loadIframe(serverLink) {
-            document.getElementById('videoFrame').src = serverLink;
-        }
-
-        // Load server buttons dynamically
-        function loadServers(servers, channelName) {
-            const serverButtons = document.getElementById('serverButtons');
-            serverButtons.innerHTML = '';
-
-            // Load first server by default
-            loadIframe(servers[0]);
-
-            // Create server buttons
-            servers.forEach((server, index) => {
-                const button = document.createElement('button');
-                button.innerText = `Server ${index + 1}`;
-                button.onclick = () => loadIframe(server);
-                serverButtons.appendChild(button);
-            });
-
-            serverButtons.classList.add('show');
-            document.querySelector('.iframe-container').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Filter channels by category
-        function filterChannels() {
-            const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
-            const images = document.querySelectorAll('img[data-category]');
-
-            images.forEach(img => {
-                const categories = img.getAttribute('data-category').toLowerCase().split(',').map(c => c.trim());
-                img.style.display = (selectedCategory === 'all' || categories.includes(selectedCategory)) ? '' : 'none';
-            });
-        }
-
-        // Get query parameters
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        // Load default channel from query
-        window.onload = function () {
-            const defaultId = getQueryParam('id') || 'DiscoveryHD';
-            const defaultServer = getQueryParam('server') || 'hoichoi';
-            loadIframe(`${defaultServer}.html?id=${defaultId}`);
-        };
-    </script>
-
-    <!-- Footer -->
-    <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
-        &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
-        internet and Bostafull Live is not connected with them. Wait up to 1 min to load, if not, change server.
-    </div>
+    initPlayer();
+  </script>
 </body>
-
 </html>
