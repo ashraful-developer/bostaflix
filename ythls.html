@@ -36,10 +36,32 @@
       z-index: 2;
       pointer-events: none;
     }
+
+    .quality-selector {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 16px;
+      z-index: 3;
+    }
   </style>
 </head>
 <body>
   <div id="dplayer"></div>
+
+  <!-- Quality Selector Dropdown -->
+  <div class="quality-selector">
+    <label for="quality">Quality: </label>
+    <select id="quality">
+      <option value="144">144p</option>
+      <option value="360" selected>360p</option>
+      <option value="720">720p</option>
+    </select>
+  </div>
 
   <script>
     function getQueryParam(name) {
@@ -48,9 +70,38 @@
     }
 
     const streamId = getQueryParam('id');
-    const streamUrl = `https://bostaflix.vercel.app/api/ythls.m3u8?id=${streamId}`;
+    const streamUrl = `/api/ythls.m3u8?id=${streamId}`;
 
     let dp;
+    let selectedQuality = 360; // Default to 360p
+
+    // Set quality based on user selection
+    document.getElementById('quality').addEventListener('change', function() {
+      selectedQuality = parseInt(this.value);
+      if (dp && dp.hls) {
+        forceQuality(dp.hls);
+      }
+    });
+
+    // Function to force the quality based on the selected value
+    function forceQuality(hls) {
+      let targetQuality = -1;
+
+      // Loop through the available qualities and select the one closest to the selected one
+      hls.levels.forEach((level, index) => {
+        if (level.height === selectedQuality) {
+          targetQuality = index;
+        }
+      });
+
+      if (targetQuality !== -1) {
+        console.log(`Forcing quality: ${selectedQuality}p`);
+        hls.currentLevel = targetQuality; // Set the selected quality
+        hls.autoLevelEnabled = false; // Disable auto-switching
+      } else {
+        console.warn(`${selectedQuality}p quality not available, using default quality.`);
+      }
+    }
 
     function initPlayer() {
       if (!streamId) {
@@ -78,21 +129,8 @@
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
                   console.log("Available qualities:", hls.levels);
 
-                  // Force quality to 360p only
-                  let quality360p = -1;
-                  hls.levels.forEach((level, index) => {
-                    if (level.height === 360) {
-                      quality360p = index; // Pick 360p quality
-                    }
-                  });
-
-                  if (quality360p !== -1) {
-                    console.log("Forcing quality: 360p");
-                    hls.currentLevel = quality360p; // Set to 360p
-                    hls.autoLevelEnabled = false; // Disable auto-switching
-                  } else {
-                    console.warn("360p not found, using default quality.");
-                  }
+                  // Force the quality based on user selection
+                  forceQuality(hls);
                 });
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
