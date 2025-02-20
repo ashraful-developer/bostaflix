@@ -48,7 +48,7 @@
     }
 
     const streamId = getQueryParam('id');
-    const streamUrl = `/api/ythls.m3u8?id=${streamId}`;
+    const streamUrl = `https://bostaflix.vercel.app/api/ythls.m3u8?id=${streamId}`;
 
     let dp;
 
@@ -78,20 +78,20 @@
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
                   console.log("Available qualities:", hls.levels);
 
-                  // Force quality between 360p and 720p (inclusive)
-                  let bestQuality = -1;
+                  // Force quality to 360p only
+                  let quality360p = -1;
                   hls.levels.forEach((level, index) => {
-                    if (level.height >= 360 && level.height <= 720) {
-                      bestQuality = index; // Pick best quality in the 360p - 720p range
+                    if (level.height === 360) {
+                      quality360p = index; // Pick 360p quality
                     }
                   });
 
-                  if (bestQuality !== -1) {
-                    console.log("Forcing quality:", hls.levels[bestQuality].height + "p");
-                    hls.currentLevel = bestQuality; // Set best quality within desired range
+                  if (quality360p !== -1) {
+                    console.log("Forcing quality: 360p");
+                    hls.currentLevel = quality360p; // Set to 360p
                     hls.autoLevelEnabled = false; // Disable auto-switching
                   } else {
-                    console.warn("No quality between 360p and 720p found, using default.");
+                    console.warn("360p not found, using default quality.");
                   }
                 });
 
