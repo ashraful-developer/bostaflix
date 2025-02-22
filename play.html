@@ -254,6 +254,20 @@
 
 <img src="logos/rongeen-tv.jpg" alt="Rongeen TV" data-category="Kids" onclick="loadServers(['stream.html?id=https://server.thelegitpro.in/rongeentv/rongeentv/index.m3u8'], 'Rongeen TV')">
 
+<img src="logos/aath.jpg" alt="Aath" data-category="Entertainment" onclick="loadServers(['toffee.html?sonyaath'], 'Aath')">
+
+<img src="logos/nickelodeon.png" alt="Nickelodeon" data-category="Kids" onclick="loadServers(['stream.html?id=https://dai.google.com/linear/hls/event/0HWMZ7VTTAi8C7Y35fcbgQ/master.m3u8'], 'Nickelodeon')">
+
+<img src="logos/cnhdplus.png" alt="CNHD+" data-category="Kids" onclick="loadServers(['toffee.html?cartoon_network_hd'], 'CNHD+')">
+
+<img src="logos/nicktoons.png" alt="Nicktoons" data-category="Kids" onclick="loadServers(['stream.html?id=https://fl1.moveonjoy.com/NICKTOONS/index.m3u8'], 'Nicktoons')">
+
+<img src="logos/deshitv.webp" alt="Deshi TV" data-category="Entertainment" onclick="loadServers(['jago.html?id=deshitv.stream'], 'Deshi TV')">
+
+<img src="logos/madani.png" alt="Madani Bangla" data-category="Religious" onclick="loadServers(['stream.html?id=https://streaming.madanichannel.tv/static/streaming-playlists/hls/d3e49b76-ac06-4689-a641-9200445b647f/master.m3u8'], 'Madani Bangla')">
+
+<img src="logos/peace.png" alt="Peace TV Bangla" data-category="Religious" onclick="loadServers(['stream.html?https://dzkyvlfyge.erbvr.com/PeaceTvBangla/tracks-v3a1/mono.m3u8'], 'Peace TV Bangla')">
+
 <img src="logos/kidscre.webp" alt="Kids Creation" data-category="Kids" onclick="loadServers(['stream.html?id=https://vods1.aynaott.com/kidscreation_test/index.m3u8'], 'Kids Creation')">
 
 <img src="logos/maasranga.png" alt="Maasranga" data-category="Entertainment" onclick="loadServers(['jadoo2.html?id=maasranga'], 'Maasranga')">
@@ -311,8 +325,8 @@
 
         // Load default channel from query
         window.onload = function () {
-            const defaultId = getQueryParam('id') || 'DiscoveryHD';
-            const defaultServer = getQueryParam('server') || 'hoichoi';
+            const defaultId = getQueryParam('id') || 'Styles';
+            const defaultServer = getQueryParam('server') || 'Bosta';
             loadIframe(`${defaultServer}.html?id=${defaultId}`);
         };
     </script>
