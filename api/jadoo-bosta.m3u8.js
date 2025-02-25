@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     // Find the m3u8 URL by matching the id
     const lines = mainM3U.split("\n");
-    const m3uBaseUrl = predefinedM3UUrl.substring(0, predefinedM3UUrl.lastIndexOf("/") + 1);
+    const m3uBaseUrl = new URL(predefinedM3UUrl).origin + "/";
     let masterM3u8Url = null;
 
     for (let i = 0; i < lines.length; i++) {
@@ -39,14 +39,14 @@ export default async function handler(req, res) {
     }
     let masterM3u8Content = await masterResponse.text();
 
-    const masterBaseUrl = masterM3u8Url.substring(0, masterM3u8Url.lastIndexOf("/") + 1);
+    const masterBaseUrl = new URL(masterM3u8Url).origin + "/";
     let chunkM3u8Url = null;
 
     // Find the chunk m3u8 URL in the master playlist
     const masterLines = masterM3u8Content.split("\n");
     for (let line of masterLines) {
       line = line.trim();
-      if (!line.startsWith("#") && line.endsWith(".m3u8")) {
+      if (!line.startsWith("#") && line.includes(".m3u8")) {
         chunkM3u8Url = line.startsWith("http") ? line : masterBaseUrl + line;
         break;
       }
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     }
     let chunkM3u8Content = await chunkResponse.text();
 
-    const chunkBaseUrl = chunkM3u8Url.substring(0, chunkM3u8Url.lastIndexOf("/") + 1);
+    const chunkBaseUrl = new URL(chunkM3u8Url).origin + "/";
     
     // Convert relative URLs in the chunk m3u8 to absolute URLs
     chunkM3u8Content = chunkM3u8Content.replace(/^(?!#)([^:\n]+)$/gm, (match) => {
