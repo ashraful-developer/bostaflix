@@ -1,63 +1,53 @@
 export default async function handler(req, res) {
-    const { channel } = req.query;
-
-    if (!channel) {
-        return res.status(400).json({ error: "Channel parameter is required" });
+  try {
+    const { id } = req.query;
+    if (!id) {
+      return res.status(400).send("Missing id parameter");
     }
 
-    try {
-        // URL of your M3U playlist
-        const m3uUrl = 'https://its-ferdos-alom.top/Jadoo/api.m3u';
-
-        // Fetch the M3U file content
-        const response = await fetch(m3uUrl);
-        if (!response.ok) {
-            return res.status(500).json({ error: "Failed to fetch the M3U playlist." });
-        }
-
-        const m3uContent = await response.text();
-
-        // Split the content by lines
-        const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
-
-        let output = [];
-        let includeNextUrl = false;
-
-        // Iterate through the lines to find the channel and its URL
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-
-            // If the line contains the channel name
-            if (line.includes(channel)) {
-                includeNextUrl = true; // The next line will contain the URL
-            }
-
-            // If we should include the next URL (the stream URL)
-            if (includeNextUrl && line.startsWith('http')) {
-                // Remove the referer query parameter from the URL
-                let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
-
-                // Generate EXT-X-STREAM-INF tag for adaptive bitrate
-                const extinfTag = `#EXT-X-STREAM-INF:BANDWIDTH=1500000`;
-
-                // Push EXTINF and the cleaned URL to the output
-                output.push(extinfTag);
-                output.push(cleanedUrl);
-
-                includeNextUrl = false; // Reset flag after including the URL
-            }
-        }
-
-        // If the channel is found, return the stream URL(s) with EXT-X-STREAM-INF
-        if (output.length > 0) {
-            // Add the #EXTM3U header for the master playlist
-            res.setHeader('Content-Type', 'application/x-mpegURL');
-            res.status(200).send('#EXTM3U\n' + output.join('\n') + '\n');
-        } else {
-            res.status(404).json({ error: `Channel "${channel}" not found` });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "An error occurred while processing the M3U file." });
+    // Predefined m3u file URL
+    const predefinedM3UUrl = "https://its-ferdos-alom.top/Jadoo/api.m3u";
+    
+    // Fetch the predefined m3u file
+    const mainResponse = await fetch(predefinedM3UUrl);
+    if (!mainResponse.ok) {
+      return res.status(mainResponse.status).send("Failed to fetch predefined m3u");
     }
+    const mainM3U = await mainResponse.text();
+
+    // Find the m3u8 URL by matching the id
+    const lines = mainM3U.split("\n");
+    const baseUrl = predefinedM3UUrl.substring(0, predefinedM3UUrl.lastIndexOf("/") + 1);
+    let m3u8Url = null;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes(id) && i + 1 < lines.length) {
+        let line = lines[i + 1].trim();
+        m3u8Url = line.startsWith("http") ? line : baseUrl + line;
+        break;
+      }
+    }
+
+    if (!m3u8Url) {
+      return res.status(404).send("No matching m3u8 found");
+    }
+
+    // Fetch the m3u8 file
+    const m3u8Response = await fetch(m3u8Url);
+    if (!m3u8Response.ok) {
+      return res.status(m3u8Response.status).send("Failed to fetch m3u8");
+    }
+    let m3u8Content = await m3u8Response.text();
+
+    // Convert relative URLs in the m3u8 to absolute URLs
+    m3u8Content = m3u8Content.replace(/^(?!#)([^:\n]+)$/gm, (match) => {
+      return match.startsWith("http") ? match : baseUrl + match;
+    });
+
+    // Send the modified m3u8 back to the user
+    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+    res.status(200).send(m3u8Content);
+  } catch (error) {
+    res.status(500).send("Server error");
+  }
 }
