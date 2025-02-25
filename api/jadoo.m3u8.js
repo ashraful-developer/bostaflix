@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   // Construct the target URL based on the server parameter
   const baseUrls = {
-    1: "https://uspro.click/jadoo/jadoo.php",
+    1: "https://its-ferdos-alom.top/rajpondit/jd/jadoo.php",
     2: "https://t.kyni.us/jadu/jadoo.php",
     3: "https://bdixtv24.site/jadoo/jadoo.php",
   };
