@@ -17,13 +17,12 @@ export default async function handler(req, res) {
 
     // Find the m3u8 URL by matching the id
     const lines = mainM3U.split("\n");
-    const m3uBaseUrl = new URL(predefinedM3UUrl).origin + "/";
     let masterM3u8Url = null;
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].includes(id) && i + 1 < lines.length) {
         let line = lines[i + 1].trim();
-        masterM3u8Url = line.startsWith("http") ? line : m3uBaseUrl + line;
+        masterM3u8Url = new URL(line, predefinedM3UUrl).href;
         break;
       }
     }
@@ -39,7 +38,7 @@ export default async function handler(req, res) {
     }
     let masterM3u8Content = await masterResponse.text();
 
-    const masterBaseUrl = new URL(masterM3u8Url).origin + "/";
+    const masterBaseUrl = masterM3u8Url.substring(0, masterM3u8Url.lastIndexOf("/") + 1);
     let chunkM3u8Url = null;
 
     // Find the chunk m3u8 URL in the master playlist
@@ -47,7 +46,7 @@ export default async function handler(req, res) {
     for (let line of masterLines) {
       line = line.trim();
       if (!line.startsWith("#") && line.includes(".m3u8")) {
-        chunkM3u8Url = line.startsWith("http") ? line : masterBaseUrl + line;
+        chunkM3u8Url = new URL(line, masterBaseUrl).href;
         break;
       }
     }
@@ -63,17 +62,18 @@ export default async function handler(req, res) {
     }
     let chunkM3u8Content = await chunkResponse.text();
 
-    const chunkBaseUrl = new URL(chunkM3u8Url).origin + "/";
-    
+    const chunkBaseUrl = chunkM3u8Url.substring(0, chunkM3u8Url.lastIndexOf("/") + 1);
+
     // Convert relative URLs in the chunk m3u8 to absolute URLs
     chunkM3u8Content = chunkM3u8Content.replace(/^(?!#)([^:\n]+)$/gm, (match) => {
-      return match.startsWith("http") ? match : chunkBaseUrl + match;
+      return match.startsWith("http") ? match : new URL(match, chunkBaseUrl).href;
     });
 
     // Send the modified chunk m3u8 back to the user
     res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
     res.status(200).send(chunkM3u8Content);
   } catch (error) {
+    console.error("Error:", error);
     res.status(500).send("Server error");
   }
 }
