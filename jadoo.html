@@ -48,13 +48,9 @@
     }
 
     const streamId = getQueryParam('id');
-    let serverIndex = 1;
-    const maxServers = 3; // Define the number of servers to try
-    let dp;
+    const streamUrl = `api/jadoo-bosta.m3u8?id=${streamId}`;
 
-    function getStreamUrl() {
-      return `api/jadoo.m3u8?id=${streamId}&server=${serverIndex}`;
-    }
+    let dp;
 
     function initPlayer() {
       if (!streamId) {
@@ -67,7 +63,7 @@
         live: true,
         autoplay: true,
         video: {
-          url: getStreamUrl(),
+          url: streamUrl,
           type: 'customHls',
           customType: {
             customHls: function(video, player) {
@@ -75,31 +71,13 @@
                 const hls = new Hls();
                 hls.loadSource(video.src);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                  if (data.type === 'networkError' || data.fatal) {
-                    switchServer();
-                  }
-                });
               } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = video.src;
-                video.onerror = switchServer;
               }
             }
           }
-        }
+        },
       });
-    }
-
-    function switchServer() {
-      if (serverIndex < maxServers) {
-        serverIndex++;
-        console.log(`Switching to server ${serverIndex}`);
-        dp.video.src = getStreamUrl();
-        dp.video.load();
-        dp.play();
-      } else {
-        console.error('All servers failed');
-      }
     }
 
     initPlayer();
