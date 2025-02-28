@@ -1,86 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://bosta-live.vercel.app/DPlayer.min.css" />
-  <script src="https://bosta-live.vercel.app/DPlayer.min.js"></script>
-  <script src="https://bosta-live.vercel.app/hls.min.js"></script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-
-    #dplayer {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      z-index: 1;
-    }
-
-    .logo {
-      position: absolute;
-      bottom: 5%;
-      left: 5%;
-      width: 9%;
-      max-height: 12%;
-      opacity: 0.5;
-      z-index: 2;
-      pointer-events: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="dplayer"></div>
+    <div id="player"></div>
 
-  <script>
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+        });
 
-    const streamId = getQueryParam('id');
-    const streamUrl = `https://bosta3-cdn.global.ssl.fastly.net/live.php?id=${streamId}&e=.m3u8`;
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
 
-    let dp;
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
 
-    function initPlayer() {
-      if (!streamId) {
-        console.error('No stream ID provided');
-        return;
-      }
-      
-      dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        live: true,
-        autoplay: true,
-        video: {
-          url: streamUrl,
-          type: 'customHls',
-          customType: {
-            customHls: function(video, player) {
-              if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(video.src);
-                hls.attachMedia(video);
-              } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = video.src;
-              }
-            }
-          }
-        },
-      });
-    }
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
 
-    initPlayer();
-  </script>
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `https://bosta3-cdn.global.ssl.fastly.net/live.php?id=${channelId}&e=.m3u8`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
