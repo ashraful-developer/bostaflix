@@ -16,7 +16,6 @@
             text-align: center;
         }
 
-        /* Header styling */
         header {
             background-color: #212121;
             color: #fff;
@@ -44,7 +43,6 @@
             padding: 5px 10px;
         }
 
-        /* Iframe container */
         .iframe-container {
             aspect-ratio: 16 / 9;
             position: relative;
@@ -62,7 +60,6 @@
             border: none;
         }
 
-        /* Episodes Container */
         .episodes-container {
             padding: 20px;
             background: rgba(0, 0, 0, 0.7);
@@ -108,7 +105,6 @@
 </head>
 
 <body>
-
     <header>
         <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
         <nav class="nav-links">
@@ -120,15 +116,12 @@
         </nav>
     </header>
 
-    <!-- Iframe container for the player -->
     <div class="iframe-container">
         <iframe id="videoFrame" allowfullscreen></iframe>
     </div>
 
-    <!-- Episodes List -->
     <div id="episodes"></div>
 
-    <!-- Footer -->
     <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
         &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
         internet and Bostafull Live is not connected with them.
@@ -153,12 +146,13 @@
             seasonContainer.className = "episodes-container";
 
             for (let episode = 1; episode <= seasons[season]; episode++) {
-                let episodeNum = episode.toString().padStart(2, '0'); // Ensures 2-digit episode numbers
+                let episodeNum = episode.toString().padStart(2, '0');
                 let episodeBox = document.createElement("div");
                 episodeBox.className = "episode-box";
                 episodeBox.textContent = `Episode ${episodeNum}`;
                 episodeBox.onclick = function () {
                     document.getElementById("videoFrame").src = `sts/sts.html?season=${season}&episode=${episodeNum}`;
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                 };
                 seasonContainer.appendChild(episodeBox);
             }
@@ -166,7 +160,6 @@
             episodesDiv.appendChild(seasonContainer);
         }
     </script>
-
 </body>
 
 </html>
