@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+    <style>
+        body {
+            background: url('https://bostaflix.vercel.app/bosta.png') center center / cover no-repeat;
+            margin: 0;
+            padding: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+            scroll-behavior: smooth;
+            text-align: center;
+        }
+
+        /* Header styling */
+        header {
+            background-color: #212121;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            color: #ff0000;
+            text-decoration: none;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        /* Iframe container */
+        .iframe-container {
+            aspect-ratio: 16 / 9;
+            position: relative;
+            margin: 20px auto;
+            max-width: 80%;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Episodes Container */
+        .episodes-container {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .episode-box {
+            width: 160px;
+            height: 120px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .episode-box:hover {
+            transform: scale(1.1);
+            background-color: #ffcc00;
+            color: black;
+        }
+
+        @media (max-width: 720px) {
+            .iframe-container {
+                width: 100%;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+        <nav class="nav-links">
+            <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+            <a href="https://bostaflix.vercel.app/news.html">News</a>
+            <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+            <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+            <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+        </nav>
+    </header>
+
+    <!-- Iframe container for the player -->
+    <div class="iframe-container">
+        <iframe id="videoFrame" allowfullscreen></iframe>
+    </div>
+
+    <!-- Episodes List -->
+    <div id="episodes"></div>
+
+    <!-- Footer -->
+    <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
+        &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
+        internet and Bostafull Live is not connected with them.
+    </div>
+
+    <script>
+        const seasons = {
+            1: 40,
+            2: 40,
+            3: 20,
+            4: 20
+        };
+
+        const episodesDiv = document.getElementById("episodes");
+
+        for (let season in seasons) {
+            let seasonHeader = document.createElement("h2");
+            seasonHeader.textContent = `Season ${season}`;
+            episodesDiv.appendChild(seasonHeader);
+
+            let seasonContainer = document.createElement("div");
+            seasonContainer.className = "episodes-container";
+
+            for (let episode = 1; episode <= seasons[season]; episode++) {
+                let episodeNum = episode.toString().padStart(2, '0'); // Ensures 2-digit episode numbers
+                let episodeBox = document.createElement("div");
+                episodeBox.className = "episode-box";
+                episodeBox.textContent = `Episode ${episodeNum}`;
+                episodeBox.onclick = function () {
+                    document.getElementById("videoFrame").src = `sts.html?season=${season}&episode=${episodeNum}`;
+                };
+                seasonContainer.appendChild(episodeBox);
+            }
+
+            episodesDiv.appendChild(seasonContainer);
+        }
+    </script>
+
+</body>
+
+</html>
