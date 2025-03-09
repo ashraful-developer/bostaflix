@@ -149,7 +149,7 @@
                 episodeBox.className = "episode-box";
                 episodeBox.textContent = `Episode ${episodeNum}`;
                 episodeBox.onclick = function () {
-                    document.getElementById("videoFrame").src = `sts/sts.html?season=${season}&episode=${episodeNum}`;
+                    document.getElementById("videoFrame").src = `sd-wru/sd-wru.html?season=${season}&episode=${episodeNum}`;
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 };
                 seasonContainer.appendChild(episodeBox);
