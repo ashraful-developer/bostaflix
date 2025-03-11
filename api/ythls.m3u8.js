@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   }
 
   const webpageUrl = `https://inv.nadeko.net/watch?v=${id}`;
-  
+
   try {
     const response = await fetch(webpageUrl, {
       headers: {
@@ -26,19 +26,26 @@ export default async function handler(req, res) {
         "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
       }
     });
-    
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     const html = await response.text();
-    const match = html.match(/<source src="(.*?)" type="application\/x-mpegURL"/);
-    
+    const match = html.match(/<source\s+src="([^"]+)"\s+type="application\/x-mpegURL"/);
+
     if (!match || !match[1]) {
       return res.status(404).send("Stream link not found");
     }
-    
-    let streamUrl = match[1];
+
+    let streamUrl = match[1].trim();
     if (!streamUrl.startsWith("http")) {
       const url = new URL(webpageUrl);
       streamUrl = url.origin + streamUrl;
     }
+
+    // Ensure URL encoding
+    streamUrl = encodeURI(streamUrl);
 
     // Append ?local=true to the stream URL
     const redirectUrl = streamUrl.includes("?") ? `${streamUrl}&local=true` : `${streamUrl}?local=true`;
