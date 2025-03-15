@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const { channel } = req.query;
+    const { channel, id } = req.query;
 
     if (!channel) {
         return res.status(400).json({ error: "Channel parameter is required" });
@@ -40,8 +40,11 @@ export default async function handler(req, res) {
             }
         }
 
-        // If a stream URL is found, redirect to it
+        // If a stream URL is found, append the `id` to the URL and redirect
         if (streamUrl) {
+            if (id) {
+                streamUrl = `${streamUrl}&channelid=${id}`; // Add the `id` as a query parameter to the URL
+            }
             return res.redirect(302, streamUrl);
         } else {
             return res.status(404).json({ error: `Channel "${channel}" not found` });
