@@ -333,8 +333,8 @@
 
         // Load default channel from query
         window.onload = function () {
-            const defaultId = getQueryParam('id') || 'Styles';
-            const defaultServer = getQueryParam('server') || 'bosta';
+            const defaultId = getQueryParam('id') || 'id';
+            const defaultServer = getQueryParam('server') || 'server';
             loadIframe(`${defaultServer}.html?id=${defaultId}`);
         };
     </script>
