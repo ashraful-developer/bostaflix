@@ -1,16 +1,13 @@
 export default async function proxy(req, res) {
-  const { url, server } = req.query;
+  const { url } = req.query;
 
-  if (!url || !server) {
-    return res.status(400).send('Missing URL or server parameter');
+  if (!url) {
+    return res.status(400).send('Missing URL parameter');
   }
-
-  // Construct the new URL with the server number
-  const modifiedUrl = `https://tvs${server}.aynaott.com/${url}`;
 
   try {
     // Fetch the media segment with custom headers
-    const response = await fetch(modifiedUrl, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Referer': 'https://t.bdixtv24.com/?play=sonyaath',
