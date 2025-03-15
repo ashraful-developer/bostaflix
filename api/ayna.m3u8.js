@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
     try {
         // URL of your M3U playlist
-        const m3uUrl = 'https://byte-capsule.vercel.app/api/aynaott/hybrid.m3u';
+        const m3uUrl = 'https://bd-live-streaming.xyz/stream/api.php';
 
         // Fetch the M3U file content
         const response = await fetch(m3uUrl);
