@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         // Split the content by lines
         const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
 
-        let output = [];
+        let streamUrl = null;
         let includeNextUrl = false;
 
         // Iterate through the lines to find the channel and its URL
@@ -35,29 +35,19 @@ export default async function handler(req, res) {
             // If we should include the next URL (the stream URL)
             if (includeNextUrl && line.startsWith('http')) {
                 // Remove the referer query parameter from the URL
-                let cleanedUrl = line.split('|')[0]; // This removes everything after the pipe symbol (referer and other parameters)
-
-                // Generate EXT-X-STREAM-INF tag for adaptive bitrate
-                const extinfTag = `#EXT-X-STREAM-INF:BANDWIDTH=1500000`;
-
-                // Push EXTINF and the cleaned URL to the output
-                output.push(extinfTag);
-                output.push(cleanedUrl);
-
-                includeNextUrl = false; // Reset flag after including the URL
+                streamUrl = `proxy?url=${line.split('|')[0]}`; // This adds 'proxy?url=' before the URL
+                break; // Exit loop after finding the first match
             }
         }
 
-        // If the channel is found, return the stream URL(s) with EXT-X-STREAM-INF
-        if (output.length > 0) {
-            // Add the #EXTM3U header for the master playlist
-            res.setHeader('Content-Type', 'application/x-mpegURL');
-            res.status(200).send('#EXTM3U\n' + output.join('\n') + '\n');
+        // If a stream URL is found, redirect to it
+        if (streamUrl) {
+            return res.redirect(302, streamUrl);
         } else {
-            res.status(404).json({ error: `Channel "${channel}" not found` });
+            return res.status(404).json({ error: `Channel "${channel}" not found` });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing the M3U file." });
+        return res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
