@@ -1,8 +1,8 @@
 export default async function proxy(req, res) {
-  let { url, server = '1' } = req.query; // Default server = '1' if not provided
+  let { url, server = '1', channelid } = req.query; // Default server = '1' if not provided, channelid as a required parameter
 
-  if (!url) {
-    return res.status(400).send('Missing URL parameter');
+  if (!url || !channelid) {
+    return res.status(400).send('Missing URL or channelid parameter');
   }
 
   try {
@@ -30,8 +30,8 @@ export default async function proxy(req, res) {
       return res.status(400).send('No valid stream URL found in m3u8 file');
     }
 
-    // Construct the final URL with the custom server prefix
-    const finalUrl = `https://tvs${server}.aynaott.com/${nestedUrl.startsWith('http') ? nestedUrl.replace(/^https?:\/\//, '') : nestedUrl}`;
+    // Construct the final URL with channelid and custom server prefix
+    const finalUrl = `https://tvs${server}.aynaott.com/${channelid}/${nestedUrl.startsWith('http') ? nestedUrl.replace(/^https?:\/\//, '') : nestedUrl}`;
 
     // Redirect to the modified URL
     res.redirect(302, finalUrl);
