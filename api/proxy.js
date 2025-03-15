@@ -8,7 +8,7 @@ export default async function proxy(req, res) {
   try {
     // Extract base path from the given URL
     const urlObject = new URL(url);
-    const modifiedUrl = `https://tvs${server}.aynaott.com${urlObject.origin}${urlObject.pathname}${urlObject.search}`;
+    const modifiedUrl = `https://tvs${server}.aynaott.com/${urlObject.origin}${urlObject.pathname}${urlObject.search}`;
 
     // Redirect the client to the modified URL
     res.redirect(302, modifiedUrl);
