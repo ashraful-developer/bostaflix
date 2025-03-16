@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
     try {
         // URL of your M3U playlist
-        const m3uUrl = 'https://bd-live-streaming.xyz/stream/api.php';
+        const m3uUrl = 'https://its-ferdos-alom.top/fredflix.fun/ayna/api.php';
 
         // Fetch the M3U file content
         const response = await fetch(m3uUrl);
