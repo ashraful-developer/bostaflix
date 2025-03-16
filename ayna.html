@@ -72,10 +72,10 @@
         // Get channel ID and channel from query parameters
 var channelId = getQueryParam('id');
 var channel = getQueryParam('channel');
-var server = getQueryParam('s');
+var server = getQueryParam('server');
 if (channelId && channel &&s) {
     // Use the jadoo.php API URL structure with both 'id' and 'channel' parameters
-    const sourceUrl = `api/ayna.m3u8?id=${channelId}&channel=${channel}&server=${s}`;
+    const sourceUrl = `api/ayna.m3u8?id=${channelId}&channel=${channel}&server=${server}`;
     createPlayer(sourceUrl);
 } else {
     console.error("Channel ID or Channel not provided");
