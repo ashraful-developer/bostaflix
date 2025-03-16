@@ -100,7 +100,7 @@
         function redirectToServer(server) {
             const videoID = extractID();
             if (videoID) {
-                const downloadURL = `https://bosta-live.vercel.app/api/ythls.mp4?id=${videoID}&server=${server}`;
+                const downloadURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
                 window.location.href = downloadURL;
             }
         }
@@ -120,10 +120,7 @@
     <h2>YouTube Video Downloader</h2>
     <input type="text" id="yt-url" placeholder="Enter YouTube URL">
     <br><br>
-    <button onclick="redirectToServer(1)">Download from Server 1</button>
-    <button onclick="redirectToServer(2)">Download from Server 2</button>
-    <button onclick="redirectToServer(3)">Download from Server 3</button>
-    <button onclick="redirectToServer(4)">Download from Server 4</button>
+    <button onclick="redirectToServer">Download</button>
 <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center; position: bottom;">
         &copy; Bostaflix Youtube Video Downloader by Syed Ashraful Islam Mahbeer.
     </div>
