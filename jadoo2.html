@@ -35,7 +35,8 @@
         // Check if 'id' exists and set iframe src
         if (id) {
             const iframe = document.getElementById('embedIframe');
-            iframe.src = 'https://tv.bdixtv24.co/jadoo/play.php?id=${id}`;
+            // Use backticks (`) instead of single quotes for string interpolation
+            iframe.src = `https://tv.bdixtv24.co/jadoo/play.php?id=${id}`;
         } else {
             console.error('ID not found in query string');
         }
