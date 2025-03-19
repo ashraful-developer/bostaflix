@@ -6,11 +6,16 @@
     <title>Embed Page with Query Parameter</title>
     <style>
         /* Ensure the iframe takes up the full page */
-        iframe {
-            width: 100vh;
-            height: 100vw;
-            border: none;
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
             overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
