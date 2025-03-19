@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const { channel, id, server } = req.query;
+    const { channel } = req.query;
 
     if (!channel) {
         return res.status(400).json({ error: "Channel parameter is required" });
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
     try {
         // URL of your M3U playlist
-        const m3uUrl = 'https://its-ferdos-alom.top/fredflix.fun/ayna/api.php';
+        const m3uUrl = 'https://noobmaster.xyz/apis/aynaott/playlist.m3u';
 
         // Fetch the M3U file content
         const response = await fetch(m3uUrl);
@@ -30,30 +30,25 @@ export default async function handler(req, res) {
             // If the line contains the channel name
             if (line.includes(channel)) {
                 includeNextUrl = true; // The next line will contain the URL
+                continue;
             }
 
             // If we should include the next URL (the stream URL)
             if (includeNextUrl && line.startsWith('http')) {
-                // Remove the referer query parameter from the URL
-                streamUrl = `proxy?url=${line.split('|')[0]}`; // This adds 'proxy?url=' before the URL
-                break; // Exit loop after finding the first match
+                streamUrl = line.split('|')[0]; // Remove everything after the pipe symbol (if present)
+                break;
             }
         }
 
-        // If a stream URL is found, append the `id` and `server` to the URL and redirect
+        // If the channel is found, redirect to the stream URL
         if (streamUrl) {
-            if (id || server) {
-                const queryParams = new URLSearchParams();
-                if (id) queryParams.append("channelid", id);
-                if (server) queryParams.append("server", server);
-                streamUrl = `${streamUrl}&${queryParams.toString()}`;
-            }
-            return res.redirect(302, streamUrl);
+            res.writeHead(302, { Location: streamUrl });
+            res.end();
         } else {
-            return res.status(404).json({ error: `Channel "${channel}" not found` });
+            res.status(404).json({ error: `Channel "${channel}" not found` });
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "An error occurred while processing the M3U file." });
+        res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
