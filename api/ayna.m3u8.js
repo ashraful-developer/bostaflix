@@ -52,3 +52,6 @@ export default async function handler(req, res) {
         res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
+module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
