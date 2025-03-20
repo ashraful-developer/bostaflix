@@ -4,7 +4,10 @@ export default async function handler(req, res) {
     if (!channel) {
         return res.status(400).json({ error: "Channel parameter is required" });
     }
-
+module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    
     try {
         // URL of your M3U playlist
         const m3uUrl = 'https://noobmaster.xyz/apis/aynaott/playlist.m3u';
@@ -52,6 +55,3 @@ export default async function handler(req, res) {
         res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
-module.exports = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
