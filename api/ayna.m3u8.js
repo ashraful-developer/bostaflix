@@ -4,6 +4,7 @@ export default async function handler(req, res) {
     if (!channel) {
         return res.status(400).json({ error: "Channel parameter is required" });
     }
+    const https = require('https');
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
