@@ -74,7 +74,7 @@
         
         if (channelId) {
             // Use the jadoo.php API URL structure
-            const sourceUrl = `https://bostawifi.global.ssl.fastly.net/px1.php?url=https://linkchur.top/tv/Jdn/jadoo.php?id={channelId}&e=.m3u8`;
+            const sourceUrl = `https://bostawifi.global.ssl.fastly.net/px1.php?url=https://linkchur.top/tv/Jdn/jadoo.php?id=${channelId}&e=.m3u8`;
             createPlayer(sourceUrl);
         } else {
             console.error("No channel ID provided");
