@@ -11,8 +11,11 @@ export default async function handler(req, res) {
     
     try {
         const html = await fetchHtml(url);
+        if (!html) {
+            return res.status(500).json({ error: "Failed to fetch the page" });
+        }
+        
         const streamUrl = extractM3U8Url(html);
-
         if (!streamUrl) {
             return res.status(404).json({ error: "Stream URL not found" });
         }
@@ -22,7 +25,7 @@ export default async function handler(req, res) {
         
         return res.json({ streamUrl: finalUrl });
     } catch (error) {
-        return res.status(500).json({ error: "Failed to fetch or parse the page" });
+        return res.status(500).json({ error: error.message || "Unexpected server error" });
     }
 }
 
@@ -45,13 +48,22 @@ function fetchHtml(url) {
                 "sec-fetch-user": "?1",
                 "upgrade-insecure-requests": "1",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-            }
+            },
+            timeout: 5000 // 5 seconds timeout
         }, (res) => {
+            if (res.statusCode !== 200) {
+                reject(new Error(`HTTP error: ${res.statusCode}`));
+                return;
+            }
             let data = "";
             res.on("data", (chunk) => (data += chunk));
             res.on("end", () => resolve(data));
         });
-        req.on("error", reject);
+        req.on("error", (err) => reject(new Error("Network error: " + err.message)));
+        req.on("timeout", () => {
+            req.destroy();
+            reject(new Error("Request timeout"));
+        });
         req.end();
     });
 }
