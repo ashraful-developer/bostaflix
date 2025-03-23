@@ -7,7 +7,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing ID parameter" });
     }
 
-    const url = `https://inv.nadeko.net/watch?v=${id}`;
+    const url = `https://corsproxy.io/?https://inv.nadeko.net/watch?v=${id}`;
     
     try {
         const html = await fetchHtml(url);
