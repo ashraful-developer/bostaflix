@@ -2,14 +2,16 @@ import { IncomingMessage } from "http";
 import { request } from "https";
 
 export default async function handler(req, res) {
-    const { url } = req.query;
-    if (!url) {
-        return res.status(400).json({ error: "Missing URL parameter" });
+    const { id } = req.query;
+    if (!id) {
+        return res.status(400).json({ error: "Missing ID parameter" });
     }
 
+    const url = `https://inv.nadeko.net/watch?v=${id}`;
+    
     try {
         const html = await fetchHtml(url);
-        const streamUrl = extractStreamUrl(html);
+        const streamUrl = extractM3U8Url(html);
 
         if (!streamUrl) {
             return res.status(404).json({ error: "Stream URL not found" });
@@ -54,7 +56,7 @@ function fetchHtml(url) {
     });
 }
 
-function extractStreamUrl(html) {
-    const videoSourceMatch = html.match(/<source[^>]+src=["']([^"']+)["']/);
-    return videoSourceMatch ? videoSourceMatch[1] : null;
+function extractM3U8Url(html) {
+    const match = html.match(/https?:[^"']+\.m3u8/);
+    return match ? match[0] : null;
 }
