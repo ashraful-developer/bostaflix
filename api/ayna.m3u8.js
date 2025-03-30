@@ -36,6 +36,13 @@ export default async function handler(req, res) {
             // If we should include the next URL (the stream URL)
             if (includeNextUrl && line.startsWith('http')) {
                 streamUrl = line.split('|')[0]; // Remove everything after the pipe symbol (if present)
+
+                // Replace origin in the final m3u8 URL
+                streamUrl = streamUrl
+                    .replace('https://tvs1.aynaott.com/', 'https://ayna-bosta.global.ssl.fastly.net/')
+                    .replace('https://tvs2.aynaott.com/', 'https://ayna2-bosta.global.ssl.fastly.net/')
+                    .replace('https://tvs3.aynaott.com/', 'https://ayna3-bosta.global.ssl.fastly.net/');
+                
                 break;
             }
         }
