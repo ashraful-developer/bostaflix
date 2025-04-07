@@ -39,9 +39,9 @@ export default async function handler(req, res) {
 
                 // Replace origin in the final m3u8 URL
                 streamUrl = streamUrl
-                    .replace('https://tvs1.aynaott.com/', 'http://tvs1.aynaott.com/')
-                    .replace('https://tvs2.aynaott.com/', 'http://tvs2.aynaott.com/')
-                    .replace('https://tvs3.aynaott.com/', 'http://tvs3.aynaott.com/');
+                    .replace('https://tvs1.aynaott.com/', 'https://tvs1.aynaott.com/')
+                    .replace('https://tvs2.aynaott.com/', 'https://tvs2.aynaott.com/')
+                    .replace('https://tvs3.aynaott.com/', 'https://tvs3.aynaott.com/');
                 
                 break;
             }
