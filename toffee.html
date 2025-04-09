@@ -74,7 +74,7 @@
         
         if (channelId) {
             // Use the jadoo.php API URL structure
-            const sourceUrl = `https://bostaflix-tvcdn.global.ssl.fastly.net/toffee/live.php?id=${channelId}&e=.m3u8`;
+            const sourceUrl = `api/toffee.m3u8?channel=${channelId}`;
             createPlayer(sourceUrl);
         } else {
             console.error("No channel ID provided");
