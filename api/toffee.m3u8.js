@@ -28,6 +28,7 @@ export default async function handler(req, res) {
                 if (urlLine.startsWith('http')) {
                     channels.push({
                         fullName,
+                        fullLower: fullName.toLowerCase(),
                         normalized,
                         url: urlLine.split('|')[0]
                     });
@@ -35,19 +36,27 @@ export default async function handler(req, res) {
             }
         }
 
-        const queryNormalized = channel.toLowerCase().trim();
+        const queryOriginal = channel.trim();
+        const queryLower = queryOriginal.toLowerCase();
+        const queryNormalized = queryLower.replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
 
-        // Prioritize exact normalized match, then includes, then fallback
-        const exactMatches = channels.filter(c => c.normalized === queryNormalized);
-        const partialMatches = channels.filter(c => c.normalized.includes(queryNormalized));
+        // Step 1: Try exact full name match (case-insensitive)
+        let bestMatch = channels.find(c => c.fullLower === queryLower);
 
-        let bestMatch = null;
+        // Step 2: Try exact normalized match (prioritize shorter fullName)
+        if (!bestMatch) {
+            const normalizedMatches = channels.filter(c => c.normalized === queryNormalized);
+            if (normalizedMatches.length > 0) {
+                bestMatch = normalizedMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
+            }
+        }
 
-        if (exactMatches.length > 0) {
-            // Among exact matches, prefer shortest original name (likely non-HD)
-            bestMatch = exactMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
-        } else if (partialMatches.length > 0) {
-            bestMatch = partialMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
+        // Step 3: Try partial match if nothing found
+        if (!bestMatch) {
+            const partialMatches = channels.filter(c => c.normalized.includes(queryNormalized));
+            if (partialMatches.length > 0) {
+                bestMatch = partialMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
+            }
         }
 
         if (bestMatch) {
