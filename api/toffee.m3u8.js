@@ -23,7 +23,7 @@ export default async function handler(req, res) {
                 const urlLine = lines[i + 1];
 
                 const fullName = nameLine.replace('#EXTINF:-1,', '').trim();
-                const fullLower = fullName.toLowerCase();
+                const fullLower = fullName.toLowerCase().trim();
                 const normalized = fullLower.replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
 
                 if (urlLine.startsWith('http')) {
@@ -38,34 +38,32 @@ export default async function handler(req, res) {
         }
 
         const queryOriginal = channel.trim();
-        const queryLower = queryOriginal.toLowerCase();
+        const queryLower = queryOriginal.toLowerCase().trim();
         const queryNormalized = queryLower.replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
+
+        // DEBUG: Find all channels that include 'cartoon network'
+        const debugHits = channels.filter(c => c.fullLower.includes('cartoon network'));
+        console.log('DEBUG Possible matches for cartoon:', debugHits.map(c => c.fullName));
 
         let bestMatch = null;
 
-        // 1. Full name exact match (case-insensitive)
+        // 1. Exact full name match
         bestMatch = channels.find(c => c.fullLower === queryLower);
 
-        // 2. Normalized match (only if no exact match)
+        // 2. Full name includes (e.g., partial but full name)
         if (!bestMatch) {
-            const normalizedMatches = channels.filter(c => c.normalized === queryNormalized);
-            if (normalizedMatches.length > 0) {
-                // Prefer exact word match in fullName first, then shorter name
-                normalizedMatches.sort((a, b) => {
-                    const aExact = a.fullLower === queryLower ? -1 : 0;
-                    const bExact = b.fullLower === queryLower ? -1 : 0;
-                    if (aExact !== bExact) return aExact - bExact;
-                    return a.fullName.length - b.fullName.length;
-                });
-                bestMatch = normalizedMatches[0];
+            const candidates = channels.filter(c => c.fullLower.includes(queryLower));
+            if (candidates.length > 0) {
+                bestMatch = candidates[0];
             }
         }
 
-        // 3. Partial match on normalized name
+        // 3. Normalized match
         if (!bestMatch) {
-            const partialMatches = channels.filter(c => c.normalized.includes(queryNormalized));
-            if (partialMatches.length > 0) {
-                bestMatch = partialMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
+            const normMatches = channels.filter(c => c.normalized === queryNormalized);
+            if (normMatches.length > 0) {
+                // Sort to prefer shorter names if multiple
+                bestMatch = normMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
             }
         }
 
@@ -81,7 +79,7 @@ export default async function handler(req, res) {
             res.status(404).json({ error: `Channel "${channel}" not found` });
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error during M3U parsing:', error);
         res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
