@@ -23,12 +23,13 @@ export default async function handler(req, res) {
                 const urlLine = lines[i + 1];
 
                 const fullName = nameLine.replace('#EXTINF:-1,', '').trim();
-                const normalized = fullName.toLowerCase().replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
+                const fullLower = fullName.toLowerCase();
+                const normalized = fullLower.replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
 
                 if (urlLine.startsWith('http')) {
                     channels.push({
                         fullName,
-                        fullLower: fullName.toLowerCase(),
+                        fullLower,
                         normalized,
                         url: urlLine.split('|')[0]
                     });
@@ -40,18 +41,27 @@ export default async function handler(req, res) {
         const queryLower = queryOriginal.toLowerCase();
         const queryNormalized = queryLower.replace(/\s+(hd|sd|uhd|4k)\b/g, '').trim();
 
-        // Step 1: Try exact full name match (case-insensitive)
-        let bestMatch = channels.find(c => c.fullLower === queryLower);
+        let bestMatch = null;
 
-        // Step 2: Try exact normalized match (prioritize shorter fullName)
+        // 1. Full name exact match (case-insensitive)
+        bestMatch = channels.find(c => c.fullLower === queryLower);
+
+        // 2. Normalized match (only if no exact match)
         if (!bestMatch) {
             const normalizedMatches = channels.filter(c => c.normalized === queryNormalized);
             if (normalizedMatches.length > 0) {
-                bestMatch = normalizedMatches.sort((a, b) => a.fullName.length - b.fullName.length)[0];
+                // Prefer exact word match in fullName first, then shorter name
+                normalizedMatches.sort((a, b) => {
+                    const aExact = a.fullLower === queryLower ? -1 : 0;
+                    const bExact = b.fullLower === queryLower ? -1 : 0;
+                    if (aExact !== bExact) return aExact - bExact;
+                    return a.fullName.length - b.fullName.length;
+                });
+                bestMatch = normalizedMatches[0];
             }
         }
 
-        // Step 3: Try partial match if nothing found
+        // 3. Partial match on normalized name
         if (!bestMatch) {
             const partialMatches = channels.filter(c => c.normalized.includes(queryNormalized));
             if (partialMatches.length > 0) {
