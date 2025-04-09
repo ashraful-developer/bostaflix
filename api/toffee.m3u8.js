@@ -1,53 +1,60 @@
+
 export default async function handler(req, res) {
-  // Extract query parameters
-  const { id, server, referer } = req.query;
+    const { channel } = req.query;
 
-  // Validate required parameters
-  if (!id || !server) {
-    return res.status(400).json({ error: 'Missing required query parameters: id or server' });
-  }
-
-  // Construct the target URL based on the server parameter
-  const baseUrls = {
-    1: "https://bdixtv24.site/toffee/live.php",
-    2: "https://t.kyni.us/live.php"
-  };
-  const targetBaseUrl = baseUrls[server];
-  
-  if (!targetBaseUrl) {
-    return res.status(400).json({ error: 'Invalid server parameter' });
-  }
-
-  const targetUrl = `${targetBaseUrl}?id=${encodeURIComponent(id)}`;
-
-  try {
-    // Fetch the target URL with a custom Referer header if provided
-    const headers = {};
-    if (referer) {
-      headers['Referer'] = referer;
+    if (!channel) {
+        return res.status(400).json({ error: "Channel parameter is required" });
     }
+    
+    try {
+        // URL of your M3U playlist
+        const m3uUrl = 'https://bostaflix-tvcdn.global.ssl.fastly.net/toffee/rriptv_app.php?route=getIPTVList';
 
-    const response = await fetch(targetUrl, { headers });
+        // Fetch the M3U file content
+        const response = await fetch(m3uUrl);
+        if (!response.ok) {
+            return res.status(500).json({ error: "Failed to fetch the M3U playlist." });
+        }
 
-    // Check if the response is successful
-    if (!response.ok) {
-      return res.status(response.status).send('Error fetching the resource');
+        const m3uContent = await response.text();
+
+        // Split the content by lines
+        const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
+
+        let streamUrl = null;
+        let includeNextUrl = false;
+
+        // Iterate through the lines to find the channel and its URL
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+
+            // If the line contains the channel name
+            if (line.includes(channel)) {
+                includeNextUrl = true; // The next line will contain the URL
+                continue;
+            }
+
+            // If we should include the next URL (the stream URL)
+            if (includeNextUrl && line.startsWith('http')) {
+                streamUrl = line.split('|')[0]; // Remove everything after the pipe symbol (if present)
+
+                // Replace origin in the final m3u8 URL
+                streamUrl = streamUrl
+                    .replace('https://tv.bdixtv24.co/', 'https://bostaflix-tvcdn.global.ssl.fastly.net/');
+                
+                break;
+            }
+        }
+
+        // If the channel is found, redirect to the stream URL
+        if (streamUrl) {
+            res.writeHead(302, { Location: streamUrl });
+            res.end();
+        } else {
+            res.status(404).json({ error: `Channel "${channel}" not found` });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
-
-    // Set CORS headers to allow cross-origin requests
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    // Set the appropriate content-type header from the proxied resource
-    res.setHeader('Content-Type', response.headers.get('content-type'));
-
-    // Send the response data back to the client
-    const body = await response.arrayBuffer();
-    res.status(200).send(Buffer.from(body));
-
-  } catch (error) {
-    // Handle any errors during the fetch or streaming process
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
 }
