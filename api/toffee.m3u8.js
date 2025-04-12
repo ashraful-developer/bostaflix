@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const m3uUrl = 'https://bostaflix-tvcdn.global.ssl.fastly.net/toffee/rriptv_app.php?route=getIPTVList';
+        const m3uUrl = 'https://host.mafiatv.live/toffee/kaya_app.php?route=getIPTVList';
         const response = await fetch(m3uUrl);
         if (!response.ok) {
             return res.status(500).json({ error: "Failed to fetch the M3U playlist." });
@@ -23,45 +23,38 @@ export default async function handler(req, res) {
                 const urlLine = lines[i + 1];
 
                 if (urlLine.startsWith('http')) {
-                    channels.push({
-                        fullName,
-                        fullLower: fullName.toLowerCase(),
-                        url: urlLine.split('|')[0]
-                    });
+                    const idMatch = urlLine.match(/id=([^&|]+)/);
+                    const id = idMatch ? idMatch[1] : null;
+
+                    if (id) {
+                        channels.push({
+                            id,
+                            fullName,
+                            fullLower: fullName.toLowerCase()
+                        });
+                    }
                 }
             }
         }
 
-        const queryOriginal = channel.trim();
-        const queryLower = queryOriginal.toLowerCase();
+        const queryLower = channel.trim().toLowerCase();
 
-        // 1. Strict exact match (case-insensitive)
+        // Try exact match first
         const exactMatch = channels.find(c => c.fullLower === queryLower);
 
-        if (exactMatch) {
-            const streamUrl = exactMatch.url.replace(
-                'https://tv.bdixtv24.co/',
-                'https://bostaflix-tvcdn.global.ssl.fastly.net/'
-            );
-            res.writeHead(302, { Location: streamUrl });
+        // Fallback to partial match
+        const match = exactMatch || channels.find(c => c.fullLower.includes(queryLower));
+
+        if (match) {
+            const redirectUrl = `https://stream-engine-bostaflix.global.ssl.fastly.net/toffee/MaFiAlive.php?id=${match.id}`;
+            res.writeHead(302, { Location: redirectUrl });
             return res.end();
         }
 
-        // 2. Fallback: partial includes match
-        const includesMatch = channels.find(c => c.fullLower.includes(queryLower));
-        if (includesMatch) {
-            const streamUrl = includesMatch.url.replace(
-                'https://tv.bdixtv24.co/',
-                'https://bostaflix-tvcdn.global.ssl.fastly.net/'
-            );
-            res.writeHead(302, { Location: streamUrl });
-            return res.end();
-        }
-
-        res.status(404).json({ error: `Channel "${channel}" not found` });
+        return res.status(404).json({ error: `Channel "${channel}" not found` });
 
     } catch (error) {
         console.error('Error during M3U parsing:', error);
-        res.status(500).json({ error: "An error occurred while processing the M3U file." });
+        return res.status(500).json({ error: "An error occurred while processing the M3U file." });
     }
 }
