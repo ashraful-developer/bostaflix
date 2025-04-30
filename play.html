@@ -7,7 +7,7 @@
     <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
 <style>
     body {
-        background: url('bosta.png') center center / cover no-repeat;
+        background-color: #121212;
         margin: 0;
         padding: 0;
         color: #f0f0f0;
@@ -17,13 +17,12 @@
 
     /* Header styling */
     header {
-        background: rgba(20, 20, 20, 0.9);
+        background-color: #1e1e1e;
         color: #fff;
         padding: 12px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        backdrop-filter: blur(6px);
         box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     }
 
@@ -69,20 +68,19 @@
         width: 100%;
         height: 100%;
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        border-radius: 0; /* No round edges */
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
     /* Server buttons */
     .server-buttons-container {
         width: 100%;
         padding: 20px 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: #1a1a1a;
         text-align: center;
         display: none;
         transition: all 0.3s ease;
         color: #ffffff;
-        backdrop-filter: blur(4px);
     }
 
     .server-buttons-container.show {
@@ -96,7 +94,7 @@
         margin: 6px;
         font-size: 16px;
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: 4px;
         color: #fff;
         transition: background-color 0.3s ease, transform 0.2s;
     }
@@ -119,12 +117,12 @@
     .logos-container img {
         width: 160px;
         height: 120px;
-        background-color: #1c1c1c;
+        background-color: #ffffff; /* white image background */
         object-fit: contain;
         aspect-ratio: 4 / 3;
         padding: 6px;
-        border: 1px solid #333;
-        border-radius: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s;
     }
@@ -143,8 +141,8 @@
     .category-filter select {
         padding: 10px 14px;
         font-size: 16px;
-        border-radius: 8px;
-        background-color: #222;
+        border-radius: 6px;
+        background-color: #1e1e1e;
         color: #fff;
         border: 1px solid #555;
         outline: none;
@@ -161,6 +159,7 @@
         .iframe-container {
             width: 100%;
         }
+
         .nav-links {
             display: none;
         }
