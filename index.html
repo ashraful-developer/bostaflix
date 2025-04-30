@@ -6,41 +6,51 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* General reset */
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+ <style>
+    body {
+        background-color: #121212;
+        margin: 0;
+        padding: 0;
+        color: #f0f0f0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        scroll-behavior: smooth;
     }
 
     /* Header styling */
     header {
-      background-color: #212121;
-      color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     }
 
     .logo {
-      color: #ff0000;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
+        color: #ff3c3c;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
     }
 
     .nav-links {
-      display: flex;
-      gap: 15px;
+        display: flex;
+        gap: 20px;
     }
 
     .nav-links a {
-      color: #fff;
-      text-decoration: none;
-      padding: 5px 10px;
+        color: #e0e0e0;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: #ff3c3c;
+        color: #fff;
     }
 
     /* Video grid layout */
