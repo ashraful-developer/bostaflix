@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
-    const { channel } = req.query;
+    const { id } = req.query;
 
-    if (!channel) {
-        return res.status(400).json({ error: "Channel parameter is required" });
+    if (!id) {
+        return res.status(400).json({ error: "id parameter is required" });
     }
     
     try {
@@ -23,12 +23,12 @@ export default async function handler(req, res) {
         let streamUrl = null;
         let includeNextUrl = false;
 
-        // Iterate through the lines to find the channel and its URL
+        // Iterate through the lines to find the id and its URL
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
-            // If the line contains the channel name
-            if (line.includes(channel)) {
+            // If the line contains the id name
+            if (line.includes(id)) {
                 includeNextUrl = true; // The next line will contain the URL
                 continue;
             }
@@ -40,12 +40,12 @@ export default async function handler(req, res) {
             }
         }
 
-        // If the channel is found, redirect to the stream URL
+        // If the id is found, redirect to the stream URL
         if (streamUrl) {
             res.writeHead(302, { Location: streamUrl });
             res.end();
         } else {
-            res.status(404).json({ error: `Channel "${channel}" not found` });
+            res.status(404).json({ error: `id "${id}" not found` });
         }
     } catch (error) {
         console.error(error);
