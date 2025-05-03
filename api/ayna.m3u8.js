@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     if (!id) {
         return res.status(400).json({ error: "id parameter is required" });
     }
-    
+
     try {
         // URL of your M3U playlist
         const m3uUrl = 'https://aynaxpranto.vercel.app/files/playlist.m3u';
@@ -17,38 +17,40 @@ export default async function handler(req, res) {
 
         const m3uContent = await response.text();
 
-        // Split the content by lines
+        // Split and parse M3U
         const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
 
         let streamUrl = null;
         let includeNextUrl = false;
 
-        // Iterate through the lines to find the id and its URL
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-
-            // If the line contains the id name
             if (line.includes(id)) {
-                includeNextUrl = true; // The next line will contain the URL
+                includeNextUrl = true;
                 continue;
             }
-
-            // If we should include the next URL (the stream URL)
             if (includeNextUrl && line.startsWith('http')) {
-                streamUrl = line.split('|')[0]; // Remove everything after the pipe symbol (if present)
+                streamUrl = line.split('|')[0]; // Clean URL if needed
                 break;
             }
         }
 
-        // If the id is found, redirect to the stream URL
-        if (streamUrl) {
-            res.writeHead(302, { Location: streamUrl });
-            res.end();
-        } else {
-            res.status(404).json({ error: `id "${id}" not found` });
+        if (!streamUrl) {
+            return res.status(404).json({ error: `id "${id}" not found` });
         }
+
+        // Proxy the stream
+        const streamResponse = await fetch(streamUrl);
+
+        if (!streamResponse.ok) {
+            return res.status(500).json({ error: "Failed to fetch the stream." });
+        }
+
+        // Copy headers to client
+        res.setHeader('Content-Type', streamResponse.headers.get('content-type') || 'application/octet-stream');
+        streamResponse.body.pipe(res);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing the M3U file." });
+        res.status(500).json({ error: "An error occurred while processing the stream." });
     }
 }
