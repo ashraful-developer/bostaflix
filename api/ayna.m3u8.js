@@ -1,3 +1,7 @@
+import http from 'http';
+import https from 'https';
+import { parse } from 'url';
+
 export default async function handler(req, res) {
     const { id } = req.query;
 
@@ -6,18 +10,12 @@ export default async function handler(req, res) {
     }
 
     try {
-        // URL of your M3U playlist
-        const m3uUrl = 'https://aynaxpranto.vercel.app/files/playlist.m3u';
-
-        // Fetch the M3U file content
-        const response = await fetch(m3uUrl);
-        if (!response.ok) {
-            return res.status(500).json({ error: "Failed to fetch the M3U playlist." });
+        const m3uResponse = await fetch('https://aynaxpranto.vercel.app/files/playlist.m3u');
+        if (!m3uResponse.ok) {
+            return res.status(500).json({ error: "Failed to fetch M3U playlist." });
         }
 
-        const m3uContent = await response.text();
-
-        // Split and parse M3U
+        const m3uContent = await m3uResponse.text();
         const lines = m3uContent.split('\n').map(line => line.trim()).filter(line => line !== '');
 
         let streamUrl = null;
@@ -30,7 +28,7 @@ export default async function handler(req, res) {
                 continue;
             }
             if (includeNextUrl && line.startsWith('http')) {
-                streamUrl = line.split('|')[0]; // Clean URL if needed
+                streamUrl = line.split('|')[0];
                 break;
             }
         }
@@ -39,18 +37,47 @@ export default async function handler(req, res) {
             return res.status(404).json({ error: `id "${id}" not found` });
         }
 
-        // Proxy the stream
-        const streamResponse = await fetch(streamUrl);
+        const streamUrlParsed = parse(streamUrl);
+        const client = streamUrlParsed.protocol === 'https:' ? https : http;
 
-        if (!streamResponse.ok) {
-            return res.status(500).json({ error: "Failed to fetch the stream." });
-        }
+        const options = {
+            method: 'GET',
+            hostname: streamUrlParsed.hostname,
+            path: streamUrlParsed.path,
+            headers: {
+                'User-Agent': req.headers['user-agent'] || 'Node.js Proxy',
+            }
+        };
 
-        // Copy headers to client
-        res.setHeader('Content-Type', streamResponse.headers.get('content-type') || 'application/octet-stream');
-        streamResponse.body.pipe(res);
+        const proxyReq = client.request(options, (proxyRes) => {
+            if ([301, 302].includes(proxyRes.statusCode)) {
+                const location = proxyRes.headers.location;
+                if (location) {
+                    res.writeHead(proxyRes.statusCode, { Location: location });
+                    res.end();
+                    return;
+                }
+            }
+
+            // Set headers from the response
+            res.writeHead(proxyRes.statusCode, {
+                'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
+                'Cache-Control': 'no-cache',
+            });
+
+            // Pipe the stream
+            proxyRes.pipe(res);
+        });
+
+        proxyReq.on('error', (err) => {
+            console.error(err);
+            res.status(500).json({ error: 'Error fetching the stream.' });
+        });
+
+        proxyReq.end();
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "An error occurred while processing the stream." });
+        res.status(500).json({ error: 'An error occurred during processing.' });
     }
 }
