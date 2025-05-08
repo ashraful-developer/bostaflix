@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bosta News</title>
+  <link href="https://cdn.jsdelivr.net/gh/sh4hids/kalpurush-font/kalpurush.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Kalpurush', sans-serif;
+    }
+    body {
+      background: #000;
+      color: white;
+      overflow: hidden;
+    }
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 56.25vw; /* 16:9 aspect ratio */
+      max-height: 100vh;
+      max-width: 177.77vh; /* Maintain 16:9 ratio by height if needed */
+      margin: auto;
+      background: black;
+      overflow: hidden;
+    }
+    .headline {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background-size: cover;
+      background-position: center;
+      animation: fadeSlide 10s linear infinite;
+    }
+    .overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.3));
+      padding: 2rem;
+    }
+    .title {
+      font-size: 2.4rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #ffcc00;
+    }
+    .brief {
+      font-size: 1.4rem;
+      color: #f1f1f1;
+    }
+    .origin {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.5rem 1rem;
+      border-radius: 0.4rem;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    @keyframes fadeSlide {
+      0% {opacity: 0;}
+      5% {opacity: 1;}
+      95% {opacity: 1;}
+      100% {opacity: 0;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="headlineContainer"></div>
+
+  <script>
+    async function loadHeadlines() {
+      const response = await fetch('https://backoffice.channel24bd.tv/api/json/file/generateLatest.json');
+      const data = await response.json();
+
+      const container = document.getElementById('headlineContainer');
+      let index = 0;
+
+      function showHeadline(item) {
+        const imgUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
+
+        container.innerHTML = `
+          <div class="headline" style="background-image: url('${imgUrl}')">
+               <div class="overlay">
+              <div class="title">${item.ContentHeading}</div>
+              <div class="brief">${item.ContentBrief}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function cycle() {
+        showHeadline(data.data[index]);
+        index = (index + 1) % data.data.length;
+      }
+
+      cycle();
+      setInterval(cycle, 10000); // change every 10 seconds
+    }
+
+    loadHeadlines();
+  </script>
+</body>
+</html>
