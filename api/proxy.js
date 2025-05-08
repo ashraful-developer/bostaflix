@@ -11,22 +11,32 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    res.status(200).end(); // Respond to preflight
+    res.status(200).end();
     return;
   }
 
   try {
-    const response = await fetch(decodeURIComponent(url));
+    const decodedUrl = decodeURIComponent(url);
+
+    const response = await fetch(decodedUrl, {
+      headers: {
+        // These headers help bypass access restrictions
+        "Referer": "https://archive.org/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+      }
+    });
+
     if (!response.ok) {
       res.status(response.status).send("Fetch failed");
       return;
     }
 
-    const text = await response.text();
+    const content = await response.text();
+
     res.setHeader("Content-Type", "text/plain");
-    res.status(200).send(text);
+    res.status(200).send(content);
   } catch (err) {
     console.error("Proxy error:", err);
-    res.status(500).send("Server error");
+    res.status(500).send("Proxy error occurred.");
   }
 }
