@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>BOSTAFLIX Ticker</title>
+  <style>
+    .scroll-container {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .ticker-wrapper {
+      overflow: hidden;
+      white-space: nowrap;
+      flex: 1;
+      margin-left: 30px;
+      position: relative;
+      height: 30px;
+    }
+
+    .ticker {
+      position: absolute;
+      white-space: nowrap;
+      will-change: transform;
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll-container">
+    <div class="logo">BOSTAFLIX</div>
+    <div class="ticker-wrapper">
+      <div class="ticker" id="news-ticker">লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <script>
+    const ticker = document.getElementById('news-ticker');
+    const wrapper = document.querySelector('.ticker-wrapper');
+    const SPEED = 80; // pixels per second
+
+    function startScroll() {
+      const wrapperWidth = wrapper.offsetWidth;
+      const textWidth = ticker.scrollWidth;
+
+      if (textWidth <= wrapperWidth) {
+        // Duplicate text to force scroll
+        ticker.innerText += " ❖ " + ticker.innerText;
+      }
+
+      const totalWidth = ticker.scrollWidth + wrapperWidth;
+      const duration = totalWidth / SPEED;
+
+      ticker.style.transition = 'none';
+      ticker.style.transform = `translateX(${wrapperWidth}px)`;
+      void ticker.offsetWidth; // Force reflow
+
+      ticker.style.transition = `transform ${duration}s linear`;
+      ticker.style.transform = `translateX(-${ticker.scrollWidth}px)`;
+
+      // Repeat scroll after finished
+      setTimeout(startScroll, duration * 1000);
+    }
+
+    fetch('https://ekhon.tv/api/news/ticker.json')
+      .then(response => response.json())
+      .then(data => {
+        if (data.data && Array.isArray(data.data)) {
+          ticker.innerText = data.data.map(item => item.content).join(" ❖ ");
+          // Wait for DOM layout before starting scroll
+          setTimeout(startScroll, 100);
+        } else {
+          ticker.innerText = "সংবাদ পাওয়া যায়নি।";
+        }
+      })
+      .catch(err => {
+        ticker.innerText = "সংযুক্তি ব্যর্থ হয়েছে।";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
