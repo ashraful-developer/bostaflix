@@ -86,7 +86,7 @@
       return;
     }
 
-    const proxyUrl = '/api/proxy?url=' + encodeURIComponent(m3uRawUrl);
+    const proxyUrl = 'https://bostaflix.vercel.app/api/proxy?url=' + encodeURIComponent(m3uRawUrl);
 
     try {
       const response = await fetch(proxyUrl);
