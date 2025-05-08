@@ -20,15 +20,13 @@ export default async function handler(req, res) {
 
     const response = await fetch(decodedUrl, {
       headers: {
-        // These headers help bypass access restrictions
         "Referer": "https://archive.org/",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
       }
     });
 
     if (!response.ok) {
-      res.status(response.status).send("Fetch failed");
-      return;
+      throw new Error(`Fetch failed with status ${response.status}`);
     }
 
     const content = await response.text();
