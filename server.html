@@ -1,159 +1,129 @@
-<style>
-import url("https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900");
-@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:200');
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bostaflix</title>
+  <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Kalpurush', sans-serif;
+    }
 
-body  {
-    background-image: url('img/well.png');
-  background-size:cover;
-                     
-}
+    .top {
+      height: 60%;
+      background-color: black;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
 
-@-webkit-keyframes slidein {
-from {background-position: top; background-size:3000px; }
-to {background-position: -100px 0px;background-size:2750px;}
-}
+    .top h1 {
+      font-size: 3em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
 
-@keyframes slidein {
-from {background-position: top;background-size:3000px; }
-to {background-position: -100px 0px;background-size:2750px;}
+    .bottom {
+      height: 40%;
+      background-color: red;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
 
-}
+    .bottom .heading {
+      font-size: 2em;
+      font-weight: bold;
+      margin-top: 10px;
+    }
 
+    .ticker-container {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
 
+    .ticker {
+      position: absolute;
+      transition: opacity 0.5s ease;
+      opacity: 0;
+      font-size: 1.5em;
+      padding: 0 20px;
+      max-width: 100%;
+      line-height: 1.5;
+    }
 
+    .ticker.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
 
-
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  display: flex;
-background-image: url('img/well.png');
- background-size:cover;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-h1 {
-  color: #FFFFFF;
-  font-family: tahoma;
-  font-size: 3rem;
-  font-weight: 100;
-  line-height: 1.5;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  position: relative;
-  width: 550px;
-}
-
-h1 span {
-  font-size: 25px;
-  margin-left: 15px;
-
-}
-
-.message {
-  background-color: yellow;
-  color: #333;
-  display: block;
-  font-weight: 900;
-  overflow: hidden;
-  position: absolute;
-  padding-left: 0.5rem;
-  top: 0.2rem;
-  left: 187px;
-  animation: openclose 5s ease-in-out infinite;
-}
-
-.word1, .word2, .word3 {
-  font-family: tahoma;
-font-size: 25px;
-}
-
-@keyframes openclose {
-  0% {
-    top: 0.2rem;
-    width: 0;
-  }
-  5% {
-    width: 0;
-  }
-  15% {
-    width: 230px;
-  }
-  30% {
-    top: 0.2rem;
-    width: 230px;
-  }
-  33% {
-    top: 0.2rem;
-    width: 0;
-  }
-  35% {
-    top: 0.2rem;
-    width: 0;
-  }
-  38% {
-    top: -4.5rem;
-    
-  }
-  48% {
-    top: -4.5rem;
-    width: 190px;
-  }
-  62% {
-    top: -4.5rem;
-    width: 190px;
-  }
-  66% {
-    top: -4.5rem;
-    width: 0;
-    text-indent: 0;
-  }
-  71% {
-    top: -9rem;
-    width: 0;
-    text-indent: 5px;
-  }
-  86% {
-    top: -9rem;
-    width: 285px;
-  }
-  95% {
-    top: -9rem;
-    width: 285px;
-  }
-  98% {
-    top: -9rem;
-    width: 0;
-    text-indent: 5px;
-  }
-  100% {
-    top: 0;
-    width: 0;
-    text-indent: 0;
-  }
-}
-
-
-</style>
-
-
-
-
-
-
-
-<h1>
-  <span>WelCome To</span>
-  <div class="message">
-    <div class="word1">Bostaflix</div>
-    <div class="word2">Live Sports</div>
-    <div class="word3">Live TV</div>
+  <div class="top">
+    <h1>Welcome To Bostaflix</h1>
   </div>
-</h1>
+
+  <div class="bottom">
+    <div class="heading">শিরোনামসমূহ</div>
+    <div class="ticker-container">
+      <div class="ticker active" id="ticker1">লোড হচ্ছে...</div>
+      <div class="ticker" id="ticker2"></div>
+    </div>
+  </div>
+
+  <script>
+    const ticker1 = document.getElementById('ticker1');
+    const ticker2 = document.getElementById('ticker2');
+    let current = 0;
+    let headlines = [];
+    let index = 0;
+
+    async function loadHeadlines() {
+      try {
+        const res = await fetch('https://ekhon.tv/api/news/ticker.json');
+        const data = await res.json();
+        headlines = data.data.map(item => item.content);
+        if (headlines.length === 0) {
+          headlines = ["সংবাদ আপডেট পাওয়া যায়নি।"];
+        }
+        updateTicker();
+        setInterval(updateTicker, 10000);
+      } catch (e) {
+        console.error("Error fetching ticker:", e);
+        headlines = ["সংবাদ লোড করা যাচ্ছে না।"];
+        updateTicker();
+      }
+    }
+
+    function updateTicker() {
+      const next = current === 0 ? ticker2 : ticker1;
+      const prev = current === 0 ? ticker1 : ticker2;
+
+      next.textContent = headlines[index];
+      next.classList.add('active');
+      prev.classList.remove('active');
+
+      current = 1 - current;
+      index = (index + 1) % headlines.length;
+    }
+
+    loadHeadlines();
+  </script>
+
+</body>
+</html>
