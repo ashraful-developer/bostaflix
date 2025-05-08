@@ -2,6 +2,7 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOSTAFLIX Ticker</title>
   <style>
     /* Ensure the scroll container takes up the full height of the viewport */
@@ -14,7 +15,7 @@
       justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.4);
       overflow: hidden;
-      height: 100vh; /* Full viewport height */
+      height: 10vh; /* Adjusted height to take up 10% of the viewport height */
     }
 
     .logo {
@@ -32,16 +33,15 @@
       flex: 1;
       margin-left: 30px;
       position: relative;
-      height: 30px;
+      height: 100%; /* Ensure it fills the scroll-container */
     }
 
     .ticker {
       position: absolute;
       white-space: nowrap;
       will-change: transform;
-      display: inline-block; /* Ensure horizontal scrolling */
+      font-size: calc(1vw + 1em); /* Dynamically adjust the font size based on viewport width */
     }
-
   </style>
 </head>
 <body>
@@ -70,11 +70,11 @@
       const duration = totalWidth / SPEED;
 
       ticker.style.transition = 'none';
-      ticker.style.transform = `translateX(${wrapperWidth}px)`;  // Start from the right side
+      ticker.style.transform = `translateX(${wrapperWidth}px)`;
       void ticker.offsetWidth; // Force reflow
 
       ticker.style.transition = `transform ${duration}s linear`;
-      ticker.style.transform = `translateX(-${ticker.scrollWidth}px)`; // Move to the left
+      ticker.style.transform = `translateX(-${ticker.scrollWidth}px)`;
 
       // Repeat scroll after finished
       setTimeout(startScroll, duration * 1000);
