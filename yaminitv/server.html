@@ -134,7 +134,7 @@
 <body>
   <div id="top-section">
     <div id="image-box">
-  <div id="news-overlay">KODUTV</div>
+  <div id="news-overlay">Yamini TV</div>
       <div id="MyClockDisplay" class="clock"></div>
   <div id="details-block">
     <div id="headline-box">লোড হচ্ছে...</div>
@@ -149,12 +149,12 @@
 
   <script>
     // Ticker Scroll
-    fetch("https://bostaflix.vercel.app/kodutv/ticker.json")
+    fetch("https://bostaflix.vercel.app/yaminitv/ticker.json")
       .then(response => response.json())
       .then(data => {
         const container = document.getElementById('ticker-content');
         const headlines = data.data.map(item => `<span class="headline">${item.content}</span>`);
-        const separator = `<span class="separator">KODUTV</span>`;
+        const separator = `<span class="separator">Yamini TV</span>`;
         const finalText = headlines.join(separator);
 
         container.innerHTML = finalText;
@@ -184,7 +184,7 @@
       const item = newsData[index];
 
       // Image
-      const imageUrl = `https://bostaflix.vercel.app/kodutv/${item.ImageBgPath}`;
+      const imageUrl = `https://bostaflix.vercel.app/yaminitv/${item.ImageBgPath}`;
       imageBox.style.backgroundImage = `url(${imageUrl})`;
 
       // Headline
@@ -196,7 +196,7 @@
       index = (index + 1) % newsData.length;
     }
 
-    fetch("https://bostaflix.vercel.app/kodutv/generateLatest.json")
+    fetch("https://bostaflix.vercel.app/yaminitv/generateLatest.json")
       .then(response => response.json())
       .then(data => {
         newsData = data.data || [];
