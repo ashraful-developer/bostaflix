@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kakababu Playlist Player</title>
+  <title>Quran Playlist Player</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f4f4f9;
       margin: 0;
       padding: 2rem;
-      padding-bottom: 120px; /* Reserve space for the bottom player */
+      padding-bottom: 120px;
     }
 
     h1 {
@@ -85,7 +85,7 @@
 </head>
 <body>
 
-<h1>Kakababu Playlist</h1>
+<h1>Quran Playlist</h1>
 <div id="playlist">Loading playlist...</div>
 
 <div id="player-container">
@@ -100,44 +100,45 @@
   }
 
   async function loadPlaylist() {
-    const m3uRawUrl = getQueryParam('m3u');
-    if (!m3uRawUrl) {
-      document.getElementById('playlist').textContent = 'No M3U URL provided in query (?m3u=...)';
-      return;
-    }
-
-    const proxyUrl = 'https://bostaflix.global.ssl.fastly.net/api/proxy?url=https://archive.org/download/' + encodeURIComponent(m3uRawUrl);
+    const m3uFile = getQueryParam('m3u') || '/quran.m3u';
 
     try {
-      const response = await fetch(proxyUrl);
+      const response = await fetch(m3uFile);
       const text = await response.text();
-      const lines = text.split('\n')
-                        .map(line => line.trim())
-                        .filter(line => line && !line.startsWith('#'));
+      const lines = text.split('\n').map(line => line.trim());
 
-      const httpsUrls = [...new Set(lines.map(url => url.replace(/^http:/, 'https:')))];
-      
+      const playlist = [];
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('#EXTINF')) {
+          const title = lines[i].split(',').pop().trim();
+          const url = lines[i + 1] ? lines[i + 1].trim() : '';
+          if (url) {
+            playlist.push({ title, url });
+            i++;
+          }
+        }
+      }
+
       const playlistContainer = document.getElementById('playlist');
       playlistContainer.innerHTML = '';
 
-      httpsUrls.forEach(url => {
-        const fileName = decodeURIComponent(url.split('/').pop().replace('.mp3', ''));
+      playlist.forEach(({ title, url }) => {
         const trackDiv = document.createElement('div');
         trackDiv.className = 'track';
 
-        const title = document.createElement('div');
-        title.className = 'track-title';
-        title.textContent = fileName;
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'track-title';
+        titleDiv.textContent = title;
 
         const playBtn = document.createElement('button');
         playBtn.textContent = 'Play';
-        playBtn.onclick = () => playTrack(url, fileName);
+        playBtn.onclick = () => playTrack(url, title);
 
         const downloadBtn = document.createElement('button');
         downloadBtn.textContent = 'Download';
         downloadBtn.onclick = () => window.open(url, '_blank');
 
-        trackDiv.appendChild(title);
+        trackDiv.appendChild(titleDiv);
         trackDiv.appendChild(playBtn);
         trackDiv.appendChild(downloadBtn);
 
