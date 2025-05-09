@@ -6,24 +6,64 @@
   <title>Quran Playlist Player</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f9;
+      background-color: #121212;
       margin: 0;
       padding: 2rem;
       padding-bottom: 120px;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    /* Header styling */
+    header {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
     }
 
     h1 {
       text-align: center;
-      color: #333;
+      color: #fff;
+      margin-top: 2rem;
     }
 
     #playlist {
       max-width: 800px;
       margin: 2rem auto;
-      background: white;
+      background: #1e1e1e;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       padding: 1rem 2rem;
     }
 
@@ -33,7 +73,7 @@
       align-items: center;
       margin: 0.5rem 0;
       padding: 0.5rem 0;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #444;
     }
 
     .track:last-child {
@@ -43,7 +83,7 @@
     .track-title {
       flex: 1;
       margin-right: 1rem;
-      color: #444;
+      color: #ddd;
     }
 
     button {
@@ -66,8 +106,8 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: #ffffff;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      background: #1e1e1e;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
       padding: 1rem 2rem;
       display: none;
       z-index: 999;
@@ -84,6 +124,17 @@
   </style>
 </head>
 <body>
+
+<header>
+  <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+  <nav class="nav-links">
+    <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+    <a href="https://bostaflix.vercel.app/news.html">News</a>
+    <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+    <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+    <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+  </nav>
+</header>
 
 <h1>Quran Playlist</h1>
 <div id="playlist">Loading playlist...</div>
