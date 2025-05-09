@@ -100,7 +100,7 @@
   }
 
   async function loadPlaylist() {
-    const m3uFile = getQueryParam('m3u') || '/quran.m3u';
+    const m3uFile = getQueryParam('m3u') || 'https://bostaflix.vercel.app/al-quran/quran.m3u';
 
     try {
       const response = await fetch(m3uFile);
