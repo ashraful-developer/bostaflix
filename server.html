@@ -21,12 +21,23 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      position: relative;
     }
 
     .top h1 {
       font-size: 3em;
       font-weight: bold;
       letter-spacing: 1px;
+    }
+
+    .clock {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: #17D4FE;
+      font-size: 20px;
+      font-family: Orbitron, sans-serif;
+      letter-spacing: 2px;
     }
 
     .bottom {
@@ -70,42 +81,27 @@
     .ticker.active {
       opacity: 1;
     }
+
     @media (max-width: 720px) {
-            .ticker {
-      font-size: 0.75em;  
-            }
-      .bottom .heading {
-      font-size: 1em;
-      font-weight: bold;
-      margin-top: 10px;
+      .ticker {
+        font-size: 0.75em;
       }
-          .top h1 {
-      font-size: 1.5em;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-       .top {
-      height: 40%;
-      background-color: black;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-          .bottom {
-      height: 60%;
-      background-color: red;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-    }
-    }
+      .bottom .heading {
+        font-size: 1em;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .top h1 {
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      .top {
+        height: 40%;
+      }
+      .bottom {
+        height: 60%;
+      }
     }
   </style>
 </head>
@@ -113,6 +109,7 @@
 
   <div class="top">
     <h1>Welcome To Bostaflix</h1>
+    <div id="MyClockDisplay" class="clock"></div>
   </div>
 
   <div class="bottom">
@@ -160,6 +157,35 @@
     }
 
     loadHeadlines();
+
+    function showTime() {
+      var date = new Date();
+      var h = date.getHours(); // 0 - 23
+      var m = date.getMinutes(); // 0 - 59
+      var s = date.getSeconds(); // 0 - 59
+      var session = "AM";
+
+      if (h == 0) {
+        h = 12;
+      }
+
+      if (h > 12) {
+        h = h - 12;
+        session = "PM";
+      }
+
+      h = (h < 10) ? "0" + h : h;
+      m = (m < 10) ? "0" + m : m;
+      s = (s < 10) ? "0" + s : s;
+
+      var time = h + ":" + m + ":" + s + " " + session;
+      document.getElementById("MyClockDisplay").innerText = time;
+      document.getElementById("MyClockDisplay").textContent = time;
+
+      setTimeout(showTime, 1000);
+    }
+
+    showTime();
   </script>
 
 </body>
