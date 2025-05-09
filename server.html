@@ -2,200 +2,211 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bostaflix</title>
-  <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Kalpurush', sans-serif;
-    }
+  <title>News Display</title>
+<style>
+  @font-face {
+    font-family: 'Kalpurush';
+    src: url('https://cdn.jsdelivr.net/gh/noksha-dev/fonts/kalpurush/kalpurush.ttf') format('truetype');
+  }
 
-    .top {
-      height: 40%;
-      background-color: black;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      position: relative;
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: white;
+    font-family: 'Kalpurush', sans-serif;
+    height: 100%;
+    overflow: hidden;
+  }
+#news-overlay {
+  position: absolute;
+  bottom: 1vh;
+  left: 2vw;
+  font-family: Calibri, sans-serif;
+  font-size: 6vh;
+  height: 10vh;
+  padding: 0 0.5vw;
+  background: black;
+  color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 
+    -1px -1px 0 white,  
+    1px -1px 0 white,  
+    -1px 1px 0 white,  
+    1px 1px 0 white;
+  z-index: 5;
+  pointer-events: none;
+  white-space: nowrap;
+}
 
-    .top h1 {
-      font-size: 3.5em;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
 
-    .clock {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      color: #17D4FE;
-      font-size: 20px;
-      font-family: Orbitron, sans-serif;
-      letter-spacing: 2px;
-    }
+  #top-section {
+    position: relative;
+    height: 90vh;
+    overflow: hidden;
+  }
 
-    .bottom {
-      height: 60%;
-      background-color: red;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-    }
+  #image-box {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
 
-    .bottom .heading {
-      font-size: 3em;
-      font-weight: bold;
-      margin-top: 10px;
-    }
+  #details-block {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    max-height: 50vh;
+    padding: 2vh 2vw;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.3));
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1vh;
+    box-sizing: border-box;
+  }
 
-    .ticker-container {
-      position: relative;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-    }
+  #headline-box {
+    font-size: 6vh;
+    font-weight: bold;
+    color: yellow;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
 
-    .ticker {
-      position: absolute;
-      transition: opacity 0.5s ease;
-      opacity: 0;
-      font-size: 2em;
-      padding: 0 20px;
-      max-width: 100%;
-      line-height: 1.5;
-    }
+  #brief-box {
+    font-size: 4vh;
+    line-height: 1.4;
+    overflow: hidden;
+    word-break: break-word;
+  }
 
-    .ticker.active {
-      opacity: 1;
-    }
+  #ticker {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 10vh;
+    background: black;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    z-index: 4;
+    
+  }
 
-    @media (max-width: 720px) {
-      .ticker {
-        font-size: 1em;
-      }
-      .bottom .heading {
-        font-size: 1.25em;
-        font-weight: bold;
-        margin-top: 10px;
-      }
-      .top h1 {
-        font-size: 1.5em;
-        font-weight: bold;
-        letter-spacing: 1px;
-      }
-      .top {
-        height: 35%;
-      }
-      .bottom {
-        height: 65%;
-      }
-          .clock {
-      position: absolute;
-      top: 2.5px;
-      right: 5px;
-      color: #17D4FE;
-      font-size: 10px;
-      font-family: Orbitron, sans-serif;
-      letter-spacing: 1px;
+  #ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 5vh;
+    padding-left: 100%;
+  }
+
+  .headline {
+    margin: 0 2vw;
+  }
+
+  .separator {
+    color: red;
+    font-weight: bold;
+    margin: 0 2vw;
+  }
+
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
     }
+    to {
+      transform: translateX(-100%);
     }
-  </style>
+  }
+</style>
+
 </head>
 <body>
+  <div id="top-section">
+    <div id="image-box">
+  <div id="details-block">
+    <div id="headline-box">লোড হচ্ছে...</div>
+    <div id="brief-box"></div>
+  </div>
+</div>
 
-  <div class="top">
-    <h1>Welcome To Bostaflix</h1>
-    <div id="MyClockDisplay" class="clock"></div>
   </div>
 
-  <div class="bottom">
-    <div class="heading">শিরোনামসমূহ</div>
-    <div class="ticker-container">
-      <div class="ticker active" id="ticker1">লোড হচ্ছে...</div>
-      <div class="ticker" id="ticker2"></div>
-    </div>
+  <div id="ticker">
+    <div id="ticker-content"></div>
+ <div id="news-overlay">  BOSTAFLIX NEWS</div>
   </div>
 
   <script>
-    const ticker1 = document.getElementById('ticker1');
-    const ticker2 = document.getElementById('ticker2');
-    let current = 0;
-    let headlines = [];
+    // Ticker Scroll
+    fetch("https://ekhon.tv/api/news/ticker.json")
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('ticker-content');
+        const headlines = data.data.map(item => `<span class="headline">${item.content}</span>`);
+        const separator = `<span class="separator">BOSTAFLIX</span>`;
+        const finalText = headlines.join(separator);
+
+        container.innerHTML = finalText;
+
+        // Scrolling speed based on characters per second
+        const charactersPerSecond = 12;
+        const totalCharacters = container.textContent.length;
+        const durationSeconds = totalCharacters / charactersPerSecond;
+
+        container.style.animation = `scroll ${durationSeconds}s linear infinite`;
+      })
+      .catch(err => {
+        document.getElementById('ticker-content').textContent = "খবর লোড করা যায়নি...";
+      });
+
+    // Top Headline Section
+    const imageBox = document.getElementById("image-box");
+    const headlineBox = document.getElementById("headline-box");
+    const briefBox = document.getElementById("brief-box");
+
+    let newsData = [];
     let index = 0;
 
-    async function loadHeadlines() {
-      try {
-        const res = await fetch('https://ekhon.tv/api/news/ticker.json');
-        const data = await res.json();
-        headlines = data.data.map(item => item.content);
-        if (headlines.length === 0) {
-          headlines = ["সংবাদ আপডেট পাওয়া যায়নি।"];
-        }
-        updateTicker();
-        setInterval(updateTicker, 10000);
-      } catch (e) {
-        console.error("Error fetching ticker:", e);
-        headlines = ["সংবাদ লোড করা যাচ্ছে না।"];
-        updateTicker();
-      }
+    function updateHeadline() {
+      if (!newsData.length) return;
+
+      const item = newsData[index];
+
+      // Image
+      const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
+      imageBox.style.backgroundImage = `url(${imageUrl})`;
+
+      // Headline
+      headlineBox.textContent = item.ContentHeading.trim();
+
+      // Brief
+      briefBox.textContent = item.ContentBrief.trim();
+
+      index = (index + 1) % newsData.length;
     }
 
-    function updateTicker() {
-      const next = current === 0 ? ticker2 : ticker1;
-      const prev = current === 0 ? ticker1 : ticker2;
+    fetch("https://backoffice.channel24bd.tv/api/json/file/generateLatest.json")
+      .then(response => response.json())
+      .then(data => {
+        newsData = data.data || [];
+        if (newsData.length === 0) return;
 
-      next.textContent = headlines[index];
-      next.classList.add('active');
-      prev.classList.remove('active');
-
-      current = 1 - current;
-      index = (index + 1) % headlines.length;
-    }
-
-    loadHeadlines();
-
-    function showTime() {
-      var date = new Date();
-      var h = date.getHours(); // 0 - 23
-      var m = date.getMinutes(); // 0 - 59
-      var s = date.getSeconds(); // 0 - 59
-      var session = "AM";
-
-      if (h == 0) {
-        h = 12;
-      }
-
-      if (h > 12) {
-        h = h - 12;
-        session = "PM";
-      }
-
-      h = (h < 10) ? "0" + h : h;
-      m = (m < 10) ? "0" + m : m;
-      s = (s < 10) ? "0" + s : s;
-
-      var time = h + ":" + m + ":" + s + " " + session;
-      document.getElementById("MyClockDisplay").innerText = time;
-      document.getElementById("MyClockDisplay").textContent = time;
-
-      setTimeout(showTime, 1000);
-    }
-
-    showTime();
+        updateHeadline();
+        setInterval(updateHeadline, 15000); // every 15 seconds
+      })
+      .catch(err => {
+        headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
+        briefBox.textContent = "";
+      });
   </script>
-
 </body>
 </html>
