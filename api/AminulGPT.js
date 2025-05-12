@@ -4,7 +4,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.AIML_API_KEY}`, // set this in Vercel env vars
+        'Authorization': `Bearer a941695a8b7549f4b2aa6cc4e178849b`, // set this in Vercel env vars
       },
       body: JSON.stringify({
         model: 'deepseek-reasoner',
