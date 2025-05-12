@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer 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`,
+        'api_key': `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`,
         'HTTP-Referer': 'https://bostaflix.vercel.app',  // Optional: replace with your actual site URL
         'X-Title': 'Bostaflix',      // Optional: replace with your site title
       },
