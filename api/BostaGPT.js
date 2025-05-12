@@ -1,38 +1,35 @@
 export default async function handler(req, res) {
-  const userMessage = req.query.text || ''; // get message from query param
+  const userMessage = req.query.text || ''; // Get user message from query param
 
   if (!userMessage.trim()) {
     return res.status(400).json({ error: 'Missing ?text= query parameter' });
   }
 
   try {
-    const apiResponse = await fetch('https://api.aimlapi.com/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer a941695a8b7549f4b2aa6cc4e178849b`,
+        'Authorization': `Bearer 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`,
+        'HTTP-Referer': 'https://bostaflix.vercel.app',  // Optional: replace with your actual site URL
+        'X-Title': 'Bostaflix',      // Optional: replace with your site title
       },
       body: JSON.stringify({
-        model: 'deepseek-reasoner',
+        model: 'openai/gpt-4o',
         messages: [
           {
             role: 'user',
             content: userMessage,
           },
         ],
-        temperature: 0.7,
-        top_p: 0.7,
-        frequency_penalty: 1,
-        max_output_tokens: 512,
-        top_k: 50,
       }),
     });
 
-    const data = await apiResponse.json();
+    const data = await response.json();
 
-    if (!apiResponse.ok) {
+    if (!response.ok) {
       console.error('API error:', data);
-      return res.status(apiResponse.status).json({ error: data });
+      return res.status(response.status).json({ error: data });
     }
 
     const message = data.choices?.[0]?.message?.content || 'No response';
