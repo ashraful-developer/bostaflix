@@ -1,17 +1,23 @@
 export default async function handler(req, res) {
+  const userMessage = req.query.text || ''; // get message from query param
+
+  if (!userMessage.trim()) {
+    return res.status(400).json({ error: 'Missing ?text= query parameter' });
+  }
+
   try {
     const apiResponse = await fetch('https://api.aimlapi.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer a941695a8b7549f4b2aa6cc4e178849b`, // set this in Vercel env vars
+        'Authorization': `Bearer a941695a8b7549f4b2aa6cc4e178849b`,
       },
       body: JSON.stringify({
         model: 'deepseek-reasoner',
         messages: [
           {
             role: 'user',
-            content: '', // or req.body.content if you take user input
+            content: userMessage,
           },
         ],
         temperature: 0.7,
