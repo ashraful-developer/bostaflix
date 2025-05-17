@@ -169,7 +169,7 @@
       input.value = '';
 
       try {
-        const res = await fetch(`https://bostaflix.vercel.app/api/BostaGPT?text=${encodeURIComponent(message)}`);
+        const res = await fetch(`https://bostaflix.vercel.app/api/BostaGPT?text=Suppose You are BostaGPT (বস্তা জিপিটি). a funny ai that can help in tasks but very talkative. ${encodeURIComponent(message)}`);
         const json = await res.json();
         const botText = json?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I didn\'t understand that.';
         appendMessage('bot', botText);
