@@ -1,46 +1,55 @@
-export default async function handler(req, res) {
-  const userMessage = req.query.text || ''; // Get the user message from query param
+const https = require('https');
 
-  if (!userMessage.trim()) {
-    return res.status(400).json({ error: 'Missing ?text= query parameter' });
+module.exports = (req, res) => {
+  const { text } = req.query;
+
+  if (!text) {
+    res.status(400).json({ error: 'Missing `text` query parameter' });
+    return;
   }
 
-  try {
-    // The fetch API to make the request to OpenRouter
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer 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`, // Correct way to pass the API key in the Authorization header
-        'HTTP-Referer': 'https://bostaflix.vercel.app',  // Optional: replace with your actual site URL
-        'X-Title': 'Bostaflix',      // Optional: replace with your site title
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-4o',
-        messages: [
-          {
-            role: 'user',
-            content: userMessage,  // User message from the query parameter
-          },
-        ],
-      }),
+  const apiKey = 'AIzaSyDTcXqcX1EnO194fj49RkF0k14vq6Mc_TE'; // Replace with your actual API key
+  const data = JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text }
+        ]
+      }
+    ]
+  });
+
+  const options = {
+    hostname: 'generativelanguage.googleapis.com',
+    path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(data)
+    }
+  };
+
+  const apiReq = https.request(options, apiRes => {
+    let responseData = '';
+
+    apiRes.on('data', chunk => {
+      responseData += chunk;
     });
 
-    const data = await response.json();
+    apiRes.on('end', () => {
+      try {
+        const result = JSON.parse(responseData);
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to parse API response', details: err.message });
+      }
+    });
+  });
 
-    // Check if the response is successful
-    if (!response.ok) {
-      console.error('API error:', data);
-      return res.status(response.status).json({ error: data });
-    }
+  apiReq.on('error', error => {
+    res.status(500).json({ error: 'Request failed', details: error.message });
+  });
 
-    // Extract message from the response
-    const message = data.choices?.[0]?.message?.content || 'No response';
-
-    // Send the response back to the user
-    res.status(200).json({ assistant: message });
-  } catch (error) {
-    console.error('Request failed:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
+  apiReq.write(data);
+  apiReq.end();
+};
