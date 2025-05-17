@@ -46,7 +46,7 @@
             responseBox.innerHTML = 'Loading...';
             
             try {
-                const res = await fetch(`https://bostaflix.vercel.app/BostaGPT?text=${encodeURIComponent(question)}`);
+                const res = await fetch(`https://bostaflix.vercel.app/api/BostaGPT?text=${encodeURIComponent(question)}`);
                 const text = await res.text();
                 const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*/g, '<em>');
                 responseBox.innerHTML = formatted;
