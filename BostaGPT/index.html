@@ -71,6 +71,7 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .message {
@@ -78,6 +79,7 @@
       padding: 10px 15px;
       border-radius: 12px;
       word-wrap: break-word;
+      white-space: pre-wrap;
     }
 
     .user {
@@ -145,12 +147,19 @@
   <div id="chat-container">
     <div id="messages"></div>
     <div id="input-container">
-      <input type="text" id="userInput" placeholder="Type your message here..." />
+      <input type="text" id="userInput" placeholder="Type your message here..." onkeydown="handleKey(event)" />
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
   <script>
+    function handleKey(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
     async function sendMessage() {
       const input = document.getElementById('userInput');
       const message = input.value.trim();
@@ -170,17 +179,28 @@
       }
     }
 
-    function appendMessage(sender, text) {
+    function appendMessage(sender, rawText) {
       const messages = document.getElementById('messages');
       const div = document.createElement('div');
       div.className = `message ${sender}`;
+
+      const formattedText = formatText(rawText);
       if (sender === 'user') {
-        div.innerHTML = `<div class="label">User:</div>${text.replace(/\n/g, '<br>')}`;
+        div.innerHTML = `<div class="label">User:</div>${formattedText}`;
       } else {
-        div.innerHTML = `<div class="label">BostaGPT:</div>${text.replace(/\n/g, '<br>')}`;
+        div.innerHTML = `<div class="label">BostaGPT:</div>${formattedText}`;
       }
+
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
+    }
+
+    function formatText(text) {
+      // Convert **bold**
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Convert * bullet points (optional bold inside)
+      text = text.replace(/^\* (.*)$/gm, '• $1');
+      return text.replace(/\n/g, '<br>');
     }
   </script>
 </body>
