@@ -5,45 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BostaGPT Chat</title>
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-            background: #f1f1f1;
-        }
-        header {
-            background-color: #1e1e1e;
-            color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        }
-        .logo {
-            color: #ff3c3c;
-            text-decoration: none;
-            font-size: 1.5em;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-        .nav-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            transition: background 0.3s ease;
-        }
-        .nav-links a:hover {
-            background-color: #ff3c3c;
-            color: #fff;
-        }
+        html,     body {
+        background-color: #121212;
+        margin: 0;
+        padding: 0;
+        color: #f0f0f0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        scroll-behavior: smooth;
+        overflow: hidden;
+    }
+     header {
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .logo {
+        color: #ff3c3c;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        color: #e0e0e0;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: #ff3c3c;
+        color: #fff;
+    }
         @media (max-width: 720px) {
             .nav-links {
                 display: none;
@@ -51,7 +56,6 @@
         }
         #chat-container {
             width: 100%;
-            max-width: 600px;
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
