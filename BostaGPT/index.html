@@ -12,8 +12,6 @@
       background-color: #121212;
       color: #f0f0f0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
       overflow: hidden;
     }
 
@@ -25,7 +23,6 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-      flex-shrink: 0;
     }
 
     .logo {
@@ -61,20 +58,25 @@
     }
 
     #chat-container {
-      flex: 1;
+      position: relative;
+      height: calc(100% - 60px); /* minus header height */
       display: flex;
       flex-direction: column;
-      width: 100%;
-      min-height: 0;
-      overflow: hidden;
     }
 
     #messages {
       flex: 1;
       padding: 20px;
+      padding-bottom: 80px; /* space for fixed input */
       overflow-y: auto;
       overflow-x: hidden;
-      min-height: 0;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: #888;
+      margin-top: 30px;
+      font-style: italic;
     }
 
     .message {
@@ -107,10 +109,14 @@
     }
 
     #input-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
       display: flex;
       border-top: 1px solid #333;
       background-color: #1e1e1e;
-      flex-shrink: 0;
+      padding: 10px;
     }
 
     #userInput {
@@ -120,35 +126,22 @@
       border: none;
       padding: 15px;
       font-size: 16px;
+      border-radius: 8px;
     }
 
     button {
-      padding: 15px;
+      margin-left: 10px;
+      padding: 15px 20px;
       border: none;
       background: #ff3c3c;
       color: white;
       font-size: 16px;
       cursor: pointer;
+      border-radius: 8px;
     }
 
     button:hover {
       background: #ff5555;
-    }
-
-    @media (max-width: 720px) {
-      #chat-container {
-        height: 100%;
-      }
-
-      #messages {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-      }
-
-      #input-container {
-        flex-shrink: 0;
-      }
     }
   </style>
 </head>
@@ -165,11 +158,14 @@
   </header>
 
   <div id="chat-container">
-    <div id="messages"></div>
-    <div id="input-container">
-      <input type="text" id="userInput" placeholder="Type your message here..." onkeydown="handleKey(event)" />
-      <button onclick="sendMessage()">Send</button>
+    <div id="messages">
+      <div class="placeholder" id="placeholder">🤖 How can I help you?</div>
     </div>
+  </div>
+
+  <div id="input-container">
+    <input type="text" id="userInput" placeholder="Type your message here..." onkeydown="handleKey(event)" />
+    <button onclick="sendMessage()">Send</button>
   </div>
 
   <script>
@@ -185,6 +181,7 @@
       const message = input.value.trim();
       if (!message) return;
 
+      document.getElementById('placeholder')?.remove();
       appendMessage('user', message);
       input.value = '';
 
@@ -201,24 +198,20 @@
 
     function appendMessage(sender, rawText) {
       const messages = document.getElementById('messages');
+      const placeholder = document.getElementById('placeholder');
+      if (placeholder) placeholder.remove();
+
       const div = document.createElement('div');
       div.className = `message ${sender}`;
-
       const formattedText = formatText(rawText);
-      if (sender === 'user') {
-        div.innerHTML = `<div class="label">User:</div>${formattedText}`;
-      } else {
-        div.innerHTML = `<div class="label">BostaGPT:</div>${formattedText}`;
-      }
 
+      div.innerHTML = `<div class="label">${sender === 'user' ? 'User' : 'BostaGPT'}:</div>${formattedText}`;
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
 
     function formatText(text) {
-      // Convert **bold**
       text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // Convert * bullet points (optional bold inside)
       text = text.replace(/^\* (.*)$/gm, '• $1');
       return text.replace(/\n/g, '<br>');
     }
