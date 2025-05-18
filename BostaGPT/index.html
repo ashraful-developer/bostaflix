@@ -6,12 +6,12 @@
   <title>BostaGPT Chat</title>
   <style>
     html, body {
-      background-color: #121212;
+      height: 100%;
       margin: 0;
       padding: 0;
+      background-color: #121212;
       color: #f0f0f0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -25,6 +25,7 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      flex-shrink: 0;
     }
 
     .logo {
@@ -64,6 +65,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -72,6 +74,7 @@
       padding: 20px;
       overflow-y: auto;
       overflow-x: hidden;
+      min-height: 0;
     }
 
     .message {
@@ -107,6 +110,7 @@
       display: flex;
       border-top: 1px solid #333;
       background-color: #1e1e1e;
+      flex-shrink: 0;
     }
 
     #userInput {
@@ -129,6 +133,22 @@
 
     button:hover {
       background: #ff5555;
+    }
+
+    @media (max-width: 720px) {
+      #chat-container {
+        height: 100%;
+      }
+
+      #messages {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      #input-container {
+        flex-shrink: 0;
+      }
     }
   </style>
 </head>
