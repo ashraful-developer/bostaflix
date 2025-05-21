@@ -1,30 +1,36 @@
 export default async function handler(req, res) {
   const { id } = req.query;
-
   if (!id) {
-    return res.status(400).json({ error: 'Missing "id" parameter' });
+    return res.status(400).send("Missing id");
   }
 
-  const targetUrl = `https://re.fredflix.fun/ayna/play.php?id=${id}`;
-
   try {
-    const response = await fetch(targetUrl);
-    const html = await response.text();
+    // Step 1: Fetch JSON
+    const jsonRes = await fetch("https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/api.json");
+    const data = await jsonRes.json();
 
-    // Extract src inside <source ... src="..." >
-    const match = html.match(/<source[^>]+src="([^"]+\.m3u8[^"]*)"/);
-
-    if (!match || !match[1]) {
-      return res.status(404).json({ error: 'No .m3u8 tokenized URL found in video tag' });
+    // Step 2: Match ID
+    const matched = data.find(item => item.id === id);
+    if (!matched) {
+      return res.status(404).send("ID not found in JSON");
     }
 
-    const m3u8Url = match[1];
+    // Step 3: Fetch HTML page
+    const pageRes = await fetch(`https://re.fredflix.fun/ayna/play.php?id=${id}`);
+    const html = await pageRes.text();
 
-    // Redirect to the real stream
-    res.writeHead(302, { Location: m3u8Url });
-    res.end();
+    // Step 4: Extract .m3u8 URL
+    const m3u8Match = html.match(/https?:\/\/[^"']+\.m3u8[^"']*/);
+    if (!m3u8Match) {
+      return res.status(500).send("No m3u8 URL found");
+    }
+
+    const m3u8Url = m3u8Match[0];
+
+    // Step 5: Redirect to m3u8
+    return res.redirect(302, m3u8Url);
   } catch (err) {
-    console.error('Fetch or parsing failed:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error(err);
+    return res.status(500).send("Internal server error");
   }
 }
