@@ -2,48 +2,27 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   if (!id) {
-    res.status(400).send("Missing 'id' query parameter.");
-    return;
+    return res.status(400).json({ error: 'Missing "id" parameter' });
   }
 
   try {
-    // Step 1: Fetch the channel list page
-    const mainPageResponse = await fetch('https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/');
-    const mainHtml = await mainPageResponse.text();
+    const response = await fetch(`https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/play.php?id=${id}`);
+    const html = await response.text();
 
-    // Step 2: Extract the player ID associated with the given channel ID
-    const regex = new RegExp(
-      `<div class="card[^>]*?" onclick="openPlayer\\('([a-f0-9\\-]+)'\\)">\\s*<img[^>]*?/>\\s*<div class="card-body[^>]*?>\\s*<small><b>${id}</b></small>`,
-      'i'
-    );
-    const match = mainHtml.match(regex);
+    // Find the .m3u8 URL in the returned HTML
+    const m3u8Match = html.match(/https?:\/\/[^"']+\.m3u8/);
 
-    if (!match || !match[1]) {
-      res.status(404).send(`Channel '${id}' not found.`);
-      return;
+    if (!m3u8Match) {
+      return res.status(404).json({ error: 'No .m3u8 URL found' });
     }
 
-    const playerId = match[1];
+    const m3u8Url = m3u8Match[0];
 
-    // Step 3: Fetch the player page for the extracted ID
-    const playPageResponse = await fetch(`https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/play.php?id=${playerId}`);
-    const playHtml = await playPageResponse.text();
-
-    // Step 4: Extract the .m3u8 stream URL from the <source> tag
-    const streamMatch = playHtml.match(/<source[^>]+src="([^"]+\.m3u8[^"]*)"/i);
-
-    if (!streamMatch || !streamMatch[1]) {
-      res.status(500).send("Stream URL not found in play.php response.");
-      return;
-    }
-
-    const streamUrl = streamMatch[1];
-
-    // Step 5: Redirect the client to the actual stream
-    res.writeHead(302, { Location: streamUrl });
+    // Redirect to the .m3u8 stream
+    res.writeHead(302, { Location: m3u8Url });
     res.end();
-
-  } catch (err) {
-    res.status(500).send("Server Error: " + err.message);
+  } catch (error) {
+    console.error('Error fetching or parsing:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
