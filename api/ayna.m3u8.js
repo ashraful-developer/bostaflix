@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const realId = channel.id;
 
     // Step 3: Fetch play.php
-    const playRes = await fetch(`https://bostaflix-ayna.global.ssl.fastly.net/play.php?id=${realId}`);
+    const playRes = await fetch(`https://bostaflix-ayna.global.ssl.fastly.net/play.php?channel_id=${realId}`);
     if (!playRes.ok) {
       return res.status(502).send("Failed to fetch player page");
     }
