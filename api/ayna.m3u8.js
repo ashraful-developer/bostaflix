@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     }
     const json = await jsonRes.json();
 
-    // Step 2: Find by title instead of id
+    // Step 2: Find channel by title (case-insensitive)
     const channel = json.data.list.find(entry => entry.title.toLowerCase() === id.toLowerCase());
     if (!channel) {
       return res.status(404).send("Channel title not found");
@@ -21,31 +21,11 @@ export default async function handler(req, res) {
 
     const realId = channel.id;
 
-    // Step 3: Fetch play.php
-    const playRes = await fetch(`https://bostaflix-ayna.global.ssl.fastly.net/play.php?channel_id=${realId}`);
-    if (!playRes.ok) {
-      return res.status(502).send("Failed to fetch player page");
-    }
+    // Step 3: Construct stream URL directly
+    const streamUrl = `https://bostaflix-ayna.global.ssl.fastly.net/live.php?Somesia=${realId}`;
 
-    const html = await playRes.text();
-
-    // Step 4: Extract m3u8
-    const m3u8Match = html.match(/https:\/\/[^"'<>]+\.m3u8[^"'<>]*/);
-    if (!m3u8Match) {
-      return res.status(500).send("Stream URL not found");
-    }
-
-    let m3u8Url = m3u8Match[0];
-
-    // Step 5: Replace host if needed
-    const oldHost = 'https://tvsen5.aynascope.net';
-    const newHost = 'https://aynascope-bostaflix.global.ssl.fastly.net';
-
-    if (m3u8Url.startsWith(oldHost)) {
-      m3u8Url = m3u8Url.replace(oldHost, newHost);
-    }
-
-    return res.redirect(302, m3u8Url);
+    // Redirect to the stream URL
+    return res.redirect(302, streamUrl);
 
   } catch (err) {
     console.error("Error:", err);
