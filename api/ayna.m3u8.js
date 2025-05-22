@@ -35,7 +35,17 @@ export default async function handler(req, res) {
       return res.status(500).send("Stream URL not found");
     }
 
-    return res.redirect(302, m3u8Match[0]);
+    let m3u8Url = m3u8Match[0];
+
+    // Step 5: Replace host if needed
+    const oldHost = 'https://tvsen5.aynascope.net';
+    const newHost = 'https://aynascope-bostaflix.global.ssl.fastly.net';
+
+    if (m3u8Url.startsWith(oldHost)) {
+      m3u8Url = m3u8Url.replace(oldHost, newHost);
+    }
+
+    return res.redirect(302, m3u8Url);
 
   } catch (err) {
     console.error("Error:", err);
