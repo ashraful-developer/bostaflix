@@ -2,33 +2,48 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   if (!id) {
-    return res.status(400).send("Missing 'id' query parameter");
+    res.status(400).send("Missing 'id' query parameter.");
+    return;
   }
 
   try {
-    // Step 1: Get JSON
-    const jsonRes = await fetch("https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/api.json");
-    if (!jsonRes.ok) {
-      return res.status(502).send("Failed to fetch API JSON");
+    // Step 1: Fetch the channel list page
+    const mainPageResponse = await fetch('https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/');
+    const mainHtml = await mainPageResponse.text();
+
+    // Step 2: Extract the player ID associated with the given channel ID
+    const regex = new RegExp(
+      `<div class="card[^>]*?" onclick="openPlayer\\('([a-f0-9\\-]+)'\\)">\\s*<img[^>]*?/>\\s*<div class="card-body[^>]*?>\\s*<small><b>${id}</b></small>`,
+      'i'
+    );
+    const match = mainHtml.match(regex);
+
+    if (!match || !match[1]) {
+      res.status(404).send(`Channel '${id}' not found.`);
+      return;
     }
-    const json = await jsonRes.json();
 
-    // Step 2: Find channel by title (case-insensitive)
-    const channel = json.data.list.find(entry => entry.title.toLowerCase() === id.toLowerCase());
-    if (!channel) {
-      return res.status(404).send("Channel title not found");
+    const playerId = match[1];
+
+    // Step 3: Fetch the player page for the extracted ID
+    const playPageResponse = await fetch(`https://stream-cdn-bostaflix.global.ssl.fastly.net/ayna/play.php?id=${playerId}`);
+    const playHtml = await playPageResponse.text();
+
+    // Step 4: Extract the .m3u8 stream URL from the <source> tag
+    const streamMatch = playHtml.match(/<source[^>]+src="([^"]+\.m3u8[^"]*)"/i);
+
+    if (!streamMatch || !streamMatch[1]) {
+      res.status(500).send("Stream URL not found in play.php response.");
+      return;
     }
 
-    const realId = channel.id;
+    const streamUrl = streamMatch[1];
 
-    // Step 3: Construct stream URL directly
-    const streamUrl = `https://bostaflix-ayna.global.ssl.fastly.net/live.php?Somesia=${realId}`;
-
-    // Redirect to the stream URL
-    return res.redirect(302, streamUrl);
+    // Step 5: Redirect the client to the actual stream
+    res.writeHead(302, { Location: streamUrl });
+    res.end();
 
   } catch (err) {
-    console.error("Error:", err);
-    return res.status(500).send("Internal server error");
+    res.status(500).send("Server Error: " + err.message);
   }
 }
