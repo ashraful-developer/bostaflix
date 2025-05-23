@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const realId = channel.id;
 
     // Step 3: Construct stream URL directly
-    const streamUrl = `https://bostaflix-ayna.global.ssl.fastly.net/live.php?Somesia=${realId}`;
+    const streamUrl = `https://aynaott.yflix.top/live.php?Somesia=${realId}`;
 
     // Redirect to the stream URL
     return res.redirect(302, streamUrl);
