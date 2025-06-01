@@ -35,7 +35,12 @@ export default async function handler(req, res) {
       return res.status(500).send("Stream URL not found");
     }
 
-    return res.redirect(302, m3u8Match[0]);
+    let finalUrl = m3u8Match[0];
+
+    // Step 5: Replace host if needed
+    finalUrl = finalUrl.replace("tvs1.aynaott.com", "ayna-bosta.global.ssl.fastly.net");
+
+    return res.redirect(302, finalUrl);
 
   } catch (err) {
     console.error("Error:", err);
