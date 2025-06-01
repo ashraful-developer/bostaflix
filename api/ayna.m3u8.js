@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     let finalUrl = m3u8Match[0];
 
     // Step 5: Replace host if needed
-    finalUrl = finalUrl.replace("tvs1.aynaott.com", "ayna-bosta.global.ssl.fastly.net");
+    finalUrl = finalUrl.replace("tvsen6.aynascope.net", "ayna-bosta.global.ssl.fastly.net");
 
     return res.redirect(302, finalUrl);
 
