@@ -4,87 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Downloader</title>
-    <style>
-        /* General Styling */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-           
-           }
+<style>
+    /* General Styling */
+    body {
+        background-color: #121212;
+        color: #f0f0f0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        scroll-behavior: smooth;
+    }
 
-        h2 {
-            color: #333;
-        }
+    h2 {
+        color: #f0f0f0;
+    }
 
-        /* Header styling */
-        header {
-            background-color: #212121;
-            color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            box-sizing: border-box;
-        }
+    /* Header styling */
+    header {
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-        .logo {
-            color: #ff0000;
-            text-decoration: none;
-            font-size: 1.5em;
-            font-weight: bold;
-        }
+    .logo {
+        color: #ff3c3c;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
 
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        color: #e0e0e0;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: #ff3c3c;
+        color: #fff;
+    }
+
+    /* Input Field Styling */
+    input {
+        padding: 10px;
+        width: 80%;
+        max-width: 400px;
+        border: 1px solid #555;
+        border-radius: 5px;
+        margin-top: 10px;
+        background-color: #1e1e1e;
+        color: #f0f0f0;
+    }
+
+    /* Button Styling */
+    button {
+        background-color: #ff3c3c;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        margin: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+
+    button:hover {
+        background-color: #cc0000;
+    }
+
+    /* Mobile view adjustments */
+    @media (max-width: 768px) {
         .nav-links {
-            display: flex;
-            gap: 15px;
+            display: none; /* Hide links in mobile view */
         }
-
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: #ff0000;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none; /* Hide links in mobile view */
-            }
-        }
-
-        /* Input Field Styling */
-        input {
-            padding: 10px;
-            width: 80%;
-            max-width: 400px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        /* Button Styling */
-        button {
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-    </style>
+    }
+</style>
     <script>
         function extractID() {
             const url = document.getElementById("yt-url").value;
