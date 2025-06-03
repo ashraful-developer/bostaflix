@@ -1,177 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader</title>
-<style>
-    /* General Styling */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouTube Downloader</title>
+  <style>
     body {
-        background-color: #121212;
-        color: #f0f0f0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        scroll-behavior: smooth;
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
     }
 
     h2 {
-        color: #f0f0f0;
+      color: #f0f0f0;
     }
 
-    /* Header styling */
     header {
-        background-color: #1e1e1e;
-        color: #fff;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        width: 100%;
-        box-sizing: border-box;
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
     }
 
     .logo {
-        color: #ff3c3c;
-        text-decoration: none;
-        font-size: 1.5em;
-        font-weight: bold;
-        letter-spacing: 0.5px;
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
     }
 
     .nav-links {
-        display: flex;
-        gap: 20px;
+      display: flex;
+      gap: 20px;
     }
 
     .nav-links a {
-        color: #e0e0e0;
-        text-decoration: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        transition: background 0.3s ease;
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
     }
 
     .nav-links a:hover {
-        background-color: #ff3c3c;
-        color: #fff;
+      background-color: #ff3c3c;
+      color: #fff;
     }
 
-    /* Input Field Styling */
     input {
-        padding: 10px;
-        width: 80vw;
-        max-width: 400px;
-        border: 1px solid #555;
-        border-radius: 5px;
-        margin-top: 10px;
-        background-color: #1e1e1e;
-        color: #f0f0f0;
+      padding: 10px;
+      width: 80vw;
+      max-width: 400px;
+      border: 1px solid #555;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
     }
 
-    /* Button Styling */
     button {
-        background-color: #ff3c3c;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        margin: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: background 0.3s;
+      background-color: #ff3c3c;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
     }
 
     button:hover {
-        background-color: #cc0000;
+      background-color: #cc0000;
     }
 
-    /* Mobile view adjustments */
+    #video-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    video {
+      width: 90%;
+      max-width: 800px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .error-message {
+      color: #ff3c3c;
+      margin-top: 10px;
+    }
+
+    #download-link {
+      margin-top: 15px;
+      display: none;
+    }
+
     @media (max-width: 768px) {
-        .nav-links {
-            display: none; /* Hide links in mobile view */
-        }
+      .nav-links {
+        display: none;
+      }
+
+      video {
+        height: auto;
+      }
     }
-</style>
-<script>
-    function extractID() {
-        const url = document.getElementById("yt-url").value;
-        const match = url.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/);
-        if (match) {
-            return match[1];
-        } else {
-            alert("Invalid YouTube URL!");
-            return null;
-        }
-    }
-
-    async function checkWithIframe(url, maxAttempts = 10, delayMs = 1000) {
-        return new Promise((resolve) => {
-            let attempt = 0;
-            let iframe = document.createElement("iframe");
-            iframe.style.display = "none";
-            document.body.appendChild(iframe);
-
-            function tryLoad() {
-                attempt++;
-                iframe.src = url;
-
-                let timeout = setTimeout(() => {
-                    if (attempt >= maxAttempts) {
-                        document.body.removeChild(iframe);
-                        resolve(false);
-                    } else {
-                        tryLoad();
-                    }
-                }, delayMs);
-
-                iframe.onload = () => {
-                    clearTimeout(timeout);
-                    document.body.removeChild(iframe);
-                    resolve(true);
-                };
-
-                iframe.onerror = () => {
-                    // Do nothing, wait for timeout to retry
-                };
-            }
-
-            tryLoad();
-        });
-    }
-
-    async function redirectToServer(server) {
-        const videoID = extractID();
-        if (videoID) {
-            const downloadURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
-            const success = await checkWithIframe(downloadURL);
-            if (success) {
-                window.location.href = downloadURL;
-            } else {
-                alert("Failed to connect after 10 attempts. Please try again later.");
-            }
-        }
-    }
-</script>
+  </style>
 </head>
 <body>
-    <header>
-        <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
-        <nav class="nav-links">
-            <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
-            <a href="https://bostaflix.vercel.app/news.html">News</a>
-            <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
-            <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
-            <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
-        </nav>
-    </header>
-    <h2>YouTube Video Downloader</h2>
-    <input type="text" id="yt-url" placeholder="Enter YouTube URL">
-    <br><br>
-    <button onclick="redirectToServer(1)">Download</button>
-<div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center; position: bottom;">
-        &copy; Bostaflix Youtube Video Downloader by Syed Ashraful Islam Mahbeer.
-    </div>
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <h2>YouTube Video Downloader</h2>
+  <input type="text" id="yt-url" placeholder="Enter YouTube URL">
+  <br><br>
+  <button onclick="downloadVideo()">Download</button>
+
+  <div id="video-container">
+    <video id="video-player" controls autoplay></video>
+  </div>
+
+  <div id="download-link">
+    <a id="fallback-link" href="#" download target="_blank">🔽 Direct Download</a>
+  </div>
+
+  <div id="error" class="error-message"></div>
+
+  <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
+    &copy; Bostaflix YouTube Downloader by Syed Ashraful Islam Mahbeer.
+  </div>
+
+  <script>
+    function extractID(url) {
+      const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+
+    function downloadVideo(attempt = 1) {
+      const url = document.getElementById("yt-url").value;
+      const videoID = extractID(url);
+      const errorDiv = document.getElementById("error");
+      const videoEl = document.getElementById("video-player");
+      const fallback = document.getElementById("fallback-link");
+      const linkContainer = document.getElementById("download-link");
+
+      if (!videoID) {
+        errorDiv.innerText = "❌ Invalid YouTube URL!";
+        videoEl.style.display = "none";
+        linkContainer.style.display = "none";
+        return;
+      }
+
+      const streamURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
+      videoEl.src = streamURL;
+      videoEl.load();
+      videoEl.style.display = "block";
+      linkContainer.style.display = "none";
+      errorDiv.innerText = "";
+
+      videoEl.onerror = () => {
+        if (attempt < 4) {
+          setTimeout(() => downloadVideo(attempt + 1), 1500);
+        } else {
+          videoEl.style.display = "none";
+          fallback.href = streamURL;
+          linkContainer.style.display = "block";
+          errorDiv.innerText = "❌ Video failed to load. Try direct download below.";
+        }
+      };
+    }
+  </script>
 </body>
 </html>
