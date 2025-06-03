@@ -94,26 +94,66 @@
         }
     }
 </style>
-    <script>
-        function extractID() {
-            const url = document.getElementById("yt-url").value;
-            const match = url.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/);
-            if (match) {
-                return match[1];
-            } else {
-                alert("Invalid YouTube URL!");
-                return null;
-            }
+<script>
+    function extractID() {
+        const url = document.getElementById("yt-url").value;
+        const match = url.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/);
+        if (match) {
+            return match[1];
+        } else {
+            alert("Invalid YouTube URL!");
+            return null;
         }
+    }
 
-        function redirectToServer(server) {
-            const videoID = extractID();
-            if (videoID) {
-                const downloadURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
+    async function checkWithIframe(url, maxAttempts = 10, delayMs = 1000) {
+        return new Promise((resolve) => {
+            let attempt = 0;
+            let iframe = document.createElement("iframe");
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
+
+            function tryLoad() {
+                attempt++;
+                iframe.src = url;
+
+                let timeout = setTimeout(() => {
+                    if (attempt >= maxAttempts) {
+                        document.body.removeChild(iframe);
+                        resolve(false);
+                    } else {
+                        tryLoad();
+                    }
+                }, delayMs);
+
+                iframe.onload = () => {
+                    clearTimeout(timeout);
+                    document.body.removeChild(iframe);
+                    resolve(true);
+                };
+
+                iframe.onerror = () => {
+                    // Do nothing, wait for timeout to retry
+                };
+            }
+
+            tryLoad();
+        });
+    }
+
+    async function redirectToServer(server) {
+        const videoID = extractID();
+        if (videoID) {
+            const downloadURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
+            const success = await checkWithIframe(downloadURL);
+            if (success) {
                 window.location.href = downloadURL;
+            } else {
+                alert("Failed to connect after 10 attempts. Please try again later.");
             }
         }
-    </script>
+    }
+</script>
 </head>
 <body>
     <header>
