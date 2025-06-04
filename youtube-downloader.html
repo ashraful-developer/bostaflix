@@ -128,8 +128,8 @@
   <h2>YouTube Video Downloader</h2>
   <input type="text" id="yt-url" placeholder="Enter YouTube URL">
   <br><br>
-  <button onclick="downloadVideo()">Download</button>
-
+<button onclick="embedVideo()">Go!</button>
+<button id="real-download" style="display:none;" onclick="triggerDownload()">Download</button>
   <div id="video-container">
     <video id="video-player" controls autoplay></video>
   </div>
@@ -144,45 +144,65 @@
     &copy; Bostaflix YouTube Downloader by Syed Ashraful Islam Mahbeer.
   </div>
 
-  <script>
-    function extractID(url) {
-      const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-      return match ? match[1] : null;
-    }
+<script>
+  function extractID(url) {
+    const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
 
-    function downloadVideo(attempt = 1) {
-      const url = document.getElementById("yt-url").value;
-      const videoID = extractID(url);
-      const errorDiv = document.getElementById("error");
-      const videoEl = document.getElementById("video-player");
-      const fallback = document.getElementById("fallback-link");
-      const linkContainer = document.getElementById("download-link");
+  function embedVideo(attempt = 1) {
+    const url = document.getElementById("yt-url").value;
+    const videoID = extractID(url);
+    const errorDiv = document.getElementById("error");
+    const videoEl = document.getElementById("video-player");
+    const fallback = document.getElementById("fallback-link");
+    const linkContainer = document.getElementById("download-link");
+    const realDownloadBtn = document.getElementById("real-download");
 
-      if (!videoID) {
-        errorDiv.innerText = "❌ Invalid YouTube URL!";
-        videoEl.style.display = "none";
-        linkContainer.style.display = "none";
-        return;
-      }
-
-      const streamURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
-      videoEl.src = streamURL;
-      videoEl.load();
-      videoEl.style.display = "block";
+    if (!videoID) {
+      errorDiv.innerText = "❌ Invalid YouTube URL!";
+      videoEl.style.display = "none";
       linkContainer.style.display = "none";
-      errorDiv.innerText = "";
-
-      videoEl.onerror = () => {
-        if (attempt < 4) {
-          setTimeout(() => downloadVideo(attempt + 1), 1500);
-        } else {
-          videoEl.style.display = "none";
-          fallback.href = streamURL;
-          linkContainer.style.display = "block";
-          errorDiv.innerText = "❌ Video failed to load. Try direct download below.";
-        }
-      };
+      realDownloadBtn.style.display = "none";
+      return;
     }
-  </script>
+
+    const streamURL = `https://inv-ca1-c.nadeko.net/latest_version?id=${videoID}&itag=18`;
+    videoEl.src = streamURL;
+    videoEl.load();
+    videoEl.style.display = "block";
+    linkContainer.style.display = "none";
+    realDownloadBtn.style.display = "none";
+    errorDiv.innerText = "";
+
+    // Show download button only after video can play
+    videoEl.oncanplay = () => {
+      realDownloadBtn.style.display = "inline-block";
+    };
+
+    // If video fails after retries, fallback
+    videoEl.onerror = () => {
+      if (attempt < 4) {
+        setTimeout(() => embedVideo(attempt + 1), 1500);
+      } else {
+        videoEl.style.display = "none";
+        fallback.href = streamURL;
+        linkContainer.style.display = "block";
+        errorDiv.innerText = "❌ Video failed to load. Try direct download below.";
+      }
+    };
+  }
+
+  function triggerDownload() {
+    const videoSrc = document.getElementById("video-player").src;
+    const a = document.createElement('a');
+    a.href = videoSrc;
+    a.download = "video.mp4"; // you can customize the name
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+</script>
+
 </body>
 </html>
