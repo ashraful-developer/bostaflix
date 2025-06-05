@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Facebook Video Downloader</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: #f0f0f0;
+    }
+
+    header {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+    }
+
+    input {
+      padding: 10px;
+      width: 80vw;
+      max-width: 400px;
+      border: 1px solid #555;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+
+    button {
+      background-color: #ff3c3c;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
+    .error-message {
+      color: #ff3c3c;
+      margin-top: 10px;
+    }
+
+    .download-buttons {
+      margin-top: 20px;
+    }
+
+    .download-buttons a {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #1e90ff;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .download-buttons a:hover {
+      background-color: #007acc;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <h2>Facebook Video Downloader</h2>
+  <input type="text" id="fb-url" placeholder="Enter Facebook Video URL">
+  <br><br>
+  <button onclick="getFBVideo()">Get Video</button>
+
+  <div id="result" class="download-buttons"></div>
+  <div id="error" class="error-message"></div>
+
+  <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
+    &copy; Facebook Video Downloader by Syed Ashraful Islam Mahbeer.
+  </div>
+
+  <script>
+    async function getFBVideo() {
+      const url = document.getElementById("fb-url").value;
+      const resultDiv = document.getElementById("result");
+      const errorDiv = document.getElementById("error");
+
+      resultDiv.innerHTML = "";
+      errorDiv.innerText = "";
+
+      if (!url.includes("facebook.com")) {
+        errorDiv.innerText = "❌ Please enter a valid Facebook video URL.";
+        return;
+      }
+
+      const apiUrl = `https://bosta-live.vercel.app/api/video.json?url=${encodeURIComponent(url)}`;
+
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        if (data.success && data.links) {
+          resultDiv.innerHTML = `
+            <a href="${data.links["Download Low Quality"]}" target="_blank">⬇ Low Quality</a>
+            <a href="${data.links["Download High Quality"]}" target="_blank">⬇ High Quality</a>
+          `;
+        } else {
+          errorDiv.innerText = "❌ Could not fetch video links.";
+        }
+      } catch (err) {
+        errorDiv.innerText = "❌ Error contacting the server.";
+      }
+    }
+  </script>
+</body>
+</html>
