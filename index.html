@@ -78,41 +78,51 @@
     transform: translateY(-5px);
   }
 
-  .video-card img {
+  .video-thumbnail {
+    aspect-ratio: 16 / 9;
     width: 100%;
-    height: 70%;
+    flex-shrink: 0;
+    background-color: #333;
+  }
+
+  .video-thumbnail img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    display: block;
   }
 
   .video-details {
-    padding: 6px;
+    padding: 8px;
     color: white;
-    height: 30%;
+    overflow: hidden;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow: hidden;
   }
 
   .video-details h3 {
     margin: 0;
-    font-size: 1.75vh;
+    font-size: clamp(12px, 1.8vw, 18px);
     color: white;
-    white-space: nowrap;
+    line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: normal;
   }
 
   .video-details p {
-    font-size: 1.5vh;
-    color: white;
-    margin: 2px 0 0 0;
-    white-space: nowrap;
+    font-size: clamp(10px, 1.5vw, 16px);
+    color: #ccc;
+    margin: 4px 0 0 0;
+    line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: normal;
   }
 
-  /* Mobile: Portrait = 2 columns, Landscape = 4 columns */
+  /* Mobile portrait: 2 columns */
   @media (max-width: 768px) and (orientation: portrait) {
     .nav-links {
       display: none;
@@ -123,12 +133,14 @@
     }
   }
 
+  /* Mobile landscape: 4 columns */
   @media (max-width: 768px) and (orientation: landscape) {
     .video-grid {
       grid-template-columns: repeat(4, 1fr);
     }
   }
 </style>
+
 </head>
 <body>
   <!-- Header -->
