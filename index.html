@@ -57,13 +57,13 @@
   display: grid;
   gap: 15px;
   padding: 20px;
-  grid-template-columns: repeat(auto-fill, 40vh);
+  grid-template-columns: repeat(auto-fill, 22vw);
   justify-content: center; /* optional: centers the grid */
 }
 
 /* Video card styling */
 .video-card {
-  height: 30vh;
+  height: 16vw;
   background-color: black;
   border-radius: 8px;
   border: 1px solid black;
@@ -93,12 +93,12 @@
 
     .video-details h3 {
       margin: 0;
-      font-size: 2vh;
+      font-size: 1.75vh;
       color: white;
     }
 
     .video-details p {
-      font-size: 1.75vh;
+      font-size: 1.5vh;
       color: white;
       margin-top: 5px;
     }
@@ -108,6 +108,26 @@
       .nav-links {
         display: none; /* Hide links in mobile view */
             /* Video grid layout */
+        .video-card {
+  height: 30vw;
+  background-color: black;
+  border-radius: 8px;
+  border: 1px solid black;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+  text-decoration: none;
+  color: black;
+  display: flex;
+  flex-direction: column;
+}
+        .video-grid {
+  display: grid;
+  gap: 15px;
+  padding: 20px;
+  grid-template-columns: repeat(auto-fill, 45vw);
+  justify-content: center; /* optional: centers the grid */
+}
 
   </style>
 </head>
