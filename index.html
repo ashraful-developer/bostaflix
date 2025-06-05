@@ -53,27 +53,28 @@
         color: #fff;
     }
 
-    /* Video grid layout */
-    .video-grid {
-      display: grid;
-      gap: 15px;
-      padding: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      color: black;
-    }
+.video-grid {
+  display: grid;
+  gap: 15px;
+  padding: 20px;
+  grid-template-columns: repeat(auto-fill, 40vh);
+  justify-content: center; /* optional: centers the grid */
+}
 
-    /* Video card styling */
-    .video-card {
-      background-color: black;
-      border-radius: 8px;
-      border-color: black;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s;
-      text-decoration: none;
-      color: black;
-    }
-
+/* Video card styling */
+.video-card {
+  height: 30vh;
+  background-color: black;
+  border-radius: 8px;
+  border: 1px solid black;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+  text-decoration: none;
+  color: black;
+  display: flex;
+  flex-direction: column;
+}
     .video-card:hover {
       transform: translateY(-5px);
     }
@@ -184,10 +185,17 @@
         <p>Ai Chatbot &copy Syed Ashraful Islam</p>
       </div>
     </a>
-               <a href="https://bostaflix.vercel.app/youtube-downloader.html" class="video-card">
+      <a href="https://bostaflix.vercel.app/youtube-downloader.html" class="video-card">
       <img src="https://bostaflix.vercel.app/ytdl.png" alt="Somoy TV Thumbnail">
       <div class="video-details">
         <h3>YouTube Video Downloader</h3>
+        <p>&copy Syed Ashraful Islam</p>
+      </div>
+    </a>
+    <a href="https://bostaflix.vercel.app/fbdl.html" class="video-card">
+      <img src="https://bostaflix.vercel.app/fbdl.png" alt="Somoy TV Thumbnail">
+      <div class="video-details">
+        <h3>Facebook Video Downloader</h3>
         <p>&copy Syed Ashraful Islam</p>
       </div>
     </a>
