@@ -134,38 +134,57 @@
     &copy; Facebook Video Downloader by Syed Ashraful Islam Mahbeer.
   </div>
 
-  <script>
-    async function getFBVideo() {
-      const url = document.getElementById("fb-url").value;
-      const resultDiv = document.getElementById("result");
-      const errorDiv = document.getElementById("error");
+<script>
+  async function getFBVideo() {
+    let url = document.getElementById("fb-url").value.trim();
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
 
-      resultDiv.innerHTML = "";
-      errorDiv.innerText = "";
+    resultDiv.innerHTML = "";
+    errorDiv.innerText = "";
 
-      if (!url.includes("facebook.com")) {
-        errorDiv.innerText = "❌ Please enter a valid Facebook video URL.";
-        return;
-      }
+    if (!url.includes("facebook.com")) {
+      errorDiv.innerText = "❌ Please enter a valid Facebook video URL.";
+      return;
+    }
 
-      const apiUrl = `https://bosta-live.vercel.app/api/video.json?url=${encodeURIComponent(url)}`;
+    // Normalize m.facebook.com to www.facebook.com
+    url = url.replace("m.facebook.com", "www.facebook.com");
 
-      try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        if (data.success && data.links) {
-          resultDiv.innerHTML = `
-            <a href="${data.links["Download Low Quality"]}" target="_blank">⬇ Low Quality</a>
-            <a href="${data.links["Download High Quality"]}" target="_blank">⬇ High Quality</a>
-          `;
-        } else {
-          errorDiv.innerText = "❌ Could not fetch video links.";
-        }
-      } catch (err) {
-        errorDiv.innerText = "❌ Error contacting the server.";
+    // Normalize /watch/?v=... to /video.php?v=...
+    if (url.includes("/watch/?v=")) {
+      const videoId = new URL(url).searchParams.get("v");
+      if (videoId) {
+        url = `https://www.facebook.com/video.php?v=${videoId}`;
       }
     }
-  </script>
+
+    // Normalize /videos/123456789 or /page/videos/123456789
+    const videoIdMatch = url.match(/\/videos\/(\d+)/);
+    if (videoIdMatch) {
+      const videoId = videoIdMatch[1];
+      url = `https://www.facebook.com/video.php?v=${videoId}`;
+    }
+
+    const apiUrl = `https://bosta-live.vercel.app/api/video.json?url=${encodeURIComponent(url)}`;
+
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+
+      if (data.success && data.links) {
+        resultDiv.innerHTML = `
+          ${data.links["Download Low Quality"] ? `<a href="${data.links["Download Low Quality"]}" target="_blank">⬇ Low Quality</a>` : ""}
+          ${data.links["Download High Quality"] ? `<a href="${data.links["Download High Quality"]}" target="_blank">⬇ High Quality</a>` : ""}
+        `;
+      } else {
+        errorDiv.innerText = "❌ Could not fetch video links.";
+      }
+    } catch (err) {
+      errorDiv.innerText = "❌ Error contacting the server.";
+    }
+  }
+</script>
+
 </body>
 </html>
