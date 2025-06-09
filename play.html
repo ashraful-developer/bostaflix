@@ -356,26 +356,10 @@
         }
 
         // Load default channel from query
-   window.onload = function () {
-        const params = new URLSearchParams(window.location.search);
-        const defaultServer = params.get('server') || 'server';
-        params.delete('server'); // Don't forward the 'server' param itself
-        const queryString = params.toString(); // Remaining params
-
-        // Final iframe URL
-        const iframeUrl = `${defaultServer}.html${queryString ? '?' + queryString : ''}`;
-        loadIframe(iframeUrl);
-    };
-
-    // Dummy loadIframe function (replace with your actual implementation)
-    function loadIframe(url) {
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.width = "100%";
-        iframe.height = "600px";
-        document.body.appendChild(iframe);
-    }
-    </script>
+        window.onload = function () {
+            const defaultId = getQueryParam('id') || 'id';
+            const defaultServer = getQueryParam('server') || 'server';
+            loadIframe(`${defaultServer}.html?id=${defaultId}`);
 
     <!-- Footer -->
     <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
