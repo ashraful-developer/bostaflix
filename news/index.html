@@ -1,103 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <title>16:9 Iframe Layout with Fullscreen Toggle</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Channel 24 News</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      height: 100%;
-      background: black;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
     }
 
-    .container {
+    header {
       width: 100vw;
-      height: calc(100vw * 9 / 16); /* 16:9 aspect ratio */
-      max-height: 100vh;
-      max-width: calc(100vh * 16 / 9);
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
       display: flex;
-      flex-direction: column;
-      background: black;
-      position: relative;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      box-sizing: border-box;
     }
 
-    .iframe-1 {
-      height: 88.89%;
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
-    .iframe-2 {
-      height: 11.11%;
+    .nav-links {
+      display: flex;
+      gap: 20px;
     }
 
-    iframe {
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links {
+        display: none;
+      }
+    }
+
+    .news-container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .news-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 320px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s;
+    }
+
+    .news-card:hover {
+      transform: scale(1.01);
+    }
+
+    .news-image {
       width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
+      height: 180px;
+      object-fit: cover;
     }
 
-    .fullscreen-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      border-radius: 5px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: opacity 0.5s;
-      z-index: 10;
+    .news-content {
+      padding: 10px 15px;
     }
 
-    .hidden {
-      opacity: 0;
-      pointer-events: none;
+    .news-heading {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin: 0 0 8px;
+      color: #000;
+    }
+
+    .news-brief {
+      font-size: 0.95em;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="container">
-    <button class="fullscreen-btn" id="fullscreenBtn">⛶ Fullscreen</button>
-    <div class="iframe-1">
-      <iframe src="channels.html" allowfullscreen></iframe>
-    </div>
-    <div class="iframe-2">
-      <iframe src="web.html" allowfullscreen></iframe>
-    </div>
-  </div>
 
-  <script>
-    const btn = document.getElementById('fullscreenBtn');
-    const container = document.getElementById('container');
-    let inactivityTimer;
+    <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+<div id="newsContainer">
+  <div class="headline" id="headline"></div>
+  <div class="content" id="content"></div>
+</div>
 
-    // Fullscreen toggle
-    btn.onclick = () => {
-      if (!document.fullscreenElement) {
-        container.requestFullscreen?.();
-      } else {
-        document.exitFullscreen?.();
+<div class="news-container" id="news-container"></div>
+
+<script>
+  const endpoints = [
+    'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
+    'https://backoffice.channel24bd.tv/api/json/file/generateSpecial2.json',
+    'https://backoffice.channel24bd.tv/api/json/file/generatePopular.json',
+    'https://backoffice.channel24bd.tv/api/json/file/generateLatest.json',
+  ];
+
+  const container = document.getElementById('news-container');
+
+  async function loadNews() {
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        const newsItems = json.data;
+
+        newsItems.forEach(item => {
+          const link = `read.html?type=${item.Slug}&id=${item.ContentID}`;
+          const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
+
+          const card = document.createElement('a');
+          card.className = 'news-card';
+          card.href = link;
+          card.innerHTML = `
+            <img src="${imageUrl}" alt="${item.ContentHeading}" class="news-image">
+            <div class="news-content">
+              <h3 class="news-heading">${item.ContentHeading}</h3>
+              <p class="news-brief">${item.ContentBrief}</p>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Error loading data from:', url, error);
       }
-    };
-
-    // Show/hide button based on user activity
-    function showButton() {
-      btn.classList.remove('hidden');
-      clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => {
-        btn.classList.add('hidden');
-      }, 3000); // 3 seconds inactivity
     }
+  }
 
-    ['mousemove', 'touchstart', 'click'].forEach(evt =>
-      document.addEventListener(evt, showButton)
-    );
+  loadNews();
+</script>
 
-    showButton(); // Initialize visibility on load
-  </script>
 </body>
 </html>
