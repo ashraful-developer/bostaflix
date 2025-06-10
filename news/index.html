@@ -139,7 +139,7 @@
         const newsItems = json.data;
 
         newsItems.forEach(item => {
-          const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}`;
+          const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
           const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
 
           const card = document.createElement('a');
