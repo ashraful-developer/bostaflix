@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Channel 24 News</title>
+  <title>BOSTAFLIX News</title>
   <style>
     body {
       margin: 0;
@@ -139,7 +139,7 @@
         const newsItems = json.data;
 
         newsItems.forEach(item => {
-          const link = `read.html?type=${item.Slug}&id=${item.ContentID}`;
+          const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}`;
           const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
 
           const card = document.createElement('a');
