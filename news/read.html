@@ -102,6 +102,9 @@ header {
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
   </header>
+  <div id="newsImageContainer" style="width: 90%; margin: 20px auto;">
+  <img id="newsImage" style="max-width: 700px; width: 100%; height: auto; display: none;" alt="News Image">
+</div>
 <div id="newsContainer">
   <div class="headline" id="headline"></div>
   <div class="content" id="content"></div>
@@ -114,6 +117,15 @@ header {
     const type = urlParams.get('type');
     const id = urlParams.get('id');
     const apiUrl = `https://backoffice.channel24bd.tv/api/v2/content-details/${type}/${id}`;
+
+    // Handle image from query parameter
+const imageParam = new URLSearchParams(window.location.search).get('image');
+if (imageParam) {
+  const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${imageParam}`;
+  const imgElement = document.getElementById('newsImage');
+  imgElement.src = imageUrl;
+  imgElement.style.display = 'block';
+}
 
     try {
       const response = await fetch(apiUrl);
