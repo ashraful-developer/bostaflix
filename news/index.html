@@ -129,6 +129,7 @@
   ];
 
   const container = document.getElementById('news-container');
+  const seenNews = new Set(); // Prevent duplicate entries based on Slug + ContentID
 
   async function loadNews() {
     for (const url of endpoints) {
@@ -138,6 +139,10 @@
         const newsItems = json.data;
 
         newsItems.forEach(item => {
+          const uniqueKey = `${item.Slug}-${item.ContentID}`;
+          if (seenNews.has(uniqueKey)) return; // Skip duplicates
+          seenNews.add(uniqueKey); // Mark as seen
+
           const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
           const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
 
@@ -160,6 +165,5 @@
 
   loadNews();
 </script>
-
 </body>
 </html>
