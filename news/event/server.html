@@ -25,7 +25,6 @@
   position: absolute;
   top: 2vh;
   left: 2vw;
-  font-family: Calibri, sans-serif;
   font-size: 6vh;
   color: red;
   text-shadow: 
@@ -203,7 +202,8 @@
     .then(data => {
       newsData = data.eventContent || [];
 
-
+      // Update BOSTAFLIX to event title
+      newsOverlay.textContent = data.event_title || "BOSTAFLIX";
 
       if (newsData.length === 0) return;
 
