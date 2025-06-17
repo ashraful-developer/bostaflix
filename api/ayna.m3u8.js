@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const realId = channel.id;
 
     // Step 3: Fetch play.php
-    const playRes = await fetch(`https://re.fredflix.fun/ayna/play.php?id=${realId}`);
+    const playRes = await fetch(`https://tv.bdixtv24.com/ayna/watch.php?id=${realId}&format=.m3u8`);
     if (!playRes.ok) {
       return res.status(502).send("Failed to fetch player page");
     }
@@ -35,14 +35,29 @@ export default async function handler(req, res) {
       return res.status(500).send("Stream URL not found");
     }
 
-    let finalUrl = m3u8Match[0];
+    let streamUrl = m3u8Match[0];
 
     // Step 5: Replace host if needed
-    finalUrl = finalUrl.replace("tvsen6.aynascope.net", "tvsen6.aynaott.com");
-    finalUrl = finalUrl.replace("tvsen2.aynascope.net", "tvsen2.aynaott.com");
-    finalUrl = finalUrl.replace("tvsen5.aynascope.net", "tvsen5.aynaott.com");
+    streamUrl = streamUrl
+      .replace("tvsen6.aynascope.net", "tvsen6.aynaott.com")
+      .replace("tvsen2.aynascope.net", "tvsen2.aynaott.com")
+      .replace("tvsen5.aynascope.net", "tvsen5.aynaott.com");
 
-    return res.redirect(302, finalUrl);
+    // Step 6: Follow redirect manually
+    const streamRes = await fetch(streamUrl, {
+      method: "GET",
+      redirect: "follow"
+    });
+
+    if (!streamRes.ok) {
+      return res.status(502).send("Failed to resolve stream URL");
+    }
+
+    // The final redirected URL is in .url
+    const finalUrl = streamRes.url;
+
+    // Respond with the resolved final URL
+    return res.status(200).json({ url: finalUrl });
 
   } catch (err) {
     console.error("Error:", err);
