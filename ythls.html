@@ -113,7 +113,7 @@
         return;
       }
 
-      const masterUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${channelId}&e=.m3u8`;
+      const masterUrl = `api/ythls.m3u8?user=${channelId}&e=.m3u8`;
 
       try {
         const bestStreamUrl = await getLowest360pOrAboveStream(masterUrl);
