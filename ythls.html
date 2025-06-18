@@ -63,7 +63,7 @@
             const width = parseInt(resolutionMatch[1], 10);
             const height = parseInt(resolutionMatch[2], 10);
 
-            if (height >= 360) {
+            if (height >= 480) {
               let streamUrl = nextLine.trim();
               if (!streamUrl.startsWith('http')) {
                 streamUrl = new URL(streamUrl, baseUrl).href;
