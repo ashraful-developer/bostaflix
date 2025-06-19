@@ -79,47 +79,53 @@
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
 
-      const allLinks = doc.querySelectorAll('a[href*="/books/"]');
-      const uniqueBooks = new Set();
+      // Find all anchor tags
+      const allAnchors = Array.from(doc.querySelectorAll('a[href*="/books/"]'));
+      const bookAnchors = [];
+
+      // Filter unique books only
+      const seen = new Set();
+      allAnchors.forEach(a => {
+        const href = a.getAttribute('href');
+        const match = href.match(/https:\/\/www\.ebanglalibrary\.com\/books\/([^\/]+)\/?/);
+        if (match) {
+          const slug = match[1];
+          if (!seen.has(slug)) {
+            seen.add(slug);
+            bookAnchors.push({ anchor: a, slug });
+          }
+        }
+      });
+
       list.innerHTML = '';
 
-      allLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        const match = href.match(/https:\/\/www\.ebanglalibrary\.com\/books\/([^\/]+)\/?/);
+      bookAnchors.forEach(({ anchor, slug }) => {
+        const title = anchor.textContent.trim() || slug;
 
-        if (match) {
-          const bookSlug = match[1];
-          if (uniqueBooks.has(bookSlug)) return; // Avoid duplicates
-          uniqueBooks.add(bookSlug);
+        // Search image from the closest parent container (div or article)
+        const container = anchor.closest('div, article');
+        const img = container ? container.querySelector('img') : null;
+        const imgSrc = img 
+          ? img.src 
+          : 'https://via.placeholder.com/200x300/eeeeee/444444?text=কভার+নেই';
 
-          const bookName = link.textContent.trim() || bookSlug;
-
-          // Try to find the closest image, or fallback
-          const img = link.closest('article')?.querySelector('img') || 
-                      link.closest('div')?.querySelector('img') || null;
-
-          const imgSrc = img 
-            ? img.src 
-            : 'https://via.placeholder.com/200x300/eeeeee/444444?text=কভার+নেই';
-
-          const bookDiv = document.createElement('div');
-          bookDiv.className = 'book';
-          bookDiv.innerHTML = `
-            <a href="book.html?id=${encodeURIComponent(bookSlug)}">
-              <img src="${imgSrc}" alt="${bookName}">
-              <div>${bookName}</div>
-            </a>
-          `;
-          list.appendChild(bookDiv);
-        }
+        const bookDiv = document.createElement('div');
+        bookDiv.className = 'book';
+        bookDiv.innerHTML = `
+          <a href="book.html?id=${encodeURIComponent(slug)}">
+            <img src="${imgSrc}" alt="${title}">
+            <div>${title}</div>
+          </a>
+        `;
+        list.appendChild(bookDiv);
       });
 
       if (list.children.length === 0) {
         list.innerText = 'এই সিরিজে কোনো বই খুঁজে পাওয়া যায়নি।';
       }
 
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       list.innerText = 'ডেটা লোড করতে ব্যর্থ।';
     }
   }
