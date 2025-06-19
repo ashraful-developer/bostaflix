@@ -148,23 +148,10 @@
       return;
     }
 
-    // Normalize m.facebook.com to www.facebook.com
+    // Normalize mobile to desktop domain
     url = url.replace("m.facebook.com", "www.facebook.com");
 
-    // Normalize /watch/?v=... to /video.php?v=...
-    if (url.includes("/watch/?v=")) {
-      const videoId = new URL(url).searchParams.get("v");
-      if (videoId) {
-        url = `https://www.facebook.com/video.php?v=${videoId}`;
-      }
-    }
-
-    // Normalize /videos/123456789 or /page/videos/123456789
-    const videoIdMatch = url.match(/\/videos\/(\d+)/);
-    if (videoIdMatch) {
-      const videoId = videoIdMatch[1];
-      url = `https://www.facebook.com/video.php?v=${videoId}`;
-    }
+    // Do NOT rewrite URL to /video.php — keep it as is
 
     const apiUrl = `https://bosta-live.vercel.app/api/video.json?url=${encodeURIComponent(url)}`;
 
