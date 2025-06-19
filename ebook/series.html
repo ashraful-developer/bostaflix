@@ -62,63 +62,70 @@
 <body>
   <h2>সিরিজ বইসমূহ</h2>
   <div id="book-list">লোড হচ্ছে...</div>
+<script>
+  async function loadBooks() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const list = document.getElementById('book-list');
 
-  <script>
-    async function loadBooks() {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      const list = document.getElementById('book-list');
+    if (!id) {
+      list.innerText = 'সিরিজ পাওয়া যায়নি।';
+      return;
+    }
 
-      if (!id) {
-        list.innerText = 'সিরিজ পাওয়া যায়নি।';
-        return;
-      }
+    try {
+      const response = await fetch(`https://ebookbosta.global.ssl.fastly.net/${id}/`);
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
 
-      try {
-        const response = await fetch(`https://ebookbosta.global.ssl.fastly.net/series/${id}/`);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+      const allLinks = doc.querySelectorAll('a[href*="/books/"]');
+      const uniqueBooks = new Set();
+      list.innerHTML = '';
 
-        const articles = doc.querySelectorAll('article.entry');
-        list.innerHTML = '';
+      allLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        const match = href.match(/https:\/\/www\.ebanglalibrary\.com\/books\/([^\/]+)\/?/);
 
-        articles.forEach(article => {
-          const aTag = article.querySelector('a.entry-title-link');
-          const imgTag = article.querySelector('img');
+        if (match) {
+          const bookSlug = match[1];
+          if (uniqueBooks.has(bookSlug)) return; // Avoid duplicates
+          uniqueBooks.add(bookSlug);
 
-          if (!aTag || !imgTag) return;
+          const bookName = link.textContent.trim() || bookSlug;
 
-          const bookName = aTag.textContent.trim();
-          const bookURL = aTag.href;
-          const bookID = bookURL.split('/books/')[1].replace(/\/$/, '');
-          const newURL = `book.html?id=${encodeURIComponent(bookID)}`;
+          // Try to find the closest image, or fallback
+          const img = link.closest('article')?.querySelector('img') || 
+                      link.closest('div')?.querySelector('img') || null;
 
-          const imgSrc = imgTag.src;
-          const container = document.createElement('div');
-          container.className = 'book';
+          const imgSrc = img 
+            ? img.src 
+            : 'https://via.placeholder.com/200x300/eeeeee/444444?text=কভার+নেই';
 
-          container.innerHTML = `
-            <a href="${newURL}">
+          const bookDiv = document.createElement('div');
+          bookDiv.className = 'book';
+          bookDiv.innerHTML = `
+            <a href="book.html?id=${encodeURIComponent(bookSlug)}">
               <img src="${imgSrc}" alt="${bookName}">
               <div>${bookName}</div>
             </a>
           `;
-
-          list.appendChild(container);
-        });
-
-        if (list.children.length === 0) {
-          list.innerText = 'এই সিরিজে কোনো বই খুঁজে পাওয়া যায়নি।';
+          list.appendChild(bookDiv);
         }
+      });
 
-      } catch (e) {
-        console.error(e);
-        list.innerText = 'ডেটা লোড করতে ব্যর্থ।';
+      if (list.children.length === 0) {
+        list.innerText = 'এই সিরিজে কোনো বই খুঁজে পাওয়া যায়নি।';
       }
-    }
 
-    loadBooks();
-  </script>
+    } catch (e) {
+      console.error(e);
+      list.innerText = 'ডেটা লোড করতে ব্যর্থ।';
+    }
+  }
+
+  loadBooks();
+</script>
+
 </body>
 </html>
