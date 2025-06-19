@@ -63,6 +63,19 @@
   <h2>সিরিজ বইসমূহ</h2>
   <div id="book-list">লোড হচ্ছে...</div>
 <script>
+  // Decode if string is percent-encoded, else return as-is
+  function decodeIfEncoded(str) {
+    try {
+      if (/%[0-9A-Fa-f]{2}/.test(str)) {
+        return decodeURIComponent(str);
+      } else {
+        return str;
+      }
+    } catch (e) {
+      return str;
+    }
+  }
+
   async function loadBooks() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -100,13 +113,19 @@
       list.innerHTML = '';
 
       bookAnchors.forEach(({ anchor, slug }) => {
-        const title = anchor.textContent.trim() || slug;
+        // Decode slug for display and replace hyphens with spaces
+        const decodedSlug = decodeIfEncoded(slug);
+        const titleFromSlug = decodedSlug.replace(/-/g, ' ');
 
-        // Search image from the closest parent container (div or article)
+        // Prefer anchor text if meaningful, else fallback to decoded slug title
+        const rawText = anchor.textContent.trim();
+        const title = rawText.length > 0 ? rawText : titleFromSlug;
+
+        // Find image from closest container div or article
         const container = anchor.closest('div, article');
         const img = container ? container.querySelector('img') : null;
-        const imgSrc = img 
-          ? img.src 
+        const imgSrc = img
+          ? img.src
           : 'https://via.placeholder.com/200x300/eeeeee/444444?text=কভার+নেই';
 
         const bookDiv = document.createElement('div');
