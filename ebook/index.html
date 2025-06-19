@@ -6,72 +6,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
   <style>
-body {
-  font-family: 'SolaimanLipi', sans-serif;
-  background-color: #f9f9f9;
-  margin: 0;
-  padding: 0;
-}
+    body {
+      font-family: 'SolaimanLipi', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+    }
 
-/* Header styling */
-header {
-  width: 100%;
-  background-color: #1e1e1e;
-  color: #fff;
-  display: flex;
-  padding: 10px 20px;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
-
-.logo {
-  color: #ff3c3c;
-  text-decoration: none;
-  font-size: 1.5em;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 20px;
-}
-
-.nav-links a {
-  color: #e0e0e0;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: background 0.3s ease;
-}
-
-.nav-links a:hover {
-  background-color: #ff3c3c;
-  color: #fff;
-}
-
-@media (max-width: 720px) {
-  .nav-links {
-    display: none;
-  }
-}
-
-/* Centered headline */
-h2 {
+    header {
+      width: 100%;
+      background-color: #1e1e1e;
+      color: #fff;
+      display: flex;
+      padding: 10px 20px;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+    h2 {
   text-align: center;
-  margin-top: 30px;
-  color: #222;
-}
+  margin: 30px }
 
-/* Series list grid */
-#series-list {
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+    }
+
+    ul {
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      padding: 8px 0;
+    }
+
+    li a {
+      color: #222;
+      text-decoration: none;
+      font-size: 1.1em;
+    }
+
+    li a:hover {
+      color: #ff3c3c;
+    }
+    #series-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 15px;
-  padding: 20px;
+  padding: 0;
   list-style: none;
-  margin: 0;
+  margin-top: 20px;
 }
 
 #series-list li {
@@ -99,6 +103,13 @@ h2 {
   color: #ff3c3c;
 }
 
+
+    @media (max-width: 720px) {
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
