@@ -105,17 +105,27 @@ header {
   <img id="newsImage" style="max-width: 700px; width: 100%; height: auto; display: none; " alt="News Image">
 </div>
 <div id="newsContainer">
-  <div class="headline" id="headline"></div>
   <div class="content" id="content"></div>
 </div>
 <script>
   async function fetchPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
-    const pageUrl = `https://ebookbosta.global.ssl.fastly.net/lessons/${id}/`;
-
-    // Handle image from query parameter (optional)
+    const type = urlParams.get('type') || 'lesson'; // default is "lesson"
     const imageParam = urlParams.get('image');
+
+    let pageUrl;
+
+    if (type === 'lesson') {
+      pageUrl = `https://ebookbosta.global.ssl.fastly.net/lessons/${id}/`;
+    } else if (type === 'news') {
+      pageUrl = `https://example-news-url.com/news/${id}/`; // You can change this URL pattern
+    } else {
+      document.getElementById('content').innerHTML = `<p>Unsupported content type: ${type}</p>`;
+      return;
+    }
+
+    // Optional image
     if (imageParam) {
       const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${imageParam}`;
       const imgElement = document.getElementById('newsImage');
@@ -130,19 +140,10 @@ header {
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, 'text/html');
 
-      // Extract headline and main content
-      const headlineEl = doc.querySelector('h2.wp-block-heading');
       const contentEl = doc.querySelector('.entry-content');
-
-      if (headlineEl) {
-        document.getElementById('headline').innerText = headlineEl.innerText;
-      }
-
       if (contentEl) {
-        // Remove all anchor and image tags
+        // Clean up content
         contentEl.querySelectorAll('a, img').forEach(el => el.remove());
-
-        // Optional: Remove unwanted "Read more" or app download paragraphs
         contentEl.querySelectorAll('p').forEach(p => {
           const text = p.textContent.trim();
           if (
@@ -167,6 +168,5 @@ header {
 
   fetchPage();
 </script>
-
 </body>
 </html>
