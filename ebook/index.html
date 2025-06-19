@@ -10,7 +10,6 @@
       font-family: 'SolaimanLipi', sans-serif;
       background-color: #f9f9f9;
       margin: 0;
-      padding: 20px;
     }
 
     header {
@@ -67,6 +66,40 @@
     li a:hover {
       color: #ff3c3c;
     }
+    #series-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+  padding: 0;
+  list-style: none;
+  margin-top: 20px;
+}
+
+#series-list li {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+  text-align: center;
+  padding: 15px;
+}
+
+#series-list li:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#series-list li a {
+  color: #222;
+  text-decoration: none;
+  font-size: 1.1em;
+  display: block;
+}
+
+#series-list li a:hover {
+  color: #ff3c3c;
+}
+
 
     @media (max-width: 720px) {
       .nav-links {
