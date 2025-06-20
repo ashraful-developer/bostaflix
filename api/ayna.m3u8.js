@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     }
     const json = await jsonRes.json();
 
-    // Step 2: Find by title instead of id
+    // Step 2: Find by title
     const channel = json.data.list.find(entry => entry.title.toLowerCase() === id.toLowerCase());
     if (!channel) {
       return res.status(404).send("Channel title not found");
@@ -21,27 +21,25 @@ export default async function handler(req, res) {
 
     const realId = channel.id;
 
-    // Step 3: Fetch play.php
-    const playRes = await fetch(`https://re.fredflix.fun/ayna/play.php?id=${realId}`);
+    // Step 3: Follow redirect from watch.php
+    const playRes = await fetch(`https://tv.bdixtv24.com/ayna/watch.php?id=${realId}&format=.m3u8`, {
+      method: "GET",
+      redirect: "follow"
+    });
+
     if (!playRes.ok) {
-      return res.status(502).send("Failed to fetch player page");
+      return res.status(502).send("Failed to fetch redirected stream");
     }
 
-    const html = await playRes.text();
+    let finalUrl = playRes.url;
 
-    // Step 4: Extract m3u8
-    const m3u8Match = html.match(/https:\/\/[^"'<>]+\.m3u8[^"'<>]*/);
-    if (!m3u8Match) {
-      return res.status(500).send("Stream URL not found");
-    }
+    // Optional: Replace CDN host if needed
+    finalUrl = finalUrl
+      .replace("tvsen6.aynascope.net", "tvsen6.aynaott.com")
+      .replace("tvsen2.aynascope.net", "tvsen2.aynaott.com")
+      .replace("tvsen5.aynascope.net", "tvsen5.aynaott.com");
 
-    let finalUrl = m3u8Match[0];
-
-    // Step 5: Replace host if needed
-    finalUrl = finalUrl.replace("tvsen6.aynascope.net", "tvsen6.aynaott.com");
-    finalUrl = finalUrl.replace("tvsen2.aynascope.net", "tvsen2.aynaott.com");
-    finalUrl = finalUrl.replace("tvsen5.aynascope.net", "tvsen5.aynaott.com");
-
+    // Step 4: Send final URL as redirect
     return res.redirect(302, finalUrl);
 
   } catch (err) {
