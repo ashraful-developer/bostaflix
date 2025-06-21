@@ -50,33 +50,35 @@
             width: "100%",
             height: "100%",
             mimeType: "application/x-mpegURL",
-            plugins: [HlsjsPlayback], // Removed LevelSelector to prevent user switching
+            plugins: [HlsjsPlayback],
             hlsjsConfig: {
                 startLevel: 3,
                 autoLevelEnabled: false
-            },
+            }
         });
 
-        player.once(Clappr.Events.PLAYER_READY, function() {
+        player.once(Clappr.Events.PLAYER_READY, function () {
             const playback = player.core.activePlayback;
 
-            // Ensure correct quality is forced after levels are available
+            // Wait until levels are available
             playback.on(Clappr.Events.PLAYBACK_LEVELS_AVAILABLE, () => {
-                if (playback.levels && playback.levels.length > 3) {
-                    playback.hls.autoLevelEnabled = false; // Prevent automatic switching
-                    playback.currentLevel = 3;             // Lock to 4th level
+                const hls = playback._hls || playback.hls;
+
+                if (hls && hls.levels && hls.levels.length > 3) {
+                    hls.autoLevelEnabled = false;   // Fully disable auto-switch
+                    hls.currentLevel = 3;           // Force 4th level
                 }
             });
         });
 
-        player.on(Clappr.Events.PLAYER_ERROR, function() {
-            setTimeout(function() {
+        player.on(Clappr.Events.PLAYER_ERROR, function () {
+            setTimeout(function () {
                 player.load(player.options.source);
                 player.play();
             }, 100);
         });
 
-        player.on(Clappr.Events.PLAYER_STOP, function() {
+        player.on(Clappr.Events.PLAYER_STOP, function () {
             player.play();
         });
 
