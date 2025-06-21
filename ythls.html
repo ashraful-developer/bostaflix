@@ -32,10 +32,7 @@
 <body>
     <div id="player"></div>
 <script>
-    // Prevent right-click
-    document.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    });
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
     function getQueryParam(name) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -43,55 +40,39 @@
     }
 
     function createPlayer(sourceUrl) {
-        var player = new Clappr.Player({ 
+        const player = new Clappr.Player({
             source: sourceUrl,
-            width: '100%', 
-            height: '100%', 
-            autoPlay: true, 
+            width: '100%',
+            height: '100%',
+            autoPlay: true,
             plugins: [HlsjsPlayback, LevelSelector],
-            mimeType: "application/x-mpegURL", 
-            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+            mimeType: "application/x-mpegURL",
+            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
             parentId: "#player"
         });
 
-        // Set default to 4th level when player is ready
+        // On player ready
         player.on(Clappr.Events.PLAYER_READY, function () {
-            setTimeout(function () {
-                const playback = player.core.getCurrentPlayback();
-                if (playback && playback.hls && playback.hls.levels.length > 3) {
-                    // Disable auto level at the beginning
-                    playback.hls.autoLevelEnabled = false;
-                    playback.hls.currentLevel = 3; // 4th level (index 3)
-                    console.log("Started at level 3:", playback.hls.levels[3].height + "p");
+            const playback = player.core.getCurrentPlayback();
 
-                    // After short delay, enable auto/manual switch again
-                    setTimeout(() => {
-                        playback.hls.autoLevelEnabled = true; // Allow user manual or adaptive change
-                        console.log("User can now switch quality.");
-                    }, 2000); // Re-enable after 2 seconds
-                } else {
-                    console.warn("4th quality level not found");
-                }
-            }, 1000); // Initial delay for HLS levels to load
-        });
+            if (playback && playback.hls && playback.hls.levels.length > 3) {
+                // Disable auto-leveling and switch to level 3 (480p)
+                playback.hls.autoLevelEnabled = false;
+                playback.hls.currentLevel = 3;
 
-        player.on(Clappr.Events.PLAYER_ERROR, function () {
-            setTimeout(function () {
-                player.load(player.options.source);
-                player.play();
-            }, 100);
-        });
-
-        player.on(Clappr.Events.PLAYER_STOP, function () {
-            player.play();
+                // Force level switch by slight seek (for live streams)
+                const pos = player.getCurrentTime();
+                player.seek(pos + 0.01);
+                console.log("Switched to level 3 (480p)");
+            } else {
+                console.warn("Unable to switch level - insufficient levels or player not ready.");
+            }
         });
 
         return player;
     }
 
-    // Get channel ID from query parameter
-    var channelId = getQueryParam('id');
-    
+    const channelId = getQueryParam('id');
     if (channelId) {
         const sourceUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${channelId}&e=.m3u8`;
         createPlayer(sourceUrl);
@@ -99,6 +80,5 @@
         console.error("No channel ID provided");
     }
 </script>
-
 </body>
 </html>
