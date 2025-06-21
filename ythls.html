@@ -32,53 +32,44 @@
 <body>
     <div id="player"></div>
 <script>
-    document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("contextmenu", e => e.preventDefault());
 
-    function getQueryParam(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
+function getQueryParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
 
-    function createPlayer(sourceUrl) {
-        const player = new Clappr.Player({
-            source: sourceUrl,
-            width: '100%',
-            height: '100%',
-            autoPlay: true,
-            plugins: [HlsjsPlayback, LevelSelector],
-            mimeType: "application/x-mpegURL",
-            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-            parentId: "#player"
-        });
+function createPlayer(sourceUrl) {
+  const player = new Clappr.Player({
+    source: sourceUrl,
+    width: '100%', height: '100%',
+    autoPlay: true,
+    plugins: [HlsjsPlayback, LevelSelector],
+    mimeType: "application/x-mpegURL",
+    mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+    parentId: "#player"
+  });
 
-        // On player ready
-        player.on(Clappr.Events.PLAYER_READY, function () {
-            const playback = player.core.getCurrentPlayback();
+  const playback = player.core.activePlayback;
 
-            if (playback && playback.hls && playback.hls.levels.length > 3) {
-                // Disable auto-leveling and switch to level 3 (480p)
-                playback.hls.autoLevelEnabled = false;
-                playback.hls.currentLevel = 3;
-
-                // Force level switch by slight seek (for live streams)
-                const pos = player.getCurrentTime();
-                player.seek(pos + 0.01);
-                console.log("Switched to level 3 (480p)");
-            } else {
-                console.warn("Unable to switch level - insufficient levels or player not ready.");
-            }
-        });
-
-        return player;
-    }
-
-    const channelId = getQueryParam('id');
-    if (channelId) {
-        const sourceUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${channelId}&e=.m3u8`;
-        createPlayer(sourceUrl);
+  playback.on(Clappr.Events.PLAYBACK_LEVELS_AVAILABLE, function(levels) {
+    if (levels.length > 3) {
+      playback.hls.autoLevelEnabled = false;
+      playback.currentLevel = 3;
+      console.log("📶 Set default to level 3:", levels[3].height + "p");
     } else {
-        console.error("No channel ID provided");
+      console.warn("Not enough levels to set level 3.");
     }
+  });
+
+  return player;
+}
+
+const id = getQueryParam('id');
+if (id) {
+  createPlayer(`https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${id}&e=.m3u8`);
+} else {
+  console.error("No channel ID provided");
+}
 </script>
 </body>
 </html>
