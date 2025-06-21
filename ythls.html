@@ -43,53 +43,54 @@
             return urlParams.get(name);
         }
 
-        function createPlayer(sourceUrl) {
-            var player = new Clappr.Player({ 
-                source: sourceUrl,
-                width: '100%', 
-                height: '100%', 
-                autoPlay: true, 
-                plugins: [HlsjsPlayback, LevelSelector],
-                mimeType: "application/x-mpegURL", 
-                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
-                parentId: "#player"
-            }); 
+function createPlayer(sourceUrl) {
+    var player = new Clappr.Player({ 
+        source: sourceUrl,
+        width: '100%', 
+        height: '100%', 
+        autoPlay: true, 
+        plugins: [HlsjsPlayback, LevelSelector],
+        mimeType: "application/x-mpegURL", 
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+        parentId: "#player"
+    }); 
 
-            player.on(Clappr.Events.PLAYER_READY, function() {
-                setTimeout(function() {
-                    const playback = player.core.getCurrentPlayback();
-                    if (playback && playback.hls && playback.hls.levels) {
-                        const levels = playback.hls.levels;
-                        let closestIndex = 0;
-                        let minDiff = Infinity;
+    player.on(Clappr.Events.PLAYER_READY, function () {
+        setTimeout(function () {
+            const playback = player.core.getCurrentPlayback();
+            if (playback && playback.hls && playback.hls.levels && playback.hls.levels.length > 0) {
+                const levels = playback.hls.levels;
+                let closestIndex = 0;
+                let minDiff = Infinity;
 
-                        levels.forEach((level, index) => {
-                            const diff = Math.abs(level.height - 480);
-                            if (diff < minDiff) {
-                                minDiff = diff;
-                                closestIndex = index;
-                            }
-                        });
-
-                        playback.hls.currentLevel = closestIndex;
+                levels.forEach((level, index) => {
+                    const diff = Math.abs(level.height - 480);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = index;
                     }
-                }, 500); // slight delay to ensure levels are loaded
-            });
+                });
 
-            player.on(Clappr.Events.PLAYER_ERROR, function() {
-                setTimeout(function() {
-                    player.load(player.options.source);
-                    player.play();
-                }, 100);
-            });
+                playback.hls.autoLevelEnabled = false;
+                playback.hls.currentLevel = closestIndex;
+                console.log("Set default quality to:", levels[closestIndex].height + "p");
+            }
+        }, 1000); // Slight delay to ensure all levels are available
+    });
 
-            player.on(Clappr.Events.PLAYER_STOP, function() {
-                player.play();
-            });
+    player.on(Clappr.Events.PLAYER_ERROR, function () {
+        setTimeout(function () {
+            player.load(player.options.source);
+            player.play();
+        }, 100);
+    });
 
-            return player;
-        }
+    player.on(Clappr.Events.PLAYER_STOP, function () {
+        player.play();
+    });
 
+    return player;
+}
         // Get channel ID from query parameter
         var channelId = getQueryParam('id');
         
