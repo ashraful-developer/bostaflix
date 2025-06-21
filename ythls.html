@@ -63,7 +63,7 @@
             // Optional: Set initial level after levels are loaded to ensure correct startLevel
             playback.on(Clappr.Events.PLAYBACK_LEVELS_AVAILABLE, (levels) => {
                 if (levels.length > 3) {
-                    playback.hls.autoLevelEnabled = true;  // keep auto switching enabled
+                    playback.hls.autoLevelEnabled = false;  // keep auto switching enabled
                     playback.currentLevel = 3;              // select 4th level
                 }
             });
