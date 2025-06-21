@@ -55,11 +55,32 @@
                 parentId: "#player"
             }); 
 
+            player.on(Clappr.Events.PLAYER_READY, function() {
+                setTimeout(function() {
+                    const playback = player.core.getCurrentPlayback();
+                    if (playback && playback.hls && playback.hls.levels) {
+                        const levels = playback.hls.levels;
+                        let closestIndex = 0;
+                        let minDiff = Infinity;
+
+                        levels.forEach((level, index) => {
+                            const diff = Math.abs(level.height - 480);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                closestIndex = index;
+                            }
+                        });
+
+                        playback.hls.currentLevel = closestIndex;
+                    }
+                }, 500); // slight delay to ensure levels are loaded
+            });
+
             player.on(Clappr.Events.PLAYER_ERROR, function() {
                 setTimeout(function() {
                     player.load(player.options.source);
                     player.play();
-                }, 100); // Retry after 100ms
+                }, 100);
             });
 
             player.on(Clappr.Events.PLAYER_STOP, function() {
@@ -73,7 +94,6 @@
         var channelId = getQueryParam('id');
         
         if (channelId) {
-            // Use the jadoo.php API URL structure
             const sourceUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${channelId}&e=.m3u8`;
             createPlayer(sourceUrl);
         } else {
