@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+        });
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `https://bozztv.com/rongo/rongo-${channelId}/index.m3u8`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
+</body>
+</html>
