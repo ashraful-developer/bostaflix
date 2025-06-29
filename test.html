@@ -1,78 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Capture iframe Render to Video</title>
+  <meta charset="UTF-8">
+  <title>Iframe Page to Clappr</title>
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-    }
-    #iframe, #renderCanvas {
-      width: 640px;
-      height: 360px;
-    }
-    #clapprPlayer {
-      width: 640px;
-      height: 360px;
-      margin-top: 20px;
-    }
+    body { background: #000; color: white; font-family: sans-serif; text-align: center; }
+    #hiddenClone { display: none; }
+    iframe, canvas, #clapprPlayer { margin-top: 20px; }
+    iframe, canvas, #clapprPlayer { width: 640px; height: 360px; }
   </style>
 </head>
 <body>
 
-<h2>Rendered Content → Video Playback</h2>
-<iframe id="iframe" src="server.html"></iframe>
+<h2>Render Iframe as Video into Clappr</h2>
+
+<iframe id="sourceFrame" src="server.html"></iframe>
+<div id="hiddenClone"></div>
 <canvas id="renderCanvas" width="640" height="360" style="display:none;"></canvas>
 <div id="clapprPlayer"></div>
 
 <script>
-const iframe = document.getElementById("iframe");
+const iframe = document.getElementById("sourceFrame");
 const renderCanvas = document.getElementById("renderCanvas");
+const hiddenClone = document.getElementById("hiddenClone");
 const ctx = renderCanvas.getContext("2d");
-const chunks = [];
 
-iframe.onload = async () => {
-  const contentDoc = iframe.contentDocument || iframe.contentWindow.document;
+iframe.onload = () => {
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  const cloneHTML = iframeDoc.body.cloneNode(true);
+  hiddenClone.innerHTML = "";
+  hiddenClone.appendChild(cloneHTML);
 
-  const recordStream = renderCanvas.captureStream(10); // 10 FPS
-  const recorder = new MediaRecorder(recordStream, { mimeType: "video/webm" });
+  const stream = renderCanvas.captureStream(10);
+  const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+  const chunks = [];
 
-  recorder.ondataavailable = (e) => {
+  recorder.ondataavailable = e => {
     if (e.data.size > 0) chunks.push(e.data);
   };
 
   recorder.onstop = () => {
     const blob = new Blob(chunks, { type: "video/webm" });
-    const videoURL = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
 
     new Clappr.Player({
-      source: videoURL,
+      source: url,
       parentId: "#clapprPlayer",
       autoPlay: true,
-      mute: true,
+      mute: true
     });
   };
 
   recorder.start();
 
-  // Repeatedly snapshot and draw to canvas
-  const interval = setInterval(() => {
-    html2canvas(contentDoc.body).then(snapCanvas => {
+  const drawInterval = setInterval(() => {
+    html2canvas(hiddenClone, {
+      backgroundColor: null,
+      useCORS: true
+    }).then(canvasSnapshot => {
       ctx.clearRect(0, 0, renderCanvas.width, renderCanvas.height);
-      ctx.drawImage(snapCanvas, 0, 0, renderCanvas.width, renderCanvas.height);
+      ctx.drawImage(canvasSnapshot, 0, 0, renderCanvas.width, renderCanvas.height);
     });
-  }, 100); // every 100ms = 10 FPS
+  }, 100); // 10 FPS
 
   setTimeout(() => {
-    clearInterval(interval);
+    clearInterval(drawInterval);
     recorder.stop();
-  }, 10000); // Record 10s
+  }, 10000); // Record for 10 seconds
 };
 </script>
 
