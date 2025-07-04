@@ -1,0 +1,250 @@
+{
+  "status": "success",
+  "code": 200,
+  "message": "Total 48 Channels Found",
+  "data": {
+    "count": 48,
+    "list": [
+      {
+        "id": "5c62ff81-0efc-42eb-9dbe-65402fa54afb",
+        "title": "Baby TV",
+        "image": "img/babbytv.png"
+      },
+      {
+        "id": "addb7014-1d2e-41d8-982d-7cafbdc48770",
+        "title": "Bangla TV",
+        "image": "https://s3.aynaott.com/storage/78bfd4bdb173772172aee2c3ce585949"
+      },
+      {
+        "id": "d6d46db7-a14a-45ad-b576-b40c80406134",
+        "title": "PBS Kids",
+        "image": "https://s3.aynaott.com/storage/c13a34a82616b5b23008e70913608b76"
+      },
+      {
+        "id": "e73ffada-f80a-4c23-9bd8-76142e41c389",
+        "title": "Cartoon Network",
+        "image": "https://s3.aynaott.com/storage/1b957053dfb78669ba988aa04c8ca7f7"
+      },
+      {
+        "id": "a108c4e9-ccfa-42f2-8f8f-169ded28cca2",
+        "title": "Ananda TV",
+        "image": "https://s3.aynaott.com/storage/c467e2c1fb461d21fd2511ce5b195dfd"
+      },
+      {
+        "id": "f7c89459-37bf-4129-904d-33b0a4c0d590",
+        "title": "Bijoy TV",
+        "image": "https://s3.aynaott.com/storage/3fdc7ac5f98cb4f2218918cffbdc3a74"
+      },
+      {
+        "id": "a3d48c46-7902-45e2-abf9-0fab60c4d117",
+        "title": "A sports",
+        "image": "https://s3.aynaott.com/storage/b05849905f36556c35dfba657f01ce0e"
+      },
+      {
+        "id": "20714fd4-dc3c-46d6-924f-3038d61f027c",
+        "title": "Channel I",
+        "image": "https://s3.aynaott.com/storage/593a85ee23a5b064939bbecc6adde73c"
+      },
+      {
+        "id": "21e75798-3b6a-4214-9d93-b3fecaa4e700",
+        "title": "Bangla Vision",
+        "image": "https://s3.aynaott.com/storage/c26c408bed6ba787c80d371a70d455a6"
+      },
+      {
+        "id": "1a2c8ec3-61d5-4355-80e2-fc3c9b178a0d",
+        "title": "NTV",
+        "image": "https://s3.aynaott.com/storage/02ccf66e06c2bdf6f946e8f76c5eaa92"
+      },
+      {
+        "id": "f064e069-8861-43d5-ac79-828b029a50a1",
+        "title": "Star Sports 1 HD",
+        "image": "https://s3.aynaott.com/storage/cfaf823fe2d4960ef382525ceb1730bc"
+      },
+      {
+        "id": "27ec4394-7640-4dab-abf8-6a48893dfdfe",
+        "title": "Somoy News TV",
+        "image": "https://s3.aynaott.com/storage/8c2927726383985744b6e3e5cd75890b"
+      },
+      {
+        "id": "f1e1b6c8-9a1b-492d-bdf9-b63295e6073e",
+        "title": "Sports 18",
+        "image": "https://s3.aynaott.com/storage/5f236b21f86ee98b85669032c3e8256b"
+      },
+      {
+        "id": "e263cd7f-45e9-4bc6-a350-bf968eb51b14",
+        "title": "Espn",
+        "image": "https://s3.aynaott.com/storage/e791698487cfe0816c2797ececbf5ae0"
+      },
+      {
+        "id": "d07563b0-7580-4cbd-a7c9-e67535c0164a",
+        "title": "SA TV",
+        "image": "https://s3.aynaott.com/storage/09a5d27cf20943362cbf7c2842b18c0e"
+      },
+      {
+        "id": "6cce2b86-f371-4184-b288-988de0607926",
+        "title": "Star Sports Select 2 HD",
+        "image": "https://s3.aynaott.com/storage/e55fd68cb515f8a4276abd8716e1ebcb"
+      },
+      {
+        "id": "10bb1341-2aa8-4be2-8a25-76a75f5a3ee7",
+        "title": "BT Sports 2",
+        "image": "https://s3.aynaott.com/storage/a15e38fb68c4dde17761c9c76ffd9f80"
+      },
+      {
+        "id": "32d28b2c-aded-481d-833b-cee57cecfc93",
+        "title": "TSN 2",
+        "image": "https://s3.aynaott.com/storage/84a30c1f24ba922303541fc4c26d2d85"
+      },
+      {
+        "id": "c0480a4a-f066-4a20-9f7d-73bbd852260f",
+        "title": "My TV",
+        "image": "https://s3.aynaott.com/storage/c20e91df7bdf78f81ed086ecd426f6fd"
+      },
+      {
+        "id": "8a1ff003-7cd5-4d75-8245-fa8aa3cdc6aa",
+        "title": "Jamuna TV",
+        "image": "https://s3.aynaott.com/storage/bdf3b996d6848ac3a0f0cebb91e761ce"
+      },
+      {
+        "id": "e64e1c11-1167-43a1-9e0f-995cbf6f7ff9",
+        "title": "NEXUS TV",
+        "image": "https://s3.aynaott.com/storage/8cd65e452afed48e2153f472145741c8"
+      },
+      {
+        "id": "1a7a1365-ae2c-470f-9fb2-25c6e83bb108",
+        "title": "Ekattor TV",
+        "image": "https://s3.aynaott.com/storage/680c4cc43f3dbbb1d08bdda30e3f19f1"
+      },
+      {
+        "id": "56f7abf3-1586-4f6d-9df2-1726ccb43779",
+        "title": "Channel 9",
+        "image": "https://s3.aynaott.com/storage/33392936aab41ea6c855fc20c244553e"
+      },
+      {
+        "id": "9a94b22f-c4a4-4150-8eb9-129d0ddeb934",
+        "title": "Maasranga TV",
+        "image": "https://s3.aynaott.com/storage/63507b16c2347b66ebe35ac3750b46bc"
+      },
+      {
+        "id": "2b1a4340-2557-4d57-b77c-657bb30ce0c8",
+        "title": "News 24 BD",
+        "image": "https://s3.aynaott.com/storage/25d48d1688d314ee3bec642e7a6d5b7f"
+      },
+      {
+        "id": "dd8c50e9-5dad-4cb9-9df8-5763e95281ad",
+        "title": "Desh TV",
+        "image": "https://s3.aynaott.com/storage/729f05477cc07d3f6dd5a4f556c47f75"
+      },
+      {
+        "id": "6662e038-604e-4cdc-87f7-8ec1cdf77a5e",
+        "title": "Mohona TV",
+        "image": "https://s3.aynaott.com/storage/7a4eb1441991b70f7e0a32df31ef8361"
+      },
+      {
+        "id": "b1808fb2-8892-49dc-965e-d038e5334995",
+        "title": "Gazi TV",
+        "image": "https://s3.aynaott.com/storage/2c446d0910b404be73652fb6363263d5"
+      },
+      {
+        "id": "0875f2c8-2043-499b-9472-2872412a6340",
+        "title": "DBC News",
+        "image": "https://s3.aynaott.com/storage/90b5188b4586e2f479fbffab4579a05d"
+      },
+      {
+        "id": "eacf6c3f-0773-4bc3-a03a-cfee09f10348",
+        "title": "P TV Sports",
+        "image": "https://s3.aynaott.com/storage/4a10742112f391676cb8f90ac6981a6b"
+      },
+      {
+        "id": "3830c379-539b-4e18-9943-9664574c850b",
+        "title": "Nicktoons",
+        "image": "https://s3.aynaott.com/storage/54a763656b2567e4f7ec761a2f2c3232"
+      },
+      {
+        "id": "490e6a84-17e2-42bb-8725-66af0c067239",
+        "title": "Bein Sports",
+        "image": "https://s3.aynaott.com/storage/a0d5bffea7e364a4a638cf7e4be1554c"
+      },
+      {
+        "id": "c197b1bc-8909-4176-a50f-f855a4a51c1f",
+        "title": "Nickjr",
+        "image": "https://s3.aynaott.com/storage/769be5ba0c74bcb6fcf1018ce6f89194"
+      },
+      {
+        "id": "0579659b-2854-40d1-ad6a-69b70641ad17",
+        "title": "Ekhon TV",
+        "image": "https://s3.aynaott.com/storage/7c199987cdc82350b0124362ad94a864"
+      },
+      {
+        "id": "b3f0df76-15ba-4ede-a7de-bbaaf23a630e",
+        "title": "ETV",
+        "image": "https://s3.aynaott.com/storage/b154a0d0289dfddaa012e2ff7572adc6"
+      },
+      {
+        "id": "92890d5c-473a-454c-ad10-2c6c0c91062a",
+        "title": "Boishakhi TV",
+        "image": "https://s3.aynaott.com/storage/deae689095b620313eda38dd3db2b24c"
+      },
+      {
+        "id": "93c7e57d-e666-488a-aec9-a339a7e5eb74",
+        "title": "Fox Sports 2",
+        "image": "https://s3.aynaott.com/storage/9c821ef154e5a80b3e9f303da7adc906"
+      },
+      {
+        "id": "89247cb9-3c3e-465c-bbc7-d444b0d65424",
+        "title": "Channel 24",
+        "image": "https://s3.aynaott.com/storage/6f3e8f5f61b275cc87b022e2a506c4f4"
+      },
+      {
+        "id": "9ab9aa29-3d3b-4527-ab47-d9b69f0ea80c",
+        "title": "Duronto TV",
+        "image": "https://s3.aynaott.com/storage/0561325550cca6aaf43abc17b741ac2e"
+      },
+      {
+        "id": "a0a29f90-f7c2-4cc2-b0b4-667253585b84",
+        "title": "ATN News",
+        "image": "https://s3.aynaott.com/storage/f23fc5bbfe88696322f5259480f68e57"
+      },
+      {
+        "id": "9046949b-9847-4b5d-96c1-e82b0734444b",
+        "title": "ATN Bangla",
+        "image": "https://s3.aynaott.com/storage/c3fc583c6a77860eea75360949d85368"
+      },
+      {
+        "id": "0ac6af3d-acce-4d9d-9ce5-32d4b53f9326",
+        "title": "Global TV",
+        "image": "https://s3.aynaott.com/storage/c2f2ec93d2a02849d31f94ed95ece18f"
+      },
+      {
+        "id": "4d629b90-cfc2-4426-9eef-62b879efdb02",
+        "title": "Asian TV",
+        "image": "https://s3.aynaott.com/storage/36b0e135f705e4598574536eb5ed06b4"
+      },
+      {
+        "id": "fc95d30e-5323-4c12-bb38-7a1e3f04acc2",
+        "title": "T Sports HD",
+        "image": "https://s3.aynaott.com/storage/62560c969e755afb8bca36284e93597c"
+      },
+      {
+        "id": "22f28ae5-8c15-4904-b9f6-70bbd94cbc43",
+        "title": "Independent TV",
+        "image": "https://s3.aynaott.com/storage/43da3aface6479c00844fa1c2593516c"
+      },
+      {
+        "id": "0be12af9-e713-4c65-b4ed-b735793a0418",
+        "title": "Deepto TV",
+        "image": "https://s3.aynaott.com/storage/effb608ccd66e46f6b263cfdbc541f09"
+      },
+      {
+        "id": "a9791899-66f2-4b94-9521-c333498f7ab9",
+        "title": "Disney JR",
+        "image": "https://s3.aynaott.com/storage/043e278ebacaacd2b600261022212efa"
+      },
+      {
+        "id": "70e97db9-5a9e-4642-874e-af3d30ba9925",
+        "title": "RTV",
+        "image": "https://s3.aynaott.com/storage/73e1e1de1f7e0f63a844f3f7585b6a24"
+      }
+    ]
+  }
+}
