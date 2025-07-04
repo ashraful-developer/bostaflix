@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Jadoo | Buddy✘TV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 
-  <link rel="stylesheet" type="text/css" href="style.css" />
   <!-- Clappr Player Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
@@ -31,99 +31,66 @@
 </head>
 <body>
   <div id="player"></div>
+<script>
+  // Disable right-click
+  document.addEventListener("contextmenu", event => event.preventDefault());
 
-  <script>
-    // Prevent right-click
-    document.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
+  function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  function extractVideoIdFromHtml(htmlText) {
+    const match = htmlText.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
+    return match ? match[1] : null;
+  }
+
+  function createPlayer(sourceUrl) {
+    const player = new Clappr.Player({
+      source: sourceUrl,
+      parentId: "#player",
+      width: "100%",
+      height: "100%",
+      autoPlay: true,
+      mimeType: "application/x-mpegURL",
+      plugins: [HlsjsPlayback, LevelSelector],
+      mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
     });
 
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
-
-    async function getLowest360pOrAboveStream(masterUrl) {
-      const response = await fetch(masterUrl);
-      const text = await response.text();
-
-      const baseUrl = new URL(masterUrl);
-      const lines = text.split('\n');
-
-      const streams = [];
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        if (line.startsWith('#EXT-X-STREAM-INF')) {
-          const resolutionMatch = line.match(/RESOLUTION=(\d+)x(\d+)/);
-          const nextLine = lines[i + 1];
-
-          if (resolutionMatch && nextLine) {
-            const width = parseInt(resolutionMatch[1], 10);
-            const height = parseInt(resolutionMatch[2], 10);
-
-            if (height >= 480) {
-              let streamUrl = nextLine.trim();
-              if (!streamUrl.startsWith('http')) {
-                streamUrl = new URL(streamUrl, baseUrl).href;
-              }
-
-              streams.push({ width, height, url: streamUrl });
-            }
-          }
-        }
-      }
-
-      if (streams.length === 0) throw new Error("No stream ≥ 360p found");
-
-      // Sort by lowest height (closest to 360p)
-      streams.sort((a, b) => a.height - b.height);
-      return streams[0].url;
-    }
-
-    function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        width: '100%',
-        height: '100%',
-        autoPlay: true,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-        parentId: "#player"
-      });
-
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 100);
-      });
-
-      player.on(Clappr.Events.PLAYER_STOP, function () {
+    player.on(Clappr.Events.PLAYER_ERROR, function () {
+      setTimeout(() => {
+        player.load(player.options.source);
         player.play();
+      }, 100);
+    });
+
+    player.on(Clappr.Events.PLAYER_STOP, function () {
+      player.play();
+    });
+  }
+
+  const pageId = getQueryParam('id');
+
+  if (pageId) {
+    fetch(`https://www.youtube.com/${pageId}`)
+      .then(res => res.text())
+      .then(htmlText => {
+        const videoId = extractVideoIdFromHtml(htmlText);
+        if (videoId) {
+          const streamUrl = `https://stream-cdn-bostaflix.global.ssl.fastly.net/Youtube/live.php?id=${videoId}&e=.m3u8`;
+          createPlayer(streamUrl);
+        } else {
+          alert("Video ID not found in the page.");
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching or parsing page:', err);
+        alert("Failed to load or parse external page.");
       });
-    }
+  } else {
+    alert("No 'id' query parameter provided.");
+  }
+</script>
 
-    async function initPlayer() {
-      const channelId = getQueryParam('id');
-      if (!channelId) {
-        console.error("No channel ID provided");
-        return;
-      }
-
-      const masterUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${channelId}&e=.m3u8`;
-
-      try {
-        const bestStreamUrl = await getLowest360pOrAboveStream(masterUrl);
-        createPlayer(bestStreamUrl);
-      } catch (err) {
-        console.error("Stream selection failed:", err);
-      }
-    }
-
-    initPlayer();
-  </script>
 </body>
 </html>
