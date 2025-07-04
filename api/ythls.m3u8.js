@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     if (match && match[1]) {
       const videoId = match[1];
-      const streamUrl = `https://bosta2-cdn.global.ssl.fastly.net/Youtube/live.php?id=${videoId}&e=.m3u8`;
+      const streamUrl = `https://https://stream-cdn-bostaflix.global.ssl.fastly.net/Youtube/live.php?id=${videoId}&e=.m3u8`;
 
       res.writeHead(302, { Location: streamUrl });
       return res.end();
