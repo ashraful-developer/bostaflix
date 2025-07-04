@@ -1,96 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Jadoo | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Clappr Player Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="player"></div>
-<script>
-  // Disable right-click
-  document.addEventListener("contextmenu", event => event.preventDefault());
+    <div id="player"></div>
 
-  function getQueryParam(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-  }
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+        });
 
-  function extractVideoIdFromHtml(htmlText) {
-    const match = htmlText.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/);
-    return match ? match[1] : null;
-  }
-
-  function createPlayer(sourceUrl) {
-    const player = new Clappr.Player({
-      source: sourceUrl,
-      parentId: "#player",
-      width: "100%",
-      height: "100%",
-      autoPlay: true,
-      mimeType: "application/x-mpegURL",
-      plugins: [HlsjsPlayback, LevelSelector],
-      mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-    });
-
-    player.on(Clappr.Events.PLAYER_ERROR, function () {
-      setTimeout(() => {
-        player.load(player.options.source);
-        player.play();
-      }, 100);
-    });
-
-    player.on(Clappr.Events.PLAYER_STOP, function () {
-      player.play();
-    });
-  }
-
-  const pageId = getQueryParam('id');
-
-  if (pageId) {
-    fetch(`https://www.youtube.com/${pageId}`)
-      .then(res => res.text())
-      .then(htmlText => {
-        const videoId = extractVideoIdFromHtml(htmlText);
-        if (videoId) {
-          const streamUrl = `https://stream-cdn-bostaflix.global.ssl.fastly.net/Youtube/live.php?id=${videoId}&e=.m3u8`;
-          createPlayer(streamUrl);
-        } else {
-          alert("Video ID not found in the page.");
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
-      })
-      .catch(err => {
-        console.error('Error fetching or parsing page:', err);
-        alert("Failed to load or parse external page.");
-      });
-  } else {
-    alert("No 'id' query parameter provided.");
-  }
-</script>
 
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `api/ythls.m3u8?id=${channelId}`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
