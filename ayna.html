@@ -42,6 +42,7 @@
       return urlParams.get(name);
     }
 
+    // Create Clappr Player
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -72,20 +73,20 @@
       fetch('ayna.json')
         .then(res => res.json())
         .then(json => {
-          const match = json.data.list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match) {
-            const streamUrl = `https://bostaflix-ayna.global.ssl.fastly.net/stream/${match.id}.m3u8`;
-            createPlayer(streamUrl);
+          const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
+          if (match && match.m3u8) {
+            createPlayer(match.m3u8);
           } else {
-            alert(`Channel "${requestedTitle}" not found.`);
+            alert(`Channel "${requestedTitle}" not found or no stream URL available.`);
           }
         })
         .catch(err => {
           console.error('Failed to load channel list:', err);
-          alert("Could not load channels.");
+          alert("Could not load channel list.");
         });
     } else {
       console.error("No 'id' parameter in URL.");
+      alert("Missing 'id' parameter in URL.");
     }
   </script>
 </body>
