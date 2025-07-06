@@ -1,99 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jadoo | Buddy✘TV</title>
-
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Clappr core -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-
-  <!-- HLS support -->
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
-  <!-- Level selector plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-
-  <!-- DASH support via Shaka -->
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.3.5/dist/shaka-player.compiled.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dash-shaka-playback@latest/dist/dash-shaka-playback.min.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Clappr DASH Player</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
       height: 100%;
-      background: #000;
-      overflow: hidden;
+      margin: 0;
+      background-color: #000;
     }
-
     #player {
       width: 100%;
       height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
     }
   </style>
+  <!-- Clappr Core -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+
+  <!-- Shaka Player for DASH -->
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.8.0/dist/shaka-player.compiled.min.js"></script>
+
+  <!-- Clappr plugin to enable Shaka (DASH) support -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr-shaka-playback@latest/dist/clappr-shaka-playback.min.js"></script>
+
+  <!-- Optional Level Selector -->
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/core@latest/dist/clappr-level-selector.min.js"></script>
 </head>
 <body>
   <div id="player"></div>
 
   <script>
-    // Prevent right-click
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
-
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
-
-    function getMimeType(url) {
-      if (url.endsWith(".m3u8")) return "application/x-mpegURL";
-      if (url.endsWith(".mpd")) return "application/dash+xml";
-      return "";
-    }
-
     function createPlayer(sourceUrl) {
-      const mimeType = getMimeType(sourceUrl);
-
       var player = new Clappr.Player({
         source: sourceUrl,
-        mimeType: mimeType,
-        autoPlay: true,
+        parentId: "#player",
         width: "100%",
         height: "100%",
-        parentId: "#player",
-        plugins: [DashShakaPlayback, HlsjsPlayback, LevelSelector],
+        autoPlay: true,
+        plugins: [ShakaPlayback, LevelSelector],
         shakaConfiguration: {
-          streaming: {
-            bufferingGoal: 30,
-          },
+          // Optional DRM configuration can go here
         },
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+        shakaOnBeforeLoad: function(shakaPlayerInstance) {
+          console.log("Shaka Player is ready");
+        },
       });
 
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
-        setTimeout(() => {
+      player.on(Clappr.Events.PLAYER_ERROR, function() {
+        console.warn("Player error occurred. Attempting to reload...");
+        setTimeout(function () {
           player.load(player.options.source);
           player.play();
         }, 100);
       });
 
-      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+      player.on(Clappr.Events.PLAYER_STOP, function () {
+        player.play();
+      });
+
+      return player;
     }
 
-    var channelId = getQueryParam("id");
+    // Replace this with your actual MPD URL
+    const sourceUrl = "https://airtel-bostaflix.global.ssl.fastly.net/api/a490ae75a3ec2acf16c9f592e889eb4c.mpd";
 
-    if (channelId) {
-      const sourceUrl = `${channelId}`;
-      createPlayer(sourceUrl);
-    } else {
-      console.error("No channel ID provided");
-    }
+    createPlayer(sourceUrl);
   </script>
 </body>
 </html>
