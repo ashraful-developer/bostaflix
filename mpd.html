@@ -1,70 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Clappr DASH Player</title>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background-color: #000;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-  <!-- Clappr Core -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-
-  <!-- Shaka Player for DASH -->
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.8.0/dist/shaka-player.compiled.min.js"></script>
-
-  <!-- Clappr plugin to enable Shaka (DASH) support -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr-shaka-playback@latest/dist/clappr-shaka-playback.min.js"></script>
-
-  <!-- Optional Level Selector -->
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/core@latest/dist/clappr-level-selector.min.js"></script>
+    <title>MPEG-DASH Player</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars if video exceeds viewport */
+        }
+        #videoPlayer {
+            width: 100vw;   /* 100% of viewport width */
+            height: 100vh;  /* 100% of viewport height */
+            display: block; /* Remove extra space below video element */
+            object-fit: contain; /* Ensures the entire video is visible within its bounds */
+            background-color: black; /* Background color for letterboxing/pillarboxing */
+        }
+    </style>
 </head>
 <body>
-  <div id="player"></div>
+    <video id="videoPlayer" controls></video>
 
-  <script>
-    function createPlayer(sourceUrl) {
-      var player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        plugins: [ShakaPlayback, LevelSelector],
-        shakaConfiguration: {
-          // Optional DRM configuration can go here
-        },
-        shakaOnBeforeLoad: function(shakaPlayerInstance) {
-          console.log("Shaka Player is ready");
-        },
-      });
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
-      player.on(Clappr.Events.PLAYER_ERROR, function() {
-        console.warn("Player error occurred. Attempting to reload...");
-        setTimeout(function () {
-          player.load(player.options.source);
-          player.play();
-        }, 100);
-      });
+    <script>
+        (function () {
+            var url = "https://airtel-bostaflix.global.ssl.fastly.net/api/a490ae75a3ec2acf16c9f592e889eb4c.mpd";
+            var videoElement = document.querySelector("#videoPlayer");
 
-      player.on(Clappr.Events.PLAYER_STOP, function () {
-        player.play();
-      });
+            // Create a MediaPlayer instance
+            var player = dashjs.MediaPlayer().create();
 
-      return player;
-    }
-
-    // Replace this with your actual MPD URL
-    const sourceUrl = "https://airtel-bostaflix.global.ssl.fastly.net/api/a490ae75a3ec2acf16c9f592e889eb4c.mpd";
-
-    createPlayer(sourceUrl);
-  </script>
+            // Initialize the player with the video element and the MPD URL
+            player.initialize(videoElement, url, true); // true for autoplay
+            
+            // Optional: Add event listeners for debugging or custom behavior
+            player.on(dashjs.MediaPlayer.events.PLAYBACK_STARTED, function() {
+                console.log("Playback started!");
+            });
+            player.on(dashjs.MediaPlayer.events.ERROR, function(e) {
+                console.error("DASH player error:", e);
+            });
+        })();
+    </script>
 </body>
 </html>
