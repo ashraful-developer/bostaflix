@@ -42,7 +42,12 @@
       return urlParams.get(name);
     }
 
-    // Create Clappr Player
+    // Extract domain like "tvsen6" from m3u8 URL
+    function extractDomain(m3u8Url) {
+      const match = m3u8Url.match(/https:\/\/(tvsen\d+)\.ayna(?:scope|ott)\.net/i);
+      return match ? match[1] : null;
+    }
+
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -74,11 +79,16 @@
         .then(res => res.json())
         .then(json => {
           const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match && match.id) {
-            const realStreamUrl = `https://tvsen6.aynaott.com/${match.id}/index.m3u8`;
-            createPlayer(realStreamUrl);
+          if (match && match.id && match.m3u8) {
+            const domain = extractDomain(match.m3u8);
+            if (domain) {
+              const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/index.m3u8`;
+              createPlayer(realStreamUrl);
+            } else {
+              alert("Invalid m3u8 domain format in JSON.");
+            }
           } else {
-            alert(`Channel "${requestedTitle}" not found.`);
+            alert(`Channel "${requestedTitle}" not found or missing fields.`);
           }
         })
         .catch(err => {
