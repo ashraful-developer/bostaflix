@@ -74,10 +74,11 @@
         .then(res => res.json())
         .then(json => {
           const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match && match.m3u8) {
-            createPlayer(match.m3u8);
+          if (match && match.id) {
+            const realStreamUrl = `https://tvsen6.aynaott.com/${match.id}/index.m3u8`;
+            createPlayer(realStreamUrl);
           } else {
-            alert(`Channel "${requestedTitle}" not found or no stream URL available.`);
+            alert(`Channel "${requestedTitle}" not found.`);
           }
         })
         .catch(err => {
