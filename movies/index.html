@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>BOSTAFLIX BDIX IPTV</title>
+  <link rel="shortcut icon" type="image/x-icon" href="https://bostaflix.vercel.app/static/favicon.ico" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433"
+     crossorigin="anonymous"></script>
+ <style>
+    body {
+        background-color: #121212;
+        margin: 0;
+        padding: 0;
+        color: #f0f0f0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        scroll-behavior: smooth;
+    }
+
+    /* Header styling */
+    header {
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .logo {
+        color: #ff3c3c;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        color: #e0e0e0;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: #ff3c3c;
+        color: #fff;
+    }
+
+    /* Video grid layout */
+    .video-grid {
+      display: grid;
+      gap: 15px;
+      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      color: black;
+    }
+
+    /* Video card styling */
+    .video-card {
+      background-color: black;
+      border-radius: 8px;
+      border-color: black;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s;
+      text-decoration: none;
+      color: black;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .video-card img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      color: black;
+    }
+
+    .video-details {
+      padding: 10px;
+      color: white;
+    }
+
+    .video-details h3 {
+      margin: 0;
+      font-size: 1em;
+      color: white;
+    }
+
+    .video-details p {
+      font-size: 0.85em;
+      color: white;
+      margin-top: 5px;
+    }
+
+    /* Mobile view adjustments */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none; /* Hide links in mobile view */
+            /* Video grid layout */
+        .video-grid {
+      display: grid;
+      gap: 15px;
+      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+    /* Video card styling */
+    .video-card {
+      background-color: black;
+      border-radius: 2px;
+      border-color: white;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .video-card img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
+
+    .video-details {
+      padding: 2px;
+    }
+
+    .video-details h3 {
+      margin: 0;
+      font-size: 1em;
+      color: white;
+    }
+
+    .video-details p {
+      font-size: 0.85em;
+      color: white;
+      margin-top: 5px;
+    }
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <!-- Video Grid -->
+  <div class="video-grid">
+    <!-- Each video card links to its specific channel page -->
+    <a href="https://bostaflix.vercel.app/movies/play.html?id=209730/bostaflix_ice_age_buck_wild.mp4&server=player&name=ICE%20AGE%20ADVENTURES%20OF%20BUCK%20WILD%20(Powered%20by%20BOSTAFLIX)" class="video-card">
+      <img src="https://bostaflix.vercel.app/ice_age_buck.png" alt="Somoy TV Thumbnail">
+      <div class="video-details">
+        <h3>Ice Age: The Adventures of Buck Wild</h3>
+        <p>Watch in HD; Ad Free; High Speed &copy BOSTAFLIX</p>
+      </div>
+    </a>
+ </div>
+</body>
+</html>
