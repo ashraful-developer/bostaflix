@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
+  <style>
+    body {
+      background-color: #121212;
+      margin: 0;
+      padding: 0;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    header {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+    }
+
+    .iframe-container {
+      padding-bottom: auto;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      margin: 20px auto;
+      max-width: 100%;
+      color: black;
+    }
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .channel-title {
+      text-align: center;
+      font-size: 1.2rem;
+      margin: 10px 0 25px;
+      color: #ff3c3c;
+    }
+
+    .server-buttons-container {
+      width: 100%;
+      padding: 15px 0;
+      background: #1a1a1a;
+      text-align: center;
+      display: none;
+      transition: all 0.3s ease;
+      color: #ffffff;
+    }
+
+    .server-buttons-container.show {
+      display: block;
+    }
+
+    .server-buttons-container button {
+      background-color: #2a2a2a;
+      border: 1px solid #ff3c3c;
+      padding: 10px 18px;
+      margin: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      color: #fff;
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .server-buttons-container button:hover {
+      background-color: #ff3c3c;
+      transform: scale(1.05);
+    }
+
+    @media (min-width: 720px) {
+      .iframe-container {
+        max-height: 70vh;
+        max-width: 80%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .iframe-container {
+        width: 100%;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <div class="iframe-container">
+    <iframe id="videoFrame" allowfullscreen></iframe>
+  </div>
+
+  <div class="channel-title" id="channelTitle">Loading...</div>
+
+  <div id="serverButtons" class="server-buttons-container"></div>
+
+  <script>
+    function loadIframe(serverLink) {
+      document.getElementById('videoFrame').src = serverLink;
+    }
+
+    function loadServers(servers, channelName) {
+      const serverButtons = document.getElementById('serverButtons');
+      serverButtons.innerHTML = '';
+
+      // Update title
+      document.getElementById('channelTitle').textContent = channelName;
+
+      loadIframe(servers[0]);
+
+      servers.forEach((server, index) => {
+        const button = document.createElement('button');
+        button.innerText = `Server ${index + 1}`;
+        button.onclick = () => loadIframe(server);
+        serverButtons.appendChild(button);
+      });
+
+      serverButtons.classList.add('show');
+      document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    window.onload = function () {
+      const defaultId = getQueryParam('id') || 'id';
+      const defaultServer = getQueryParam('server') || 'server';
+      const channelName = getQueryParam('name') || 'Live Stream';
+
+      document.getElementById('channelTitle').textContent = channelName;
+      loadIframe(`${defaultServer}.html?id=${defaultId}`);
+    };
+  </script>
+
+  <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
+    &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
+    internet and Bostafull Live is not connected with them. Wait up to 1 min to load, if not, change server.
+  </div>
+</body>
+
+</html>
