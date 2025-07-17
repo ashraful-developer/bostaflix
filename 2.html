@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jadoo | Buddy✘TV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Clappr Player Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    #player {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="player"></div>
+
+  <script>
+    // Disable right-click
+    document.addEventListener("contextmenu", event => event.preventDefault());
+
+    // Get query parameter
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    function createPlayer(sourceUrl) {
+      const player = new Clappr.Player({
+        source: sourceUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mimeType: "application/x-mpegURL",
+        plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
+
+      player.on(Clappr.Events.PLAYER_ERROR, function () {
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 100);
+      });
+
+      player.on(Clappr.Events.PLAYER_STOP, function () {
+        player.play();
+      });
+    }
+
+    const requestedTitle = getQueryParam('id');
+
+    if (requestedTitle) {
+      fetch('toffee.json')
+        .then(res => res.json())
+        .then(json => {
+          const match = json.data.list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
+          if (match) {
+            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/toffee/live.php?id=${match.id}&e=.m3u8`;
+            createPlayer(streamUrl);
+          } else {
+            alert(`Channel "${requestedTitle}" not found.`);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load channel list:', err);
+          alert("Could not load channels.");
+        });
+    } else {
+      console.error("No 'id' parameter in URL.");
+    }
+  </script>
+</body>
+</html>
