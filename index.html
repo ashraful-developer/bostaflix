@@ -2,161 +2,168 @@
 <html lang="en">
 <head>
   <title>BOSTAFLIX BDIX IPTV</title>
-  <link rel="shortcut icon" type="image/x-icon" href="https://bostaflix.vercel.app/static/favicon.ico" />
+  <link rel="shortcut icon" href="https://bostaflix.vercel.app/static/favicon.ico" type="image/x-icon" />
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433"
-     crossorigin="anonymous"></script>
- <style>
+  <style>
     body {
-        background-color: #121212;
-        margin: 0;
-        padding: 0;
-        color: #f0f0f0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        scroll-behavior: smooth;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #fff;
     }
 
-    /* Header styling */
     header {
-        background-color: #1e1e1e;
-        color: #fff;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
     }
 
     .logo {
-        color: #ff3c3c;
-        text-decoration: none;
-        font-size: 1.5em;
-        font-weight: bold;
-        letter-spacing: 0.5px;
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
     }
 
     .nav-links {
-        display: flex;
-        gap: 20px;
+      display: flex;
+      gap: 20px;
     }
 
     .nav-links a {
-        color: #e0e0e0;
-        text-decoration: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        transition: background 0.3s ease;
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
     }
 
     .nav-links a:hover {
-        background-color: #ff3c3c;
-        color: #fff;
+      background-color: #ff3c3c;
+      color: #fff;
     }
 
-    /* Video grid layout */
+    /* Banner */
+    #top-banner {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 60vh;
+      overflow: hidden;
+      background: black;
+    }
+
+    #top-banner a {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #banner-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: black;
+    }
+
+ #banner-text {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: min(2.5vw, 2em);
+  font-weight: bold;
+  color: white;
+}
+
+.video-card {
+  background-color: #1e1e1e;
+  aspect-ratio: 16 / 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: min(1.3vw, 1.1em);
+  border: 2px solid #ff3c3c;
+  text-decoration: none;
+  color: white;
+  transition: background 0.3s ease, transform 0.3s ease;
+  padding: 10px;
+}
+
+    /* Arrows */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      padding: 5px 15px;
+      z-index: 5;
+    }
+
+    .arrow.left {
+      left: 10px;
+    }
+
+    .arrow.right {
+      right: 10px;
+    }
+
+    /* Dots */
+    .dots {
+      text-align: center;
+      padding: 10px 0;
+      font-family: monospace;
+    }
+
+    /* Grid */
     .video-grid {
       display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 15px;
       padding: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      color: black;
     }
-
-    /* Video card styling */
-    .video-card {
-      background-color: black;
-      border-radius: 8px;
-      border-color: black;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s;
-      text-decoration: none;
-      color: black;
-    }
-
     .video-card:hover {
+      background-color: #ff3c3c;
+      color: #fff;
       transform: translateY(-5px);
     }
 
-    .video-card img {
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      object-fit: cover;
-      color: black;
-    }
+@media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }  
+.video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    .video-details {
-      padding: 10px;
-      color: white;
-    }
+  .video-card {
+    font-size: 1em;
+  }
 
-    .video-details h3 {
-      margin: 0;
-      font-size: 1em;
-      color: white;
-    }
-
-    .video-details p {
-      font-size: 0.85em;
-      color: white;
-      margin-top: 5px;
-    }
-
-    /* Mobile view adjustments */
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none; /* Hide links in mobile view */
-            /* Video grid layout */
-        .video-grid {
-      display: grid;
-      gap: 15px;
-      padding: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
-    /* Video card styling */
-    .video-card {
-      background-color: black;
-      border-radius: 2px;
-      border-color: white;
-      overflow: hidden;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .video-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .video-card img {
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      object-fit: cover;
-    }
-
-    .video-details {
-      padding: 2px;
-    }
-
-    .video-details h3 {
-      margin: 0;
-      font-size: 1em;
-      color: white;
-    }
-
-    .video-details p {
-      font-size: 0.85em;
-      color: white;
-      margin-top: 5px;
-    }
-      }
-    }
+  #banner-text {
+    font-size: 4vw;
+  }
+}
   </style>
 </head>
 <body>
+
   <!-- Header -->
   <header>
     <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
@@ -169,72 +176,79 @@
     </nav>
   </header>
 
-  <!-- Video Grid -->
+  <!-- Top Banner -->
+  <div id="top-banner">
+    <button class="arrow left" onclick="prevSlide()">&#8249;</button>
+    <a id="banner-link" href="https://bostaflix.vercel.app/play.html">
+      <img id="banner-image" src="https://bostaflix.vercel.app/livetv.png" alt="Banner">
+    </a>
+    <div id="banner-text">Watch BDIX TV LIVE</div>
+    <button class="arrow right" onclick="nextSlide()">&#8250;</button>
+  </div>
+  <div class="dots" id="banner-dots">01.00</div>
+
+  <!-- Button Grid -->
   <div class="video-grid">
-    <!-- Each video card links to its specific channel page -->
-    <a href="https://bostaflix.vercel.app/play.html" class="video-card">
-      <img src="https://bostaflix.vercel.app/livetv.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>Free BDIX IPTV</h3>
-        <p>Watch BDIX IPTV Live.</p>
-      </div>
-    </a>
-        <a href="https://bostaflix.vercel.app/movies/" class="video-card">
-      <img src="https://bostaflix.vercel.app/movies.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>Watch Movies</h3>
-        <p>&copy BOSTAFLIX</p>
-      </div>
-    </a>
-           <a href="https://bostaflix.vercel.app/BostaGPT/" class="video-card">
-      <img src="https://bostaflix.vercel.app/BostaGPT.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>BostaGPT</h3>
-        <p>Ai Chatbot &copy Syed Ashraful Islam</p>
-      </div>
-    </a>
-         <a href="https://bostaflix.vercel.app/news/" class="video-card">
-      <img src="https://bostaflix.vercel.app/News.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>BOSTAFLIX News</h3>
-        <p>Auto Updated Latest News &copy Syed Ashraful Islam</p>
-      </div>
-    </a>
-               <a href="https://bostaflix.vercel.app/youtube-downloader.html" class="video-card">
-      <img src="https://bostaflix.vercel.app/ytdl.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>YouTube Video Downloader</h3>
-        <p>&copy Syed Ashraful Islam</p>
-      </div>
-    </a>
-        <a href="https://bostaflix.vercel.app/fbdl.html" class="video-card">
-      <img src="https://bostaflix.vercel.app/fbdl.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>Facebook Video Downloader</h3>
-        <p>&copy Syed Ashraful Islam</p>
-      </div>
-    </a>
-       <a href="https://bostaflix.vercel.app/games/" class="video-card">
-      <img src="https://bostaflix.vercel.app/games.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>HTML5 Games</h3>
-        <p>Play HTML5 Games</p>
-      </div>
-    </a>
-       <a href="https://bostaflix.vercel.app/ftp/" class="video-card">
-      <img src="https://bostaflix.vercel.app/ftp.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>Cartoon TV Series</h3>
-        <p>Watch Cartoon TV Series</p>
-      </div>
-    </a>
-           <a href="https://bostaflix.vercel.app/al-quran/" class="video-card">
-      <img src="https://bostaflix.vercel.app/quran.png" alt="Somoy TV Thumbnail">
-      <div class="video-details">
-        <h3>The Holy Quran</h3>
-        <p>Listen to The Holy Quran Ad-Free</p>
-      </div>
-    </a>
- </div>
+    <a href="https://bostaflix.vercel.app/play.html" class="video-card">Free BDIX IPTV</a>
+    <a href="https://bostaflix.vercel.app/movies/" class="video-card">Watch Movies</a>
+    <a href="https://bostaflix.vercel.app/BostaGPT/" class="video-card">BostaGPT (AI Chatbot)</a>
+    <a href="https://bostaflix.vercel.app/news/" class="video-card">BOSTAFLIX News</a>
+    <a href="https://bostaflix.vercel.app/youtube-downloader.html" class="video-card">YouTube Video Downloader</a>
+    <a href="https://bostaflix.vercel.app/fbdl.html" class="video-card">Facebook Video Downloader</a>
+    <a href="https://bostaflix.vercel.app/games/" class="video-card">Play HTML5 Games</a>
+    <a href="https://bostaflix.vercel.app/al-quran/" class="video-card">Listen to The Holy Quran</a>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const slides = [
+      {
+        src: "https://bostaflix.vercel.app/livetv.png",
+        text: "Watch BDIX TV LIVE",
+        link: "https://bostaflix.vercel.app/play.html"
+      },
+      {
+        src: "https://bostaflix.vercel.app/movies.png",
+        text: "Enjoy Latest Movies",
+        link: "https://bostaflix.vercel.app/movies/"
+      },
+      {
+        src: "https://bostaflix.vercel.app/quran.png",
+        text: "Listen to The Holy Quran",
+        link: "https://bostaflix.vercel.app/al-quran/"
+      }
+    ];
+
+    let current = 0;
+    const bannerImg = document.getElementById('banner-image');
+    const bannerText = document.getElementById('banner-text');
+    const bannerLink = document.getElementById('banner-link');
+    const bannerDots = document.getElementById('banner-dots');
+
+    function showSlide(index) {
+      current = (index + slides.length) % slides.length;
+      const slide = slides[current];
+      bannerImg.src = slide.src;
+      bannerText.innerText = slide.text;
+      bannerLink.href = slide.link;
+      bannerDots.innerText = slides.map((_, i) => i === current ? '.' : '0').join('');
+    }
+
+    function nextSlide() {
+      showSlide(current + 1);
+    }
+
+    function prevSlide() {
+      showSlide(current - 1);
+    }
+
+    // Auto-scroll every 10s
+    setInterval(() => {
+      nextSlide();
+    }, 10000);
+
+    // Initialize
+    showSlide(0);
+  </script>
 </body>
 </html>
