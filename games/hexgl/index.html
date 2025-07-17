@@ -1,50 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOSTAFLIX HexGL Racer</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        header {
-            background-color: #212121;
-            color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo {
-            color: #fff;
-            text-decoration: none;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 15px;
-        }
-        .iframe-container {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BOSTAFLIX HexGL Racer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background-color: #212121;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      color: #fff;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 15px;
+    }
+    .iframe-container {
+      flex-grow: 1;
+      width: 100%;
+      border: none;
+    }
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      z-index: 9999;
+    }
+    .controls button {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      background-color: #333;
+      color: white;
+      border-radius: 5px;
+      opacity: 0.8;
+    }
+    .controls button:active {
+      opacity: 1;
+      background-color: #555;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
-        <nav class="nav-links">
-            <a href="https://bostaflix.vercel.app/games">Go Back</a>
-        </nav>
-    </header>
-    <iframe class="iframe-container" src="https://hexgl.bkcore.com/play/"></iframe>
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/games">Go Back</a>
+    </nav>
+  </header>
+
+  <iframe id="gameFrame" class="iframe-container" src="https://hexgl.bkcore.com/play/"></iframe>
+
+  <div class="controls">
+    <button onclick="sendKey('ArrowUp')">Up</button>
+    <button onclick="sendKey('ArrowLeft')">Left</button>
+    <button onclick="sendKey('ArrowRight')">Right</button>
+    <button onclick="sendKey('ArrowDown')">Down</button>
+    <button onclick="sendKey('a')">A</button>
+    <button onclick="sendKey('d')">D</button>
+  </div>
+
+  <script>
+    function sendKey(key) {
+      const iframe = document.getElementById('gameFrame');
+      try {
+        const event = new KeyboardEvent('keydown', { key });
+        iframe.contentWindow.dispatchEvent(event); // Works only for same-origin iframe
+      } catch (e) {
+        alert('Controls may not work due to browser security (CORS).');
+      }
+    }
+  </script>
 </body>
 </html>
