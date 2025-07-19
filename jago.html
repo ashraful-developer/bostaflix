@@ -39,18 +39,16 @@
     }
 
     if (blockEmbed) {
-        document.write(`
-            <!DOCTYPE html>
-            <html><head><title>403 Forbidden</title></head>
-            <body bgcolor="white">
-            <center><h1>403 Forbidden</h1></center>
-            <hr><center>nginx/1.18.0</center>
-            </body></html>
-        `);
-        document.close();
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.innerHTML = `
+                <div style="color:white;text-align:center;margin-top:20%;">
+                    <h1>403 Forbidden</h1>
+                    <p>You cannot embed this page in a cross-origin iframe.</p>
+                </div>
+            `;
+        });
     }
 </script>
-
 </head>
 <body>
     <div id="player"></div>
