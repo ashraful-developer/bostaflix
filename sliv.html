@@ -28,6 +28,27 @@
             left: 0;
         }
     </style>
+    <script>
+    let blockEmbed = false;
+    try {
+        if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
+            blockEmbed = true;
+        }
+    } catch (e) {
+        blockEmbed = true;
+    }
+
+    if (blockEmbed) {
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.innerHTML = `
+                <div style="color:white;text-align:center;margin-top:20%;">
+                    <h1>403 Forbidden</h1>
+                    <p>You cannot embed this page in a cross-origin iframe.</p>
+                </div>
+            `;
+        });
+    }
+</script>
 </head>
 <body>
     <div id="player"></div>
