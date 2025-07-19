@@ -28,6 +28,32 @@
             left: 0;
         }
     </style>
+
+    <script>
+        // Anti-embed: allow same-origin, block others
+        try {
+            if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
+                document.write(`
+                    <html><head><title>403 Forbidden</title></head>
+                    <body bgcolor="white">
+                    <center><h1>403 Forbidden</h1></center>
+                    <hr><center>nginx/1.18.0</center>
+                    </body></html>
+                `);
+                document.close();
+            }
+        } catch (e) {
+            // Cross-origin access throws error: definitely embedded externally
+            document.write(`
+                <html><head><title>403 Forbidden</title></head>
+                <body bgcolor="white">
+                <center><h1>403 Forbidden</h1></center>
+                <hr><center>nginx/1.18.0</center>
+                </body></html>
+            `);
+            document.close();
+        }
+    </script>
 </head>
 <body>
     <div id="player"></div>
