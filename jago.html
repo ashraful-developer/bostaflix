@@ -28,23 +28,19 @@
             left: 0;
         }
     </style>
-
 <script>
-    // Anti-embed: allow same-origin, block cross-origin
     let blockEmbed = false;
-
     try {
-        // This throws an error if cross-origin
         if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
             blockEmbed = true;
         }
     } catch (e) {
-        // If we can’t access window.top.location, it’s definitely cross-origin
         blockEmbed = true;
     }
 
     if (blockEmbed) {
         document.write(`
+            <!DOCTYPE html>
             <html><head><title>403 Forbidden</title></head>
             <body bgcolor="white">
             <center><h1>403 Forbidden</h1></center>
