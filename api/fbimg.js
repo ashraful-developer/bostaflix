@@ -10,57 +10,63 @@ module.exports = (req, res) => {
 
   const url = `https://www.facebook.com/${page}`;
   const imageUrls = new Set();
-  let timedOut = false;
   const timeoutMs = 8000;
+  let timedOut = false;
 
-  const reqOptions = {
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    res.setHeader('Content-Type', 'application/json');
+    res.statusCode = 200;
+    res.end(JSON.stringify({
+      timeout: true,
+      count: imageUrls.size,
+      images: [...imageUrls]
+    }));
+  }, timeoutMs);
+
+  const request = https.get(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      'User-Agent': 'Mozilla/5.0'
     }
-  };
-
-  const fbReq = https.get(url, reqOptions, (fbRes) => {
-    let html = '';
+  }, (fbRes) => {
+    let data = [];
 
     fbRes.on('data', (chunk) => {
-      if (timedOut) return;
-      const text = chunk.toString();
-      html += text;
-
-      try {
-        // Match <img src="https://scontent...">
-        const imgTagMatches = [...text.matchAll(/<img[^>]+src="(https:\/\/scontent[^">]+)"/g)];
-        imgTagMatches.forEach(m => imageUrls.add(m[1]));
-
-        // Match JSON-based image URL
-        const jsonMatches = [...text.matchAll(/"image":\{"uri":"(https:\\/\\/scontent[^"]+)"\}/g)];
-        jsonMatches.forEach(m => imageUrls.add(m[1].replace(/\\\//g, '/')));
-      } catch (e) {
-        // Ignore parsing errors silently
-      }
+      if (!timedOut) data.push(chunk);
     });
 
     fbRes.on('end', () => {
       if (timedOut) return;
+
+      clearTimeout(timeout);
+      const html = Buffer.concat(data).toString();
+
+      try {
+        // Match <img src="...">
+        const matches1 = [...html.matchAll(/<img[^>]+src="(https:\/\/scontent[^">]+)"/g)];
+        matches1.forEach(m => imageUrls.add(m[1]));
+
+        // Match image JSON format
+        const matches2 = [...html.matchAll(/"image":\{"uri":"(https:\\/\\/scontent[^"]+)"\}/g)];
+        matches2.forEach(m => imageUrls.add(m[1].replace(/\\\//g, '/')));
+      } catch (err) {
+        // Do nothing, just fall through
+      }
+
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
-      res.end(JSON.stringify({ timeout: false, count: imageUrls.size, images: [...imageUrls] }));
+      res.end(JSON.stringify({
+        timeout: false,
+        count: imageUrls.size,
+        images: [...imageUrls]
+      }));
     });
   });
 
-  fbReq.on('error', (e) => {
-    if (!timedOut) {
-      res.statusCode = 500;
-      res.end(JSON.stringify({ error: 'Fetch failed', message: e.message }));
-    }
+  request.on('error', (e) => {
+    if (timedOut) return;
+    clearTimeout(timeout);
+    res.statusCode = 500;
+    res.end(JSON.stringify({ error: 'Fetch failed', message: e.message }));
   });
-
-  // Timeout to prevent crash
-  setTimeout(() => {
-    timedOut = true;
-    fbReq.destroy(); // Abort request
-    res.setHeader('Content-Type', 'application/json');
-    res.statusCode = 200;
-    res.end(JSON.stringify({ timeout: true, count: imageUrls.size, images: [...imageUrls] }));
-  }, timeoutMs);
 };
