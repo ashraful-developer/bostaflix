@@ -1,7 +1,7 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-  const page = req.query.page; // e.g., "nasa"
+  const page = req.query.page;
 
   if (!page) {
     res.statusCode = 400;
@@ -10,28 +10,47 @@ module.exports = async (req, res) => {
   }
 
   const url = `https://www.facebook.com/${page}`;
+  const imageUrls = [];
+  let timedOut = false;
 
-  https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (fbRes) => {
-    let data = '';
+  const timeoutMs = 8000;
 
-    fbRes.on('data', chunk => data += chunk);
-    fbRes.on('end', () => {
-      try {
-        // Match <img src="https://scontent...">
-        const imageRegex = /<img[^>]+src="(https:\/\/scontent[^">]+)"/g;
-        const matches = [...data.matchAll(imageRegex)];
-        const imageUrls = matches.map(m => m[1]);
+  const request = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (fbRes) => {
+    let html = '';
 
-        res.setHeader('Content-Type', 'application/json');
-        res.statusCode = 200;
-        res.end(JSON.stringify({ count: imageUrls.length, images: imageUrls }));
-      } catch (err) {
-        res.statusCode = 500;
-        res.end('Parse error: ' + err.message);
+    fbRes.on('data', (chunk) => {
+      if (timedOut) return;
+      html += chunk.toString();
+
+      // Extract image URLs incrementally
+      const matches = [...chunk.toString().matchAll(/<img[^>]+src="(https:\/\/scontent[^">]+)"/g)];
+      for (const match of matches) {
+        imageUrls.push(match[1]);
       }
     });
-  }).on('error', (e) => {
-    res.statusCode = 500;
-    res.end('Fetch error: ' + e.message);
+
+    fbRes.on('end', () => {
+      if (timedOut) return;
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 200;
+      res.end(JSON.stringify({ timeout: false, count: imageUrls.length, images: imageUrls }));
+    });
   });
+
+  request.on('error', (e) => {
+    if (!timedOut) {
+      res.statusCode = 500;
+      res.end('Fetch error: ' + e.message);
+    }
+  });
+
+  // Kill the request after timeout
+  setTimeout(() => {
+    timedOut = true;
+    request.destroy();
+
+    res.setHeader('Content-Type', 'application/json');
+    res.statusCode = 200;
+    res.end(JSON.stringify({ timeout: true, count: imageUrls.length, images: imageUrls }));
+  }, timeoutMs);
 };
