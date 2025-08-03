@@ -1,134 +1,29 @@
 {
   "status": "success",
   "code": 200,
-  "message": "Total 52 Channels Found",
+  "message": "Total 54 Channels Found",
   "data": {
-    "count": 52,
+    "count": 54,
     "list": [
       {
-        "id": "446e85ae2e58",
-        "title": "Discovery",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/KS6x-JQBv9knK3AHwDZy/posters/6594d216-aaca-4eee-b6f5-bbc6b80feb15.webp"
+        "id": "9cc74d11cfd0",
+        "title": "TOFFEE Sports VIP",
+        "logo": "https://images.toffeelive.com/images/program/19779/logo/240x240/mobile_logo_975410001725875598.png"
       },
       {
-        "id": "72e420862a7f",
-        "title": "Sony MAX",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Ay52-JQBv9knK3AHFDWt/posters/00afb30b-3c19-4c4c-abd8-891db94e4767.webp"
+        "id": "99cf56ce2888",
+        "title": "TOFFEE Movies VIP",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/b60Ss5UBrjBfS2_RJPb8/posters/278fd2ab-3320-440c-9e8d-d702cea3dfa8.png"
       },
       {
-        "id": "5c42f69f96db",
-        "title": "Sony PIX HD",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Ly6C-JQBv9knK3AHOjXt/posters/252e64ca-8d99-46e7-a951-e10c1703c11d.webp"
-      },
-      {
-        "id": "959476952605",
-        "title": "Sony MAX 2",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Ii5_-JQBv9knK3AHLDV3/posters/d961cc87-81b6-4b30-8414-8c0af2774818.webp"
-      },
-      {
-        "id": "bc47b864eb83",
-        "title": "Toffee sports",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/d60Vs5UBrjBfS2_RV_YV/posters/3cc5bf1e-5a42-415c-8e0e-7a17a1bb64da.png"
-      },
-      {
-        "id": "a8b8b701d558",
-        "title": "Sony MAX HD",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Ai51-JQBv9knK3AH_jWs/posters/663e52a6-1a9f-4458-b4aa-7c03d84972f1.webp"
-      },
-      {
-        "id": "baf3f501042e",
-        "title": "PSL Highlights ",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Ns04LZYBtpl-Sbt7yKqD/posters/fef0cade-0663-4fc7-afb3-7a0b7469d045.png"
-      },
-      {
-        "id": "93bd384e76a9",
-        "title": "Sony YAY",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/IC5_-JQBv9knK3AHFDXh/posters/36df4012-80f2-4a98-9970-3b663f62093f.webp"
-      },
-      {
-        "id": "4947c242a562",
-        "title": "Sony BBC Earth HD",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/MC6C-JQBv9knK3AHUzUT/posters/a8c32fd3-2ba7-437c-85ac-de2f1b2fa6ca.webp"
-      },
-      {
-        "id": "978d421e4729",
-        "title": "Sony SAB HD",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/ES55-JQBv9knK3AHNDWC/posters/13411be9-62b9-4a99-a062-b6e91dfb1099.webp"
-      },
-      {
-        "id": "a751fcadf3c0",
-        "title": "Toffee Dramas",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/DNMXs5UBm1RY_In7IJ72/posters/25b0cac5-f1e9-4541-a9cd-ab667f27c7b1.png"
-      },
-      {
-        "id": "9f573df7cbe5",
-        "title": "Toffee Movies",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/b60Ss5UBrjBfS2_RJPb8/posters/278fd2ab-3320-440c-9e8d-d702cea3dfa8.png"
-      },
-      {
-        "id": "dc488b1502f5",
-        "title": "Zee Anmol",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/7x0Jd5YBEef-9-uVv_Gy/posters/f630a176-73cc-48d7-94cf-69ba0d201b36.png"
-      },
-      {
-        "id": "72a0803cf563",
-        "title": "Zee Action",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/Pc3RD5YBtpl-Sbt7doxr/posters/d0f337ab-a7e6-4eed-bc7b-7d51fdc70a0f.png"
-      },
-      {
-        "id": "3c1cc31a847f",
-        "title": "Zee Bangla Cinema",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/-C7MX5UBv9knK3AHdKOi/posters/1f43be2f-f8d9-4a0c-b0cb-971a18a6771c.png"
-      },
-      {
-        "id": "d55d69345bae",
-        "title": "Zee Cinema HD ",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/5y7HX5UBv9knK3AHs6Nk/posters/794fd415-1b0a-49b5-b91b-2f62ba6cd759.png"
-      },
-      {
-        "id": "16884ccfe814",
-        "title": "Zee TV HD ",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/ltPQX5UBm1RY_In7b3F1/posters/f81d0cc9-c00e-4839-951a-b754e0e6c58f.png"
-      },
-      {
-        "id": "c65460ba0d73",
-        "title": "Zee Cafe",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/U3QEd5YBcqxnFHJBpYzc/posters/3442d493-0c71-44b9-b12f-8e600d5eab91.png"
-      },
-      {
-        "id": "2ea95a9da2d7",
-        "title": "Zee Bollywood",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/OnSlPJYBcqxnFHJB6lFX/posters/4818f95a-c64a-490f-b310-a49aec026d71.png"
-      },
-      {
-        "id": "4effcf0f2452",
-        "title": "Zing",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/DK8dd5YBrjBfS2_Ru22e/posters/a89a1e2e-677c-4a8a-9a66-dff5e0b921c8.png"
-      },
-      {
-        "id": "31592dcf9d92",
-        "title": "& Pictures HD ",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/QMwWnZUBtpl-Sbt7S2sx/posters/f2e6acfd-0031-4ca4-b954-c014a0c99058.png"
-      },
-      {
-        "id": "acb5ffc3704a",
-        "title": "&TV HD ",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/5cwRnZUBtpl-Sbt7wWrN/posters/28335dab-169c-49b6-8d10-ef697f940307.png"
+        "id": "b1ba8efdd99d",
+        "title": "TOFFEE Dramas VIP",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/DNMXs5UBm1RY_In7IJ72/posters/25b0cac5-f1e9-4541-a9cd-ab667f27c7b1.png"
       },
       {
         "id": "b18613696a70",
         "title": "ICC Test Championship Highlights",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/PnZefJcBcqxnFHJBoxca/posters/14699162-6ec8-4a94-a572-2795c6ddd329.png"
-      },
-      {
-        "id": "a994bb5a55fc",
-        "title": "Zee Bangla",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/kK2aX5UBrjBfS2_RBcKf/posters/16e111ed-2335-4391-9618-f840e4c4a6a2.png"
-      },
-      {
-        "id": "707e4efbda57",
-        "title": "Sony Aath",
-        "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/xi6xX5UBv9knK3AH9aMk/posters/f4db1c12-b10f-46e8-a09b-e0efb8820970.png"
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/PnZefJcBcqxnFHJBoxca/posters/955ae898-8336-4936-8d78-c6b8866e35f7.png"
       },
       {
         "id": "85ccda8c4fc5",
@@ -139,6 +34,31 @@
         "id": "258468998307",
         "title": "Euro Sport HD",
         "logo": "https://images.toffeelive.com/images/program/4388/logo/240x240/mobile_logo_422191001674119624.png"
+      },
+      {
+        "id": "cd0a14657eb8",
+        "title": "LIVE 1 VIP",
+        "logo": "https://i.postimg.cc/bJRtMXdm/com-banglalink-toffee-icon-2025-01-14-15-11-51.png"
+      },
+      {
+        "id": "35dbb0f0fa56",
+        "title": "LIVE 2 VIP",
+        "logo": "https://i.postimg.cc/bJRtMXdm/com-banglalink-toffee-icon-2025-01-14-15-11-51.png"
+      },
+      {
+        "id": "587a5c5ad9e6",
+        "title": "LIVE 3 VIP",
+        "logo": "https://i.postimg.cc/bJRtMXdm/com-banglalink-toffee-icon-2025-01-14-15-11-51.png"
+      },
+      {
+        "id": "e955e3ab955f",
+        "title": "IPL Highlights",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/d60Vs5UBrjBfS2_RV_YV/posters/3cc5bf1e-5a42-415c-8e0e-7a17a1bb64da.png"
+      },
+      {
+        "id": "6f816b8e7260",
+        "title": "PSL Highlights",
+        "logo": "https://images.toffeelive.com/images/program/304445/logo/240x240/mobile_logo_194690001744269219.png"
       },
       {
         "id": "43dcec1011e7",
@@ -181,9 +101,14 @@
         "logo": "https://images.toffeelive.com/images/program/611/logo/240x240/mobile_logo_430542001673177743.png"
       },
       {
+        "id": "57bd9c2493c1",
+        "title": "SONY YAY VIP",
+        "logo": "https://images.toffeelive.com/images/program/612/logo/240x240/mobile_logo_091186001666784752.png"
+      },
+      {
         "id": "106a66093e92",
         "title": "Zee Bangla VIP",
-        "logo": "https://images.toffeelive.com/images/program/340/logo/240x240/mobile_logo_094417001655891123.png"
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/kK2aX5UBrjBfS2_RBcKf/posters/16e111ed-2335-4391-9618-f840e4c4a6a2.png"
       },
       {
         "id": "7c21a8ade135",
@@ -221,9 +146,64 @@
         "logo": "https://images.toffeelive.com/images/program/367/logo/115x115/mobile_logo_886909001563629905.png"
       },
       {
+        "id": "b7167fe646a4",
+        "title": "SONY SAB HD VIP",
+        "logo": "https://images.toffeelive.com/images/program/2420/logo/240x240/mobile_logo_688156001666785674.png"
+      },
+      {
+        "id": "9905083432a8",
+        "title": "Zee TV HD",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/ltPQX5UBm1RY_In7b3F1/posters/f81d0cc9-c00e-4839-951a-b754e0e6c58f.png"
+      },
+      {
+        "id": "6a65854166f1",
+        "title": "SONY MAX HD VIP",
+        "logo": "https://images.toffeelive.com/images/program/641/logo/240x240/mobile_logo_440775001666782769.png"
+      },
+      {
+        "id": "b6192dbff21b",
+        "title": "SONY MAX VIP",
+        "logo": "https://images.toffeelive.com/images/program/352/logo/240x240/mobile_logo_612341001666782969.png"
+      },
+      {
+        "id": "ea02096b0fbc",
+        "title": "SONY PIX HD VIP",
+        "logo": "https://images.toffeelive.com/images/program/2419/logo/240x240/mobile_logo_287412001666784602.png"
+      },
+      {
         "id": "cd113761e022",
         "title": "B4U Movies VIP",
         "logo": "https://images.toffeelive.com/images/program/366/logo/240x240/mobile_logo_702115001663003759.png"
+      },
+      {
+        "id": "420510be5c17",
+        "title": "SONY MAX 2 VIP",
+        "logo": "https://images.toffeelive.com/images/program/353/logo/240x240/mobile_logo_044841001666779831.png"
+      },
+      {
+        "id": "3a4a0ceff620",
+        "title": "Zee Bangla Cinema VIP",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/-C7MX5UBv9knK3AHdKOi/posters/1f43be2f-f8d9-4a0c-b0cb-971a18a6771c.png"
+      },
+      {
+        "id": "d581dd66e556",
+        "title": "Zee Cinema HD",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/5y7HX5UBv9knK3AHs6Nk/posters/794fd415-1b0a-49b5-b91b-2f62ba6cd759.png"
+      },
+      {
+        "id": "72a0803cf563",
+        "title": "Zee Action",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/Pc3RD5YBtpl-Sbt7doxr/posters/d0f337ab-a7e6-4eed-bc7b-7d51fdc70a0f.png"
+      },
+      {
+        "id": "2ea95a9da2d7",
+        "title": "Zee Bollywood",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/OnSlPJYBcqxnFHJB6lFX/posters/4818f95a-c64a-490f-b310-a49aec026d71.png"
+      },
+      {
+        "id": "c65460ba0d73",
+        "title": "Zee Cafe",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/U3QEd5YBcqxnFHJBpYzc/posters/3442d493-0c71-44b9-b12f-8e600d5eab91.png"
       },
       {
         "id": "090bf33a56cb",
@@ -246,9 +226,19 @@
         "logo": "https://images.toffeelive.com/images/program/18096/logo/240x240/mobile_logo_032001001673194753.png"
       },
       {
+        "id": "a6497ebbf14f",
+        "title": "SONY BBC EARTH HD VIP",
+        "logo": "https://images.toffeelive.com/images/program/670/logo/240x240/mobile_logo_892290001738663264.png"
+      },
+      {
         "id": "77e72f2ba472",
         "title": "Discovery HD",
         "logo": "https://images.toffeelive.com/images/program/18093/logo/240x240/mobile_logo_868363001673181438.png"
+      },
+      {
+        "id": "a1c4e01414e7",
+        "title": "Discovery",
+        "logo": "https://images.toffeelive.com/images/program/18097/logo/240x240/mobile_logo_297723001673195119.png"
       },
       {
         "id": "591ea81b1aba",
@@ -261,9 +251,29 @@
         "logo": "https://images.toffeelive.com/images/program/379/logo/240x240/mobile_logo_775127001673177876.png"
       },
       {
-        "id": "a051de5ade20",
-        "title": "Discovery Turbo",
-        "logo": "https://images.toffeelive.com/images/program/379/logo/240x240/mobile_logo_775127001673177876.png"
+        "id": "6789650f5629",
+        "title": "Investigation Discovery HD",
+        "logo": "https://images.toffeelive.com/images/program/18094/logo/240x240/mobile_logo_154805001673178308.png"
+      },
+      {
+        "id": "a6b5f6130cc5",
+        "title": "&TV HD",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/5cwRnZUBtpl-Sbt7wWrN/posters/28335dab-169c-49b6-8d10-ef697f940307.png"
+      },
+      {
+        "id": "1d8f06362c1e",
+        "title": "& Pictures HD",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_400,q_100/QMwWnZUBtpl-Sbt7S2sx/posters/f2e6acfd-0031-4ca4-b954-c014a0c99058.png"
+      },
+      {
+        "id": "dc488b1502f5",
+        "title": "Zee Anmol",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/7x0Jd5YBEef-9-uVv_Gy/posters/f630a176-73cc-48d7-94cf-69ba0d201b36.png"
+      },
+      {
+        "id": "4effcf0f2452",
+        "title": "Zing",
+        "logo": "https://assets-prod.services.toffeelive.com/f_webp,w_240,q_100/DK8dd5YBrjBfS2_Ru22e/posters/a89a1e2e-677c-4a8a-9a66-dff5e0b921c8.png"
       }
     ]
   }
