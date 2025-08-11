@@ -7,6 +7,15 @@
     "title": "Channel I",
     "author": "bostaflix"
   },
+  [
+  {
+    "id": "discovery_hd_bangla",
+    "m3u8": "https://tvsen6.aynascope.net/discovery_hd_bangla/index.m3u8?e=1751726666&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=c057ecf99803dfb9da0e954de34b130d",
+    "image": "https://s3.aynascope.net/storage/8e998f20a9cc52cb8eb1f52a5bf38204",
+    "landscapeImage": "https://s3.aynascope.net/storage/c09c06d578a6549cf023a09bc3e92dc1",
+    "title": "Discovery HD Bangla",
+    "author": "bostaflix"
+  },
   {
     "id": "banglatv",
     "m3u8": "https://tvsen6.aynascope.net/banglatv/index.m3u8?e=1751726666&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=6e25b2fb3bd38310683c5a0f4e8aa9e4",
