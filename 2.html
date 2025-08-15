@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
 
   <!-- Clappr Player Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
@@ -28,7 +27,9 @@
       left: 0;
     }
   </style>
+
   <script>
+    // Block cross-origin embedding
     let blockEmbed = false;
     try {
         if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
@@ -48,7 +49,7 @@
             `;
         });
     }
-</script>
+  </script>
 </head>
 <body>
   <div id="player"></div>
@@ -63,18 +64,28 @@
       return urlParams.get(name);
     }
 
-    function createPlayer(sourceUrl) {
+    function createPlayer(channelId) {
+      const streamUrl = `https://toffeelive-bostaflix.global.ssl.fastly.net/cdn/live/${channelId}/playlist.m3u8`;
+
       const player = new Clappr.Player({
-        source: sourceUrl,
+        source: streamUrl,
         parentId: "#player",
         width: "100%",
         height: "100%",
         autoPlay: true,
         mimeType: "application/x-mpegURL",
         plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+        hlsjsConfig: {
+          xhrSetup: function(xhr, url) {
+            xhr.withCredentials = true; // send cookies
+            // set Edge-Cache-Cookie
+            xhr.setRequestHeader('Cookie', 'Edge-Cache-Cookie=URLPrefix=aHR0cHM6Ly9ibGRjbXByb2QtY2RuLnRvZmZlZWxpdmUuY29t:Expires=1755435831:KeyName=prod_linear:Signature=4u40A4e9QUoZWdFIvWAFw3OKWI-FPaugOKCwsgk3Y511jftaU3gzUrttrsdHagymY_Y6PkVOhYGsiZ3WI0_VDQ');
+          }
+        }
       });
 
+      // Auto-reload on error
       player.on(Clappr.Events.PLAYER_ERROR, function () {
         setTimeout(() => {
           player.load(player.options.source);
@@ -87,26 +98,16 @@
       });
     }
 
-    const requestedTitle = getQueryParam('id');
+    const channelId = getQueryParam('id'); // id corresponds to {channel_id}
 
-    if (requestedTitle) {
-      fetch('toffee.json')
-        .then(res => res.json())
-        .then(json => {
-          const match = json.data.list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match) {
-            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/new/toffee/live.php?id=${match.id}&e=.m3u8`;
-            createPlayer(streamUrl);
-          } else {
-            alert(`Channel "${requestedTitle}" not found.`);
-          }
-        })
-        .catch(err => {
-          console.error('Failed to load channel list:', err);
-          alert("Could not load channels.");
-        });
+    if (channelId) {
+      createPlayer(channelId);
     } else {
       console.error("No 'id' parameter in URL.");
+      document.body.innerHTML = `<div style="color:white;text-align:center;margin-top:20%;">
+                                    <h1>Error</h1>
+                                    <p>No channel ID provided in the URL.</p>
+                                 </div>`;
     }
   </script>
 </body>
