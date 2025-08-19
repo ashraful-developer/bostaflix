@@ -1,5 +1,4 @@
 const https = require('https');
-const { TextDecoder } = require('util');
 
 module.exports = (req, res) => {
   const { text } = req.query;
@@ -9,9 +8,15 @@ module.exports = (req, res) => {
     return;
   }
 
-  const apiKey = 'AIzaSyDTcXqcX1EnO194fj49RkF0k14vq6Mc_TE';
+  const apiKey = 'AIzaSyDTcXqcX1EnO194fj49RkF0k14vq6Mc_TE'; // Replace with your actual API key
   const data = JSON.stringify({
-    contents: [{ parts: [{ text }] }]
+    contents: [
+      {
+        parts: [
+          { text }
+        ]
+      }
+    ]
   });
 
   const options = {
@@ -25,32 +30,26 @@ module.exports = (req, res) => {
   };
 
   const apiReq = https.request(options, apiRes => {
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-
-    res.write('{"chunks":['); // start JSON array
-
-    let firstChunk = true;
+    const chunks = []; // store buffers
 
     apiRes.on('data', chunk => {
-      const textChunk = decoder.decode(chunk, { stream: true });
-
-      // wrap chunks in quotes and separate with comma
-      if (!firstChunk) res.write(',');
-      res.write(JSON.stringify(textChunk));
-      firstChunk = false;
+      chunks.push(chunk); // push each chunk as buffer
     });
 
     apiRes.on('end', () => {
-      const lastChunk = decoder.decode(); // flush remaining
-      if (lastChunk) res.write(',' + JSON.stringify(lastChunk));
-      res.write(']}'); // close JSON array
-      res.end();
+      try {
+        const buffer = Buffer.concat(chunks);          // merge all chunks
+        const responseData = buffer.toString('utf-8'); // decode once as UTF-8
+        const result = JSON.parse(responseData);       // parse JSON safely
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to parse API response', details: err.message });
+      }
     });
   });
 
-  apiReq.on('error', err => {
-    res.status(500).json({ error: 'Request failed', details: err.message });
+  apiReq.on('error', error => {
+    res.status(500).json({ error: 'Request failed', details: error.message });
   });
 
   apiReq.write(data);
