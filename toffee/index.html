@@ -254,7 +254,7 @@
                 img.src = channel.logo;
                 img.alt = channel.title;
                 img.setAttribute('data-category', 'Entertainment'); // Set your own categories if you wish
-                img.onclick = () => loadIframe(`https://bostaflix.vercel.app/2.html?id=${encodeURIComponent(channel.title.trim())}`);
+                img.onclick = () => loadIframe(`https://bostaflix.vercel.app/toffee.html?id=${encodeURIComponent(channel.title.trim())}`);
                 container.appendChild(img);
             });
         } catch (err) {
