@@ -95,7 +95,7 @@
         .then(json => {
           const match = json.data.list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
           if (match) {
-            const streamUrl = `https://tv.bongoflix.top/live.php?id=${match.id}&e=.m3u8`;
+            const streamUrl = `https://tv.bongoflix.top/toffee/live.php?id=${match.id}&e=.m3u8`;
             createPlayer(streamUrl);
           } else {
             alert(`Channel "${requestedTitle}" not found.`);
