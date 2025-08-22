@@ -69,7 +69,7 @@
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
-      fetch('https://livecdn-bostaflix.global.ssl.fastly.net/channels') // 👈 your local JSON file
+      fetch('toffee.json') // 👈 your local JSON file
         .then(res => res.json())
         .then(channels => {
           // find channel by title (case insensitive)
