@@ -236,7 +236,7 @@
                 img.setAttribute('data-category', channel.category || "Entertainment");
 
                 // Instead of direct URL → use toffee.html with ?id=
-                img.onclick = () => loadIframe(`toffee.html?id=${encodeURIComponent(channel.id)}`);
+                img.onclick = () => loadIframe(`https://bostaflix.vercel.app/toffee.html?id=${encodeURIComponent(channel.id)}`);
 
                 container.appendChild(img);
             });
