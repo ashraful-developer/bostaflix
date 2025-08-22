@@ -211,23 +211,6 @@
         document.getElementById('videoFrame').src = serverLink;
     }
 
-    // Load server buttons (for legacy support)
-    function loadServers(servers, channelName) {
-        const serverButtons = document.getElementById('serverButtons');
-        serverButtons.innerHTML = '';
-        loadIframe(servers[0]);
-
-        servers.forEach((server, index) => {
-            const button = document.createElement('button');
-            button.innerText = `Server ${index + 1}`;
-            button.onclick = () => loadIframe(server);
-            serverButtons.appendChild(button);
-        });
-
-        serverButtons.classList.add('show');
-        document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
-    }
-
     // Filter logos by category
     function filterChannels() {
         const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
@@ -241,20 +224,20 @@
     // Load channel logos from JSON
     async function loadChannelLogos() {
         try {
-            const response = await fetch('https://livecdn-bostaflix.global.ssl.fastly.net/channels');
+            const response = await fetch('channels.json'); // your JSON file
             const json = await response.json();
             const container = document.getElementById('channelLogos');
             container.innerHTML = '';
 
-            json.data.list.forEach(channel => {
-                // Remove Somoy TV
-                if (channel.title.trim().toLowerCase() === "somoy") return;
-
+            json.forEach(channel => {
                 const img = document.createElement('img');
                 img.src = channel.logo;
                 img.alt = channel.title;
-                img.setAttribute('data-category', 'Entertainment'); // Set your own categories if you wish
-                img.onclick = () => loadIframe(`https://bostaflix.vercel.app/toffee.html?id=${encodeURIComponent(channel.title.trim())}`);
+                img.setAttribute('data-category', channel.category || "Entertainment");
+
+                // Instead of direct URL → use toffee.html with ?id=
+                img.onclick = () => loadIframe(`toffee.html?id=${encodeURIComponent(channel.id)}`);
+
                 container.appendChild(img);
             });
         } catch (err) {
@@ -268,19 +251,15 @@
         return urlParams.get(param);
     }
 
-    // Load default iframe from query (optional)
+    // Load default iframe if ?id= is given
     window.onload = function () {
         const defaultId = getQueryParam('id');
-        const defaultServer = getQueryParam('server');
-
-        if (defaultId && defaultServer) {
-            loadIframe(`${defaultServer}.html?id=${defaultId}`);
+        if (defaultId) {
+            loadIframe(`toffee.html?id=${encodeURIComponent(defaultId)}`);
         }
-
         loadChannelLogos();
     };
 </script>
-
 <!-- Footer -->
 <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
     &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
