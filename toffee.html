@@ -27,29 +27,6 @@
       left: 0;
     }
   </style>
-
-  <!-- Anti-embed -->
-  <script>
-    let blockEmbed = false;
-    try {
-        if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
-            blockEmbed = true;
-        }
-    } catch (e) {
-        blockEmbed = true;
-    }
-
-    if (blockEmbed) {
-        document.addEventListener("DOMContentLoaded", function () {
-            document.body.innerHTML = `
-                <div style="color:white;text-align:center;margin-top:20%;">
-                    <h1>403 Forbidden</h1>
-                    <p>You cannot embed this page in a cross-origin iframe.</p>
-                </div>
-            `;
-        });
-    }
-  </script>
 </head>
 <body>
   <div id="player"></div>
@@ -89,14 +66,29 @@
       });
     }
 
-    const requestedId = getQueryParam('id');
+    const requestedTitle = getQueryParam('id');
 
-    if (requestedId) {
-      // Directly build stream URL with id
-      const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/api/${requestedId}/playlist.m3u8`;
-      createPlayer(streamUrl);
+    if (requestedTitle) {
+      fetch('https://livecdn-bostaflix.global.ssl.fastly.net/channels') // 👈 your local JSON file
+        .then(res => res.json())
+        .then(channels => {
+          // find channel by title (case insensitive)
+          const match = channels.find(item =>
+            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+          );
+
+          if (match) {
+            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/api/${match.id}/playlist.m3u8`;
+            createPlayer(streamUrl);
+          } else {
+            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load channel list:', err);
+          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channels.json</h2>`;
+        });
     } else {
-      console.error("No 'id' parameter in URL.");
       document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
     }
   </script>
