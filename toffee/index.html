@@ -224,7 +224,7 @@
     // Load channel logos from JSON
     async function loadChannelLogos() {
         try {
-            const response = await fetch('bostaflix.vercel.app/toffee.json'); // your JSON file
+            const response = await fetch('https://bostaflix.vercel.app/toffee.json'); // your JSON file
             const json = await response.json();
             const container = document.getElementById('channelLogos');
             container.innerHTML = '';
