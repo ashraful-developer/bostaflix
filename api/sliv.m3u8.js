@@ -34,10 +34,10 @@ export default async function handler(req, res) {
       return;
     }
 
-    const redirectedUrl = sourceUrl.replace(
-      /^https:\/\.yflix\.top/,
-      'https://bostacdn.global.ssl.fastly.net/'
-    );
+  const redirectedUrl = sourceUrl.replace(
+  /^https:\/\/yflix\.top/,
+  'https://bostacdn.global.ssl.fastly.net'
+  );
 
     res.writeHead(302, { Location: redirectedUrl });
     res.end();
