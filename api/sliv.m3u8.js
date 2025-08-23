@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     return match ? match[1] : null;
   };
 
-  const targetUrl = `https://stream-cdn-bostaflix.global.ssl.fastly.net/tata/play.php?id=${id}`;
+  const targetUrl = `https://bostacdn.global.ssl.fastly.net/sliv/play.php?id=${id}`;
 
   try {
     const page = await fetchPage(targetUrl);
@@ -35,8 +35,8 @@ export default async function handler(req, res) {
     }
 
     const redirectedUrl = sourceUrl.replace(
-      /^https:\/\/re\.fredflix\.fun/,
-      'https://stream-cdn-bostaflix.global.ssl.fastly.net'
+      /^https:\/\.yflix\.top/,
+      'https://bostacdn.global.ssl.fastly.net/'
     );
 
     res.writeHead(302, { Location: redirectedUrl });
