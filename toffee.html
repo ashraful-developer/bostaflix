@@ -78,11 +78,6 @@
         player.play();
       });
 
-      // Setup hidden iframe player
-      const hiddenFrame = document.getElementById("hidden-player");
-      hiddenFrame.src = `https://livecdn-bostaflix.global.ssl.fastly.net/play.html`;
-    }
-
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
