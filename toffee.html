@@ -53,11 +53,9 @@
       return urlParams.get(name);
     }
 
-    function createPlayer(matchId) {
-      const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/api/${matchId}/playlist.m3u8`;
-
+    function createPlayer(sourceUrl, matchId) {
       const player = new Clappr.Player({
-        source: streamUrl,
+        source: sourceUrl,
         parentId: "#player",
         width: "100%",
         height: "100%",
@@ -80,15 +78,33 @@
         player.play();
       });
 
-      // Setup hidden iframe player (muted)
+      // Setup hidden iframe player
       const hiddenFrame = document.getElementById("hidden-player");
       hiddenFrame.src = `https://livecdn-bostaflix.global.ssl.fastly.net/play.html?channel_id=${matchId}&muted=true&autoplay=1`;
     }
 
-    const matchId = getQueryParam('id');
+    const requestedTitle = getQueryParam('id');
 
-    if (matchId) {
-      createPlayer(matchId);
+    if (requestedTitle) {
+      fetch('https://livecdn-bostaflix.global.ssl.fastly.net/channels') // 👈 your local JSON file
+        .then(res => res.json())
+        .then(channels => {
+          // find channel by title (case insensitive)
+          const match = channels.find(item =>
+            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+          );
+
+          if (match) {
+            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/api/${match.id}/playlist.m3u8`;
+            createPlayer(streamUrl, match.id);
+          } else {
+            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load channel list:', err);
+          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channels.json</h2>`;
+        });
     } else {
       document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
     }
