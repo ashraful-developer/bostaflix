@@ -109,34 +109,39 @@
         transform: scale(1.05);
     }
 
-    /* Logo container */
-    .logos-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-        padding: 15px;
-        margin: 20px auto;
-    }
+.logo-frame {
+  width: 100px;
+  aspect-ratio: 4 / 3;        /* gray outer box */
+  background: #4d4d4d;
+  border: 1px solid #ff3c3c;  /* red border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s;
+}
 
-.logos-container img {
-    width: 100px;
-    height: 75px;              /* 4:3 container */
-    object-fit: contain;
-    aspect-ratio: 4 / 3;
-    padding: 6px;
-    border: 1px solid #ff3c3c; /* red border */
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s;
+.logo-frame::before {
+  content: "";
+  width: 100%;
+  aspect-ratio: 16 / 9;       /* white screen */
+  background: white;
+  position: absolute;
+  z-index: 0;
+}
 
-    /* Gray background as base */
-    background-color: #4d4d4d;
+.logo-frame {
+  position: relative;
+  overflow: hidden;           /* crop logos outside */
+}
 
-    /* White 16:9 centered "screen" */
-    background-image: linear-gradient(white, white);
-    background-size: 100% 70%; /* 16:9 = 9/16 = 56.25% of height */
-    background-position: center;
-    background-repeat: no-repeat;
+.logo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  z-index: 1;                 /* keep logo above white */
 }
 
     .logos-container img:hover {
