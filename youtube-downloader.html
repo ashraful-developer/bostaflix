@@ -143,46 +143,31 @@
   <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
     &copy; Bostaflix YouTube Downloader by Syed Ashraful Islam Mahbeer.
   </div>
+<script>
+  function extractID(url) {
+    const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
 
-  <script>
-    function extractID(url) {
-      const match = url.match(/(?:youtu\.be\/|v=|\/embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-      return match ? match[1] : null;
+  function downloadVideo() {
+    const url = document.getElementById("yt-url").value;
+    const videoID = extractID(url);
+    const errorDiv = document.getElementById("error");
+
+    if (!videoID) {
+      errorDiv.innerText = "❌ Invalid YouTube URL!";
+      return;
     }
 
-    function downloadVideo(attempt = 1) {
-      const url = document.getElementById("yt-url").value;
-      const videoID = extractID(url);
-      const errorDiv = document.getElementById("error");
-      const videoEl = document.getElementById("video-player");
-      const fallback = document.getElementById("fallback-link");
-      const linkContainer = document.getElementById("download-link");
+    const streamURL = `https://inv.nadeko.net/latest_version?id=${videoID}&itag=18`;
 
-      if (!videoID) {
-        errorDiv.innerText = "❌ Invalid YouTube URL!";
-        videoEl.style.display = "none";
-        linkContainer.style.display = "none";
-        return;
-      }
+    // Redirect directly instead of embedding
+    window.location.href = streamURL;
 
-      const streamURL = `https://inv.nadeko.net/latest_version?id=${videoID}&itag=18`;
-      videoEl.src = streamURL;
-      videoEl.load();
-      videoEl.style.display = "block";
-      linkContainer.style.display = "none";
-      errorDiv.innerText = "";
+    // OR if you want it to open in a new tab:
+    // window.open(streamURL, "_blank");
+  }
+</script>
 
-      videoEl.onerror = () => {
-        if (attempt < 4) {
-          setTimeout(() => downloadVideo(attempt + 1), 1500);
-        } else {
-          videoEl.style.display = "none";
-          fallback.href = streamURL;
-          linkContainer.style.display = "block";
-          errorDiv.innerText = "❌ Video failed to load. Try direct download below.";
-        }
-      };
-    }
-  </script>
 </body>
 </html>
