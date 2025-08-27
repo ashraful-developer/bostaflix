@@ -121,14 +121,22 @@
 
 .logos-container img {
     width: 100px;
-    height: 75px;
-    background-color: #4d4d4d; /* light gray / whitish background */
+    height: 75px;              /* 4:3 container */
     object-fit: contain;
     aspect-ratio: 4 / 3;
     padding: 6px;
     border: 1px solid #ff3c3c; /* red border */
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s;
+
+    /* Gray background as base */
+    background-color: #4d4d4d;
+
+    /* White 16:9 centered "screen" */
+    background-image: linear-gradient(white, white);
+    background-size: 100% 56.25%; /* 16:9 = 9/16 = 56.25% of height */
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
     .logos-container img:hover {
