@@ -241,7 +241,7 @@
   },
   {
     "id": "durontotv",
-    "m3u8": "https://tvsen5.aynascope.net/durontotv/index.m3u8?e=1751726676&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=d6dccad33a544530ce7ef2b6a70ac74f",
+    "m3u8": "https://tvsen6.aynascope.net/durontotv-live/index.m3u8?e=1751726676&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=d6dccad33a544530ce7ef2b6a70ac74f",
     "image": "https://s3.aynascope.net/storage/51f1530c076c027e431bf18a49613f0b",
     "landscapeImage": "https://s3.aynascope.net/storage/51da8a724953d50a204f527850cc7ec4",
     "title": "Duronto TV",
