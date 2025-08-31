@@ -82,7 +82,7 @@
           if (match && match.id && match.m3u8) {
             const domain = extractDomain(match.m3u8);
             if (domain) {
-              const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/index.m3u8`;
+              const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/mono.ts.m3u8`;
               createPlayer(realStreamUrl);
             } else {
               alert("Invalid m3u8 domain format in JSON.");
