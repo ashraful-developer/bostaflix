@@ -22,19 +22,16 @@ export default async function handler(req, res) {
 
     const html = await upstream.text();
 
-    // Find first occurrence of a tvsen6.aynaott.com URL
-    const match = html.match(/https:\/\/tvsen6\.aynaott\.com\/[^\s"'<>]+/i);
+    // Match tvsen3–tvsen7 .aynaott.com URLs
+    const match = html.match(/https:\/\/tvsen[3-7]\.aynaott\.com\/[^\s"'<>]+/i);
     if (!match) {
-      return sendError(res, 404, "No aynaott.com URL found in page.");
+      return sendError(res, 404, "No aynaott.com stream URL found in page.");
     }
 
-    // Replace host
-    const fileUrl = match[0].replace(
-      "https://tvsen6.aynaott.com/",
-      "https://tvsen6.aynascope.net/"
-    );
+    // Rewrite aynaott → aynascope
+    const fileUrl = match[0].replace(".aynaott.com/", ".aynascope.net/");
 
-    // Redirect (302)
+    // Redirect (302) to rewritten URL
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.writeHead(302, { Location: fileUrl });
     return res.end();
