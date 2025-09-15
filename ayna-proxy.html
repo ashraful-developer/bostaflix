@@ -69,15 +69,28 @@
             return player;
         }
 
-        // Get channel ID from query parameter
-        var channelId = getQueryParam('id');
+        // Get channel title from query parameter (?id=Title)
+        var channelTitle = getQueryParam('id');
         
-        if (channelId) {
-            // Use the jadoo.php API URL structure
-            const sourceUrl = `api/ayna-proxy.m3u8?id=${channelId}`;
-            createPlayer(sourceUrl);
+        if (channelTitle) {
+            fetch("ayna-proxy.json")
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.data && data.data.list) {
+                        const channel = data.data.list.find(item => item.title === channelTitle);
+                        if (channel) {
+                            const sourceUrl = `api/ayna-proxy.m3u8?id=${channel.id}`;
+                            createPlayer(sourceUrl);
+                        } else {
+                            console.error("Channel not found in JSON:", channelTitle);
+                        }
+                    } else {
+                        console.error("Invalid JSON structure");
+                    }
+                })
+                .catch(err => console.error("Error fetching JSON:", err));
         } else {
-            console.error("No channel ID provided");
+            console.error("No channel title provided in ?id=");
         }
     </script>
 </body>
