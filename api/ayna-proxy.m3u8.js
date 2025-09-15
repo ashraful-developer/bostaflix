@@ -30,7 +30,6 @@ export default async function handler(req, res) {
 
     // Rewrite aynaott → aynascope
     const fileUrl = match[0].replace("tvsen6.aynaott.com/", "ayna6-bostaflix.global.ssl.fastly.net/");
-    const fileUrl = match[0].replace("tvsen5.aynaott.com/", "ayna5-bostaflix.global.ssl.fastly.net/");
 
     // Redirect (302) to rewritten URL
     res.setHeader("Access-Control-Allow-Origin", "*");
