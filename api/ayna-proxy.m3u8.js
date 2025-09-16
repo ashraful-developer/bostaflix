@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       // Rewrite to host 2 → /2/ path
       fileUrl = match[0].replace(
         /https:\/\/tvsen5\.aynaott\.com\//,
-        "https://ayna6-bostaflix.global.ssl.fastly.net/2/"
+        "https://ayna5-bostaflix.global.ssl.fastly.net/"
       );
     } else {
       // Rewrite default (e.g. tvsen6) → root path
