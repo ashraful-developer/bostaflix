@@ -23,13 +23,28 @@ export default async function handler(req, res) {
     const html = await upstream.text();
 
     // Match tvsen3–tvsen7 .aynaott.com URLs
-    const match = html.match(/https:\/\/tvsen[3-7]\.aynaott\.com\/[^\s"'<>]+/i);
+    const match = html.match(/https:\/\/(tvsen[3-7])\.aynaott\.com\/[^\s"'<>]+/i);
     if (!match) {
       return sendError(res, 404, "No aynaott.com stream URL found in page.");
     }
 
-    // Rewrite aynaott → aynascope
-    const fileUrl = match[0].replace("tvsen6.aynaott.com/", "ayna6-bostaflix.global.ssl.fastly.net/");
+    const host = match[1]; // e.g. "tvsen5" or "tvsen6"
+
+    // Base Fastly domain
+    let fileUrl;
+    if (host === "tvsen5") {
+      // Rewrite to host 2 → /2/ path
+      fileUrl = match[0].replace(
+        /https:\/\/tvsen5\.aynaott\.com\//,
+        "https://ayna6-bostaflix.global.ssl.fastly.net/2/"
+      );
+    } else {
+      // Rewrite default (e.g. tvsen6) → root path
+      fileUrl = match[0].replace(
+        /https:\/\/tvsen6\.aynaott\.com\//,
+        "https://ayna6-bostaflix.global.ssl.fastly.net/"
+      );
+    }
 
     // Redirect (302) to rewritten URL
     res.setHeader("Access-Control-Allow-Origin", "*");
