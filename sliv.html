@@ -26,6 +26,11 @@
       top: 0;
       left: 0;
     }
+    h2 {
+      color: white;
+      text-align: center;
+      margin-top: 20%;
+    }
   </style>
 </head>
 <body>
@@ -33,12 +38,11 @@
 
   <script>
     // Disable right-click
-    document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter
+    // Get query parameter (id)
     function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
+      return new URLSearchParams(window.location.search).get(name);
     }
 
     // Clappr setup
@@ -56,42 +60,39 @@
       });
 
       // Auto-recover on error
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
         }, 1000);
       });
 
-      player.on(Clappr.Events.PLAYER_STOP, function () {
-        player.play();
-      });
+      // Restart if stopped
+      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
     }
 
-    const requestedTitle = getQueryParam('id');
+    const requestedId = getQueryParam('id');
 
-    if (requestedTitle) {
+    if (requestedId) {
       fetch('https://bostacdn.global.ssl.fastly.net/sliv1/api.php') // JSON endpoint
         .then(res => res.json())
-        .then(channels => {
-          // find channel by title (case insensitive)
-          const match = channels.find(item =>
-            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
-          );
+        .then(data => {
+          const channels = data.list || [];
+          const match = channels.find(item => item.id === requestedId);
 
           if (match) {
-            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/api/${match.id}/playlist.m3u8`;
+            const streamUrl = `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${match.id}&e=.m3u8`;
             createPlayer(streamUrl);
           } else {
-            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+            document.body.innerHTML = `<h2>Channel with ID "${requestedId}" not found</h2>`;
           }
         })
         .catch(err => {
           console.error('Failed to load channel list:', err);
-          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channels.json</h2>`;
+          document.body.innerHTML = "<h2>Error loading channel list</h2>";
         });
     } else {
-      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
+      document.body.innerHTML = "<h2>No Channel Selected</h2>";
     }
   </script>
 </body>
