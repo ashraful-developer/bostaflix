@@ -8,7 +8,7 @@ module.exports = (req, res) => {
     return;
   }
 
-  const apiKey = 'AIzaSyDgdxnGl1CI1MFisc-3chg4LxUISn0hkUQ'; // Replace with your actual API key
+  const apiKey = 'AIzaSyD8tJPUgvkBpiriFLs9Y6kyLa7kQx_bEYs'; // Replace with your actual API key
   const data = JSON.stringify({
     contents: [
       {
