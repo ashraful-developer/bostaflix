@@ -8,7 +8,13 @@ module.exports = (req, res) => {
     return;
   }
 
-  const apiKey = 'AIzaSyD8tJPUgvkBpiriFLs9Y6kyLa7kQx_bEYs'; // Replace with your actual API key
+  // Use the environment variable instead of hardcoding the key
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    res.status(500).json({ error: 'API_KEY is not set in environment variables' });
+    return;
+  }
+
   const data = JSON.stringify({
     contents: [
       {
@@ -30,17 +36,17 @@ module.exports = (req, res) => {
   };
 
   const apiReq = https.request(options, apiRes => {
-    const chunks = []; // store buffers
+    const chunks = [];
 
     apiRes.on('data', chunk => {
-      chunks.push(chunk); // push each chunk as buffer
+      chunks.push(chunk);
     });
 
     apiRes.on('end', () => {
       try {
-        const buffer = Buffer.concat(chunks);          // merge all chunks
-        const responseData = buffer.toString('utf-8'); // decode once as UTF-8
-        const result = JSON.parse(responseData);       // parse JSON safely
+        const buffer = Buffer.concat(chunks);
+        const responseData = buffer.toString('utf-8');
+        const result = JSON.parse(responseData);
         res.status(200).json(result);
       } catch (err) {
         res.status(500).json({ error: 'Failed to parse API response', details: err.message });
