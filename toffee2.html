@@ -71,16 +71,20 @@
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
-      fetch('https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels') // JSON endpoint
+      fetch('https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels')
         .then(res => res.json())
-        .then(channels => {
-          // find channel by title (case insensitive)
+        .then(json => {
+          // JSON format: { status, code, message, data: { count, list: [...] } }
+          const channels = json?.data?.list || [];
+
+          // Find channel by title or ID (case insensitive)
           const match = channels.find(item =>
-            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
+            item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
           );
 
           if (match) {
-            const streamUrl = `https://bostacdn.global.ssl.fastly.net/api/${match.id}/playlist.m3u8`;
+            const streamUrl = `https://bostacdn.global.ssl.fastly.net/api/live.php?id=${match.id}`;
             createPlayer(streamUrl);
           } else {
             document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
@@ -88,7 +92,7 @@
         })
         .catch(err => {
           console.error('Failed to load channel list:', err);
-          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channels.json</h2>`;
+          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
         });
     } else {
       document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
