@@ -52,7 +52,19 @@
                 plugins: [HlsjsPlayback, LevelSelector],
                 mimeType: "application/x-mpegURL", 
                 mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
-                parentId: "#player"
+                parentId: "#player",
+                playback: {
+                    hlsjsConfig: {
+                        // Prevent sending Referer header for HLS requests
+                        xhrSetup: function(xhr, url) {
+                            try {
+                                xhr.setRequestHeader('Referer', '');
+                            } catch(e) {
+                                console.warn('Could not clear Referer header', e);
+                            }
+                        }
+                    }
+                }
             }); 
 
             player.on(Clappr.Events.PLAYER_ERROR, function() {
