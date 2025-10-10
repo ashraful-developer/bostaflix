@@ -1,104 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Jadoo | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Clappr Player Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="player"></div>
+    <div id="player"></div>
 
-  <script>
-    // Disable right-click
-    document.addEventListener("contextmenu", event => event.preventDefault());
-
-    // Get query parameter
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
-
-    // Extract domain like "tvsen6" from m3u8 URL
-    function extractDomain(m3u8Url) {
-      const match = m3u8Url.match(/https:\/\/(tvsen\d+)\.ayna(?:scope|ott)\.net/i);
-      return match ? match[1] : null;
-    }
-
-    function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
-
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 100);
-      });
-
-      player.on(Clappr.Events.PLAYER_STOP, function () {
-        player.play();
-      });
-    }
-
-    const requestedTitle = getQueryParam('id');
-
-    if (requestedTitle) {
-      fetch('ayna.json')
-        .then(res => res.json())
-        .then(json => {
-          const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match && match.id && match.m3u8) {
-            const domain = extractDomain(match.m3u8);
-            if (domain) {
-              const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/mono.ts.m3u8`;
-              createPlayer(realStreamUrl);
-            } else {
-              alert("Invalid m3u8 domain format in JSON.");
-            }
-          } else {
-            alert(`Channel "${requestedTitle}" not found or missing fields.`);
-          }
-        })
-        .catch(err => {
-          console.error('Failed to load channel list:', err);
-          alert("Could not load channel list.");
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
         });
-    } else {
-      console.error("No 'id' parameter in URL.");
-      alert("Missing 'id' parameter in URL.");
-    }
-  </script>
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `api/ayna.m3u8?title=${channelId}`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
