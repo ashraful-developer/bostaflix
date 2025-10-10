@@ -6,17 +6,18 @@ export default async function handler(req, res) {
       return res.end("Missing ?title parameter");
     }
 
-    // Step 1: Fetch Ayna homepage
-    const homeResp = await fetch("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
-    const html = await homeResp.text();
+    // Step 1: Fetch Ayna homepage HTML
+    const resp = await fetch("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
+    const html = await resp.text();
 
-    // Step 2: Extract ID by matching channel title
-    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Step 2: Match the correct channel <a href="play.php?id=..."><h6>Title</h6></a>
+    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex special chars
     const regex = new RegExp(
-      `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\\/h6>`,
+      `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>\\s*<[^>]*>\\s*<h6[^>]*>\\s*${safeTitle}\\s*<\\/h6>`,
       "i"
     );
     const match = html.match(regex);
+
     if (!match) {
       res.statusCode = 404;
       return res.end(`Channel not found for title: ${title}`);
@@ -24,20 +25,22 @@ export default async function handler(req, res) {
 
     const id = match[1];
 
-    // Step 3: Fetch the play page to get stream URL
+    // Step 3: Fetch play.php?id=... to extract real stream URL
     const playResp = await fetch(`https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(id)}`);
     const playHtml = await playResp.text();
 
-    // Step 4: Extract the final stream URL (from 'streamUrl: "<URL>"')
-    const streamMatch = playHtml.match(/streamUrl:\s*"(https:\/\/[^"]+)"/);
-    if (!streamMatch) {
+    // Step 4: Find "streamUrl" inside JS (different sites sometimes wrap it differently)
+    const urlRegex = /streamUrl\s*:\s*["'](https:\/\/[^"']+\.m3u8)["']/i;
+    const urlMatch = playHtml.match(urlRegex);
+
+    if (!urlMatch) {
       res.statusCode = 404;
-      return res.end("streamUrl not found");
+      return res.end("streamUrl not found in play.php page");
     }
 
-    const streamUrl = streamMatch[1];
+    const streamUrl = urlMatch[1];
 
-    // Step 5: Redirect directly to final stream
+    // Step 5: Redirect (302) to final .m3u8 stream
     res.writeHead(302, { Location: streamUrl });
     res.end();
   } catch (err) {
