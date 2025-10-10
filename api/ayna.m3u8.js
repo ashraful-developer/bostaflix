@@ -1,28 +1,34 @@
 export default async function handler(req, res) {
   try {
-    // Get ?id= param
-    const { id } = req.query;
-    if (!id) {
+    const { title } = req.query;
+    if (!title) {
       res.statusCode = 400;
-      return res.end("Missing ?id parameter");
+      return res.end("Missing ?title parameter");
     }
 
-    // Fetch the HTML from Fastly CDN
-    const resp = await fetch(`https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(id)}`);
+    // Fetch the Ayna homepage (or the HTML where the grid is)
+    const resp = await fetch("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
     const html = await resp.text();
 
-    // Extract streamUrl using regex
-    const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+)"/);
+    // Make case-insensitive regex for the title (HTML may differ in capitalization)
+    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(
+      `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\/h6>`,
+      "i"
+    );
+
+    const match = html.match(regex);
     if (!match) {
       res.statusCode = 404;
-      return res.end("streamUrl not found");
+      return res.end(`Channel not found for title: ${title}`);
     }
 
-    const streamUrl = match[1];
+    const id = match[1];
 
-    // Redirect (302)
+    // Optional: you can redirect to the play API from before
+    // Example: redirect to /api/ayna-proxy?id=<found-id>
     res.statusCode = 302;
-    res.setHeader("Location", streamUrl);
+    res.setHeader("Location", `/api/ayna-proxy?id=${encodeURIComponent(id)}`);
     res.end();
   } catch (err) {
     res.statusCode = 500;
