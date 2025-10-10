@@ -38,11 +38,13 @@
             event.preventDefault();
         });
 
+        // Helper to get query parameters
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
+        // Create the Clappr player
         function createPlayer(sourceUrl) {
             var player = new Clappr.Player({ 
                 source: sourceUrl,
@@ -54,16 +56,8 @@
                 mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
                 parentId: "#player",
                 playback: {
-                    hlsjsConfig: {
-                        // Prevent sending Referer header for HLS requests
-                        xhrSetup: function(xhr, url) {
-                            try {
-                                xhr.setRequestHeader('Referer', '');
-                            } catch(e) {
-                                console.warn('Could not clear Referer header', e);
-                            }
-                        }
-                    }
+                    // Modern way to prevent Referer headers
+                    referrerPolicy: 'no-referrer'
                 }
             }); 
 
