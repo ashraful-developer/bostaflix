@@ -13,14 +13,14 @@ export default async function handler(req, res) {
     // Make case-insensitive regex for the title (HTML may differ in capitalization)
     const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = new RegExp(
-      <a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\/h6>,
+      `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\/h6>`,
       "i"
     );
 
     const match = html.match(regex);
     if (!match) {
       res.statusCode = 404;
-      return res.end(Channel not found for title: ${title});
+      return res.end(`Channel not found for title: ${title}`);
     }
 
     const id = match[1];
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     // Optional: you can redirect to the play API from before
     // Example: redirect to /api/ayna-proxy?id=<found-id>
     res.statusCode = 302;
-    res.setHeader("Location", /api/ayna-proxy.m3u8?id=${encodeURIComponent(id)});
+    res.setHeader("Location", `/api/ayna-proxy?id=${encodeURIComponent(id)}`);
     res.end();
   } catch (err) {
     res.statusCode = 500;
