@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
   try {
-    // Get ?id= param
     const { id } = req.query;
     if (!id) {
       res.statusCode = 400;
@@ -18,7 +17,13 @@ export default async function handler(req, res) {
       return res.end("streamUrl not found");
     }
 
-    const streamUrl = match[1];
+    let streamUrl = match[1];
+
+    // Replace domain if it matches tvsen6.aynascope.net
+    streamUrl = streamUrl.replace(
+      "tvsen6.aynascope.net",
+      "ayna6-bostaflix.global.ssl.fastly.net"
+    );
 
     // Redirect (302)
     res.statusCode = 302;
