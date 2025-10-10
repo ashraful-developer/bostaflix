@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     // Optional: you can redirect to the play API from before
     // Example: redirect to /api/ayna-proxy?id=<found-id>
     res.statusCode = 302;
-    res.setHeader("Location", `/api/ayna-proxy?id=${encodeURIComponent(id)}`);
+    res.setHeader("Location", `/api/ayna-proxy.m3u8?id=${encodeURIComponent(id)}`);
     res.end();
   } catch (err) {
     res.statusCode = 500;
