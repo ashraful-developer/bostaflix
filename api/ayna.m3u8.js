@@ -1,3 +1,5 @@
+
+You said:
 export default async function handler(req, res) {
   try {
     const { title } = req.query;
@@ -6,42 +8,29 @@ export default async function handler(req, res) {
       return res.end("Missing ?title parameter");
     }
 
-    // Step 1: Fetch Ayna homepage HTML
+    // Fetch the Ayna homepage (or the HTML where the grid is)
     const resp = await fetch("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
     const html = await resp.text();
 
-    // Step 2: Match the correct channel <a href="play.php?id=..."><h6>Title</h6></a>
-    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex special chars
+    // Make case-insensitive regex for the title (HTML may differ in capitalization)
+    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = new RegExp(
-      `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>\\s*<[^>]*>\\s*<h6[^>]*>\\s*${safeTitle}\\s*<\\/h6>`,
+      <a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\/h6>,
       "i"
     );
-    const match = html.match(regex);
 
+    const match = html.match(regex);
     if (!match) {
       res.statusCode = 404;
-      return res.end(`Channel not found for title: ${title}`);
+      return res.end(Channel not found for title: ${title});
     }
 
     const id = match[1];
 
-    // Step 3: Fetch play.php?id=... to extract real stream URL
-    const playResp = await fetch(`https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(id)}`);
-    const playHtml = await playResp.text();
-
-    // Step 4: Find "streamUrl" inside JS (different sites sometimes wrap it differently)
-    const urlRegex = /streamUrl\s*:\s*["'](https:\/\/[^"']+\.m3u8)["']/i;
-    const urlMatch = playHtml.match(urlRegex);
-
-    if (!urlMatch) {
-      res.statusCode = 404;
-      return res.end("streamUrl not found in play.php page");
-    }
-
-    const streamUrl = urlMatch[1];
-
-    // Step 5: Redirect (302) to final .m3u8 stream
-    res.writeHead(302, { Location: streamUrl });
+    // Optional: you can redirect to the play API from before
+    // Example: redirect to /api/ayna-proxy?id=<found-id>
+    res.statusCode = 302;
+    res.setHeader("Location", /api/ayna-proxy.m3u8?id=${encodeURIComponent(id)});
     res.end();
   } catch (err) {
     res.statusCode = 500;
