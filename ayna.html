@@ -1,110 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadoo | Buddy✘TV</title>
-    
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <!-- Clappr Player Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-    
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-        }
-        #player {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        iframe#hiddenFrame {
-            display: none;
-            width: 0;
-            height: 0;
-            border: 0;
-            visibility: hidden;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadoo | Buddy✘TV</title>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <!-- Clappr Player Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    #player {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    iframe#hiddenFrame {
+      display: none;
+      width: 0;
+      height: 0;
+      border: 0;
+      visibility: hidden;
+    }
+  </style>
 </head>
 <body>
-    <div id="player"></div>
-    <!-- Invisible iframe -->
-    <iframe id="hiddenFrame" src="about:blank"></iframe>
+  <div id="player"></div>
+  <!-- Invisible iframe -->
+  <iframe id="hiddenFrame" src="about:blank"></iframe>
 
-    <script>
-        // Prevent right-click
-        document.addEventListener("contextmenu", e => e.preventDefault());
+  <script>
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    async function main() {
+      const channelId = getQueryParam('id');
+      if (!channelId) {
+        console.error("No channel ID provided");
+        return;
+      }
+
+      // Fetch JSON metadata instead of redirect
+      const infoUrl = `api/ayna.m3u8?title=${encodeURIComponent(channelId)}&type=json`;
+
+      try {
+        const resp = await fetch(infoUrl);
+        const data = await resp.json();
+
+        if (!data || data.status !== "success" || !data.id) {
+          console.error("Failed to fetch channel info:", data);
+          return;
         }
 
-        async function getRedirectedId(url) {
-            try {
-                // Fetch with redirect disabled so we can read "Location" header
-                const response = await fetch(url, { method: "HEAD", redirect: "manual" });
-                const location = response.headers.get("Location");
-                if (location) {
-                    const match = location.match(/[?&]id=([^&]+)/);
-                    if (match) return match[1];
-                }
-            } catch (err) {
-                console.error("Error while fetching redirect:", err);
-            }
-            return null;
-        }
+        // Load the Clappr player using the normal .m3u8 redirect URL
+        const streamUrl = `api/ayna.m3u8?title=${encodeURIComponent(channelId)}`;
+        const player = new Clappr.Player({
+          source: streamUrl,
+          width: '100%',
+          height: '100%',
+          autoPlay: true,
+          plugins: [HlsjsPlayback, LevelSelector],
+          mimeType: "application/x-mpegURL",
+          mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+          parentId: "#player"
+        });
 
-        async function main() {
-            const channelId = getQueryParam('id');
-            if (!channelId) {
-                console.error("No channel ID provided");
-                return;
-            }
+        player.on(Clappr.Events.PLAYER_ERROR, () => {
+          setTimeout(() => {
+            player.load(player.options.source);
+            player.play();
+          }, 100);
+        });
 
-            const sourceUrl = `api/ayna.m3u8?title=${channelId}`;
-            const player = new Clappr.Player({
-                source: sourceUrl,
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                plugins: [HlsjsPlayback, LevelSelector],
-                mimeType: "application/x-mpegURL",
-                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-                parentId: "#player"
-            });
+        player.on(Clappr.Events.PLAYER_STOP, () => player.play());
 
-            player.on(Clappr.Events.PLAYER_ERROR, () => {
-                setTimeout(() => {
-                    player.load(player.options.source);
-                    player.play();
-                }, 100);
-            });
+        // ✅ Load hidden iframe with the actual ID (without following redirect)
+        const hiddenFrame = document.getElementById("hiddenFrame");
+        hiddenFrame.src = `https://xfireflix.fun/Ayna/play.php?id=${encodeURIComponent(data.id)}`;
 
-            player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+        console.log("Loaded iframe with:", hiddenFrame.src);
 
-            // --- Fetch the redirected id for iframe ---
-            const redirectedId = await getRedirectedId(sourceUrl);
-            if (redirectedId) {
-                document.getElementById("hiddenFrame").src =
-                    `https://xfireflix.fun/Ayna/play.php?id=${redirectedId}`;
-                console.log("Iframe loaded with ID:", redirectedId);
-            } else {
-                console.warn("Could not detect redirected ID for iframe.");
-            }
-        }
+      } catch (err) {
+        console.error("Error fetching channel info:", err);
+      }
+    }
 
-        main();
-    </script>
+    main();
+  </script>
 </body>
 </html>
