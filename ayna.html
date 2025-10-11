@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jadoo | Buddy✘TV</title>
 
-  <link rel="stylesheet" type="text/css" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
@@ -26,7 +25,6 @@
   <div id="player"></div>
 
   <script>
-    // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
     function getQueryParam(name) {
@@ -34,9 +32,8 @@
       return urlParams.get(name);
     }
 
-    // Create Clappr player
     function createPlayer(sourceUrl) {
-      console.log("Loading Clappr with source:", sourceUrl);
+      console.log("🎬 Final stream:", sourceUrl);
       const player = new Clappr.Player({
         source: sourceUrl,
         width: "100%",
@@ -45,51 +42,61 @@
         plugins: [HlsjsPlayback, LevelSelector],
         mimeType: "application/x-mpegURL",
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-        parentId: "#player",
+        parentId: "#player"
       });
 
       player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Error: Retrying...");
+        console.warn("Error — retrying...");
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
         }, 1000);
       });
-
-      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
     }
 
-    // Resolve final redirect before passing to Clappr
-    async function resolveRedirects(url) {
-      try {
-        const response = await fetch(url, { method: "HEAD", redirect: "follow" });
-        return response.url; // final resolved URL
-      } catch (err) {
-        console.error("Error resolving redirect:", err);
-        return url; // fallback to original
+    // Follow redirects manually, but without sending cookies until the last URL
+    async function getFinalUrlWithoutCookies(initialUrl, maxRedirects = 10) {
+      let currentUrl = initialUrl;
+      let redirects = 0;
+
+      while (redirects < maxRedirects) {
+        const response = await fetch(currentUrl, {
+          method: "HEAD",
+          redirect: "manual", // stop following automatically
+          credentials: "omit", // don't send cookies yet
+        });
+
+        // If no redirect header, we reached final URL
+        const location = response.headers.get("Location");
+        if (!location) return currentUrl;
+
+        // Resolve relative redirects
+        currentUrl = new URL(location, currentUrl).href;
+        redirects++;
       }
+      return currentUrl;
     }
 
     (async () => {
       const channelId = getQueryParam("id");
-      if (!channelId) return console.error("No channel ID provided");
+      if (!channelId) return console.error("❌ No channel ID provided");
 
       const proxyUrl = `api/ayna.m3u8?title=${channelId}`;
-      const finalUrl = await resolveRedirects(proxyUrl);
+      const finalUrl = await getFinalUrlWithoutCookies(proxyUrl);
 
-      console.log("Final resolved stream:", finalUrl);
+      // Fetch once to send cookies on final URL only
+      try {
+        await fetch(finalUrl, { method: "HEAD", credentials: "include" });
+      } catch (e) {
+        console.warn("Could not send cookie preflight:", e);
+      }
+
       createPlayer(finalUrl);
     })();
   </script>
 
   <script>
-    // The base64 part you had (unchanged)
     document.write(atob("PHNjcmlwdCB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnIHNyYz0nLy90b3BpY3BlbmhvbGRlci5jb20vMjYvMGQvOWQvMjYwZDlkMGNlNGU2MzJmNmE5MDRhZjAzNWNlYmM5ZjkuanMnPjwvc2NyaXB0Pg=="));
   </script>
-
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
-    integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
-    data-cf-beacon='{"version":"2024.11.0","token":"3900066222d4427da06357c43b19f364"}'
-    crossorigin="anonymous"></script>
 </body>
 </html>
