@@ -32,66 +32,64 @@
       return urlParams.get(name);
     }
 
-    function createPlayer(sourceUrl) {
-      console.log("🎬 Final stream:", sourceUrl);
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        plugins: [HlsjsPlayback, LevelSelector],
-        mimeType: "application/x-mpegURL",
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-        parentId: "#player"
-      });
-
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Error — retrying...");
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 1000);
-      });
-    }
-
-    // Follow redirects manually, but without sending cookies until the last URL
-    async function getFinalUrlWithoutCookies(initialUrl, maxRedirects = 10) {
-      let currentUrl = initialUrl;
+    // Manually resolve redirects while sending cookies
+    async function resolveRedirectsWithCookies(url, maxRedirects = 10) {
+      let currentUrl = url;
       let redirects = 0;
 
       while (redirects < maxRedirects) {
         const response = await fetch(currentUrl, {
           method: "HEAD",
-          redirect: "manual", // stop following automatically
-          credentials: "omit", // don't send cookies yet
+          redirect: "manual",
+          credentials: "include", // ✅ send cookies on each redirect
         });
 
-        // If no redirect header, we reached final URL
         const location = response.headers.get("Location");
-        if (!location) return currentUrl;
+        if (!location) return currentUrl; // final URL reached
 
-        // Resolve relative redirects
         currentUrl = new URL(location, currentUrl).href;
         redirects++;
       }
       return currentUrl;
     }
 
+    async function createAndStartPlayer(channelId) {
+      const apiUrl = `api/ayna.m3u8?title=${channelId}`;
+      const finalUrl = await resolveRedirectsWithCookies(apiUrl);
+
+      console.log("🎬 Loading final stream:", finalUrl);
+
+      const player = new Clappr.Player({
+        source: finalUrl,
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        plugins: [HlsjsPlayback, LevelSelector],
+        mimeType: "application/x-mpegURL",
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+        parentId: "#player",
+      });
+
+      // 🧠 When stream fails, re-resolve the redirect (fresh)
+      player.on(Clappr.Events.PLAYER_ERROR, async () => {
+        console.warn("⚠️ Stream error — resolving again...");
+        try {
+          const newUrl = await resolveRedirectsWithCookies(apiUrl);
+          console.log("🔁 Reloading with new final URL:", newUrl);
+          player.load(newUrl);
+          player.play();
+        } catch (e) {
+          console.error("❌ Failed to re-resolve:", e);
+        }
+      });
+
+      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+    }
+
     (async () => {
       const channelId = getQueryParam("id");
       if (!channelId) return console.error("❌ No channel ID provided");
-
-      const proxyUrl = `api/ayna.m3u8?title=${channelId}`;
-      const finalUrl = await getFinalUrlWithoutCookies(proxyUrl);
-
-      // Fetch once to send cookies on final URL only
-      try {
-        await fetch(finalUrl, { method: "HEAD", credentials: "include" });
-      } catch (e) {
-        console.warn("Could not send cookie preflight:", e);
-      }
-
-      createPlayer(finalUrl);
+      createAndStartPlayer(channelId);
     })();
   </script>
 
