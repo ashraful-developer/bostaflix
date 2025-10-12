@@ -1,129 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>JW Player</title>
-  <meta name="referrer" content="no-referrer">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-  <!-- JW Player -->
-  <script src="//content.jwplatform.com/libraries/SAHhwvZq.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-    }
-    #player {
-      position: absolute;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    #UnMutePlayer {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      z-index: 9999;
-    }
-    .unmute-button {
-      width: 100px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      border: none;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    .unmute-button img {
-      width: 30px;
-      height: 30px;
-      margin-bottom: 5px;
-    }
-    .unmute-button span {
-      font-size: 14px;
-      color: #000;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="player"></div>
+    <div id="player"></div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id'); // ✅ page has ?id=
-
-      // Build the correct API URL
-      const apiUrl = `/api/ayna.m3u8?title=${encodeURIComponent(id || '')}`;
-
-      let streamUrl = "";
-
-      try {
-        const resp = await fetch(apiUrl);
-        streamUrl = (await resp.text()).trim();
-      } catch (err) {
-        console.warn("⚠️ API request failed, continuing anyway:", err);
-      }
-
-      // Fallback if API doesn’t respond properly
-      if (!streamUrl || !streamUrl.startsWith('http')) {
-        console.warn("⚠️ Invalid or empty stream URL, using fallback.");
-        streamUrl = "https://example.com/fallback.m3u8"; // optional fallback
-      }
-
-      // ✅ Always initialize JW Player (never show unavailable)
-      const player = jwplayer("player").setup({
-        file: streamUrl,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        mute: false,
-        stretching: "uniform",
-        controls: true,
-        aspectratio: "16:9",
-        logo: {
-          file: "https://yourdomain.com/logo.png",
-          position: "top-right"
-        },
-        skin: { name: "seven" },
-        playbackRateControls: true
-      });
-
-      // Optional autoplay helper
-      player.on('playAttemptFailed', showUnmuteButton);
-
-      // Ignore playback errors (don’t show anything)
-      player.on('error', e => {
-        console.warn("Player error (ignored):", e.message);
-      });
-
-      function showUnmuteButton() {
-        if (document.getElementById('UnMutePlayer')) return;
-        const btnContainer = document.createElement('div');
-        btnContainer.id = 'UnMutePlayer';
-        btnContainer.innerHTML = `
-          <button class="unmute-button" id="unmuteBtn">
-            <img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" alt="Unmute">
-            <span>Tap to Unmute</span>
-          </button>`;
-        document.body.appendChild(btnContainer);
-        document.getElementById('unmuteBtn').addEventListener('click', () => {
-          player.setMute(false);
-          player.play(true);
-          btnContainer.remove();
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
         });
-      }
-    });
-  </script>
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `api/ayna.m3u8?title=${channelId}`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
