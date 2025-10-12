@@ -35,48 +35,50 @@
     // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter (?id=...)
     function getQueryParam(name) {
       return new URLSearchParams(window.location.search).get(name);
     }
 
-    // Simple fetch with proxy (to bypass CORS)
+    // Proxy fetcher to bypass CORS
     async function fetchText(url) {
-      const proxied = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-      const res = await fetch(proxied);
-      if (!res.ok) throw new Error("Failed to fetch: " + url);
+      const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      const res = await fetch(proxy);
+      if (!res.ok) throw new Error("Failed to fetch " + url);
       return res.text();
     }
 
-    // Find Ayna channel stream
-    async function resolveAynaStream(title) {
-      // Step 1: Fetch grid
-      const gridHtml = await fetchText("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
-
-      // Step 2: Find channel ID by title
+    // Simulate ayna.m3u8
+    async function findChannelId(title) {
+      const html = await fetchText("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
       const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(
-        `<a[^>]+href=["']play\\.php\\?id=([^"']+)["'][^>]*>[\\s\\S]*?<h6[^>]*>${safeTitle}<\\/h6>`,
-        "i"
-      );
-      const match = gridHtml.match(regex);
-      if (!match) throw new Error("Channel not found for title: " + title);
+      const cardRegex = /<div class="channel-card[\s\S]*?<\/div>\s*<\/div>/gi;
+      const cards = html.match(cardRegex);
+      if (!cards) throw new Error("No channel cards found");
 
-      const id = match[1];
-
-      // Step 3: Fetch play page for that ID
-      const playHtml = await fetchText(`https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(id)}`);
-
-      // Step 4: Extract streamUrl
-      const streamMatch = playHtml.match(/streamUrl:\s*"(https:\/\/[^"]+)"/);
-      if (!streamMatch) throw new Error("streamUrl not found.");
-      return streamMatch[1];
+      for (const card of cards) {
+        const titleRegex = new RegExp(
+          `<h6[^>]*class=["']channel-name["'][^>]*>\\s*${safeTitle}\\s*<\\/h6>`,
+          "i"
+        );
+        if (titleRegex.test(card)) {
+          const idMatch = card.match(/href=["']play\\.php\\?id=([^"']+)["']/i);
+          if (idMatch) return idMatch[1];
+        }
+      }
+      throw new Error("Channel not found for title: " + title);
     }
 
-    // Initialize player
-    function createPlayer(sourceUrl) {
+    // Simulate ayna-proxy.m3u8
+    async function resolveStreamUrl(id) {
+      const html = await fetchText(`https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(id)}`);
+      const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+)"/);
+      if (!match) throw new Error("streamUrl not found");
+      return match[1]; // ✅ no domain rewriting
+    }
+
+    function createPlayer(url) {
       const player = new Clappr.Player({
-        source: sourceUrl,
+        source: url,
         parentId: "#player",
         autoPlay: true,
         plugins: [HlsjsPlayback, LevelSelector],
@@ -90,22 +92,22 @@
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
-        }, 100);
+        }, 200);
       });
 
       player.on(Clappr.Events.PLAYER_STOP, () => player.play());
     }
 
-    // Boot
     (async () => {
       const title = getQueryParam("id");
       if (!title) {
-        console.error("No ?id= parameter provided.");
+        console.error("Missing ?id parameter (should be the channel title)");
         return;
       }
 
       try {
-        const streamUrl = await resolveAynaStream(title);
+        const channelId = await findChannelId(title);
+        const streamUrl = await resolveStreamUrl(channelId);
         console.log("Resolved stream URL:", streamUrl);
         createPlayer(streamUrl);
       } catch (err) {
