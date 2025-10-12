@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
     // Replace domain if it matches tvsen6.aynascope.net
     streamUrl = streamUrl.replace(
-      "tvsen6.aynascope.net",
+      "tvsen6.bostascope.net",
       "ayna6-bostaflix.global.ssl.fastly.net"
     );
 
