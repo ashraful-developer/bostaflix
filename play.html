@@ -62,7 +62,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(window.location.search);
       const title = params.get('title');
-      const apiUrl = `/api/ayna.m3u8?id=${encodeURIComponent(title || '')}`;
+      const apiUrl = `/api/ayna.m3u8?title=${encodeURIComponent(title || '')}`;
 
       let streamUrl = "";
 
