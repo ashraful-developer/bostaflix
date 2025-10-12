@@ -61,82 +61,67 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(window.location.search);
-      const title = params.get('title');
+      const id = params.get('id'); // ✅ page has ?id=
 
-      if (!title) {
-        document.body.innerHTML = '<h3 style="color:white;text-align:center;margin-top:40vh;">❌ Missing ?title parameter.</h3>';
-        return;
-      }
+      // Build the correct API URL
+      const apiUrl = `/api/ayna.m3u8?title=${encodeURIComponent(id || '')}`;
 
-      const apiUrl = `/api/ayna.m3u8?id=${encodeURIComponent(title)}`; // uses ?title=
-
-      // show a small "loading..." only if it takes too long
-      const timeout = setTimeout(() => {
-        const msg = document.createElement('h3');
-        msg.id = 'loadingText';
-        msg.style.color = 'white';
-        msg.style.textAlign = 'center';
-        msg.style.marginTop = '40vh';
-        msg.innerText = '⏳ Loading stream...';
-        document.body.appendChild(msg);
-      }, 1200);
+      let streamUrl = "";
 
       try {
         const resp = await fetch(apiUrl);
-        clearTimeout(timeout);
-        document.getElementById('loadingText')?.remove();
-
-        const streamUrl = (await resp.text()).trim();
-        if (!streamUrl.startsWith('http')) throw new Error('Invalid stream');
-
-        // setup player
-        const player = jwplayer("player").setup({
-          file: streamUrl,
-          width: "100%",
-          height: "100%",
-          autostart: true,
-          mute: false,
-          stretching: "uniform",
-          controls: true,
-          aspectratio: "16:9",
-          logo: {
-            file: "https://yourdomain.com/logo.png",
-            position: "top-right"
-          },
-          skin: { name: "seven" },
-          playbackRateControls: true
-        });
-
-        // If autoplay fails, show unmute button
-        player.on('playAttemptFailed', showUnmuteButton);
-
-        // Only show real error if JW Player itself fails
-        player.on('error', e => {
-          console.error("JW Player error:", e.message);
-          document.body.innerHTML = '<h3 style="color:white;text-align:center;margin-top:40vh;">⚠️ Video playback failed.</h3>';
-        });
-
-        function showUnmuteButton() {
-          if (document.getElementById('UnMutePlayer')) return;
-          const btnContainer = document.createElement('div');
-          btnContainer.id = 'UnMutePlayer';
-          btnContainer.innerHTML = `
-            <button class="unmute-button" id="unmuteBtn">
-              <img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" alt="Unmute">
-              <span>Tap to Unmute</span>
-            </button>`;
-          document.body.appendChild(btnContainer);
-          document.getElementById('unmuteBtn').addEventListener('click', () => {
-            player.setMute(false);
-            player.play(true);
-            btnContainer.remove();
-          });
-        }
-
+        streamUrl = (await resp.text()).trim();
       } catch (err) {
-        console.error("Error loading stream:", err);
-        clearTimeout(timeout);
-        document.body.innerHTML = '<h3 style="color:white;text-align:center;margin-top:40vh;">⚠️ Stream unavailable.</h3>';
+        console.warn("⚠️ API request failed, continuing anyway:", err);
+      }
+
+      // Fallback if API doesn’t respond properly
+      if (!streamUrl || !streamUrl.startsWith('http')) {
+        console.warn("⚠️ Invalid or empty stream URL, using fallback.");
+        streamUrl = "https://example.com/fallback.m3u8"; // optional fallback
+      }
+
+      // ✅ Always initialize JW Player (never show unavailable)
+      const player = jwplayer("player").setup({
+        file: streamUrl,
+        width: "100%",
+        height: "100%",
+        autostart: true,
+        mute: false,
+        stretching: "uniform",
+        controls: true,
+        aspectratio: "16:9",
+        logo: {
+          file: "https://yourdomain.com/logo.png",
+          position: "top-right"
+        },
+        skin: { name: "seven" },
+        playbackRateControls: true
+      });
+
+      // Optional autoplay helper
+      player.on('playAttemptFailed', showUnmuteButton);
+
+      // Ignore playback errors (don’t show anything)
+      player.on('error', e => {
+        console.warn("Player error (ignored):", e.message);
+      });
+
+      function showUnmuteButton() {
+        if (document.getElementById('UnMutePlayer')) return;
+        const btnContainer = document.createElement('div');
+        btnContainer.id = 'UnMutePlayer';
+        btnContainer.innerHTML = `
+          <button class="unmute-button" id="unmuteBtn">
+            <img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" alt="Unmute">
+            <span>Tap to Unmute</span>
+          </button>`;
+        document.body.appendChild(btnContainer);
+        document.getElementById('unmuteBtn').addEventListener('click', () => {
+          player.setMute(false);
+          player.play(true);
+          btnContainer.remove();
+        });
       }
     });
   </script>
