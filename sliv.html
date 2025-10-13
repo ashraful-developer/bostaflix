@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Bostafull Player | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Clappr Player Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
@@ -41,23 +41,9 @@
     // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter (?id= or ?q= etc.)
+    // Get query parameter (?id=)
     function getQueryParam(name) {
       return new URLSearchParams(window.location.search).get(name);
-    }
-
-    // Normalize URL from JSON (remove accidental backslashes, whitespace)
-    function normalizeUrl(raw) {
-      if (!raw) return raw;
-      // If JSON contains escaped slashes they will already be unescaped by JSON.parse,
-      // but this ensures we remove stray backslashes and trim spaces.
-      let u = String(raw).replace(/\\+/g, '');
-      u = u.trim();
-      // If protocol missing, assume https
-      if (!/^https?:\/\//i.test(u)) {
-        u = 'https://' + u.replace(/^\/+/, '');
-      }
-      return u;
     }
 
     // Create Clappr player
@@ -67,7 +53,8 @@
         return;
       }
 
-      console.info('Creating player with source:', sourceUrl);
+      console.log("Playing:", sourceUrl);
+
       const player = new Clappr.Player({
         source: sourceUrl,
         parentId: "#player",
@@ -82,14 +69,10 @@
 
       // Auto-recover on error
       player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("PLAYER_ERROR detected — attempting reload...");
+        console.warn("Error detected, reloading stream...");
         setTimeout(() => {
-          try {
-            player.load(player.options.source);
-            player.play();
-          } catch (e) {
-            console.error("Reload failed:", e);
-          }
+          player.load(player.options.source);
+          player.play();
         }, 1000);
       });
 
@@ -97,7 +80,7 @@
       player.on(Clappr.Events.PLAYER_STOP, () => player.play());
     }
 
-    const requestedId = getQueryParam('id') || getQueryParam('q') || getQueryParam('channel');
+    const requestedId = getQueryParam('id');
 
     if (!requestedId) {
       document.body.innerHTML = "<h2>NO CHANNEL SELECTED</h2>";
@@ -105,49 +88,25 @@
       fetch('https://bostacdn.global.ssl.fastly.net/sliv1/api.php')
         .then(res => res.json())
         .then(data => {
-          // Support both structures: { data: { list: [...] } } and { list: [...] }
-          const list = (data && data.data && Array.isArray(data.data.list)) ? data.data.list
-                      : (Array.isArray(data.list) ? data.list : []);
+          const list = data?.data?.list || data?.list || [];
+          const upperId = requestedId.toUpperCase();
 
-          const upperId = String(requestedId).toUpperCase();
+          // Match by uppercase ID or TITLE
+          const match = list.find(item =>
+            (item.id && String(item.id).toUpperCase() === upperId) ||
+            (item.title && item.title.toUpperCase() === upperId)
+          );
 
-          // Find by ID or TITLE (both compared uppercase)
-          const match = list.find(item => {
-            if (!item) return false;
-            const idStr = item.id !== undefined && item.id !== null ? String(item.id).toUpperCase() : '';
-            const titleStr = item.title ? String(item.title).toUpperCase() : '';
-            return idStr === upperId || titleStr === upperId;
-          });
-
-          if (!match) {
-            document.body.innerHTML = `<h2>CHANNEL WITH ID/TITLE "${requestedId}" NOT FOUND</h2>`;
-            return;
-          }
-
-          // Use the url provided in the JSON first (normalized). If missing, fallback to constructed URL.
-          let streamUrl = null;
-          if (match.url) {
-            streamUrl = normalizeUrl(match.url);
-            console.info('Using URL from JSON:', streamUrl);
-          } else if (match.stream) {
-            // sometimes feeds use other keys
-            streamUrl = normalizeUrl(match.stream);
-            console.info('Using "stream" from JSON:', streamUrl);
-          } else if (match.id) {
-            // fallback to previously used bostacdn pattern (only if JSON url missing)
-            streamUrl = `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${encodeURIComponent(match.id)}&e=.m3u8`;
-            console.info('Using constructed fallback URL:', streamUrl);
-          }
-
-          // Final check and create player
-          if (streamUrl) {
+          if (match) {
+            // Ignore JSON url (fake), use real backend
+            const streamUrl = `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${match.id}&e=.m3u8`;
             createPlayer(streamUrl);
           } else {
-            document.body.innerHTML = "<h2>NO STREAM URL FOUND FOR THIS CHANNEL</h2>";
+            document.body.innerHTML = `<h2>CHANNEL WITH ID/TITLE "${requestedId}" NOT FOUND</h2>`;
           }
         })
         .catch(err => {
-          console.error('Failed to load channel list:', err);
+          console.error("Failed to load channel list:", err);
           document.body.innerHTML = "<h2>ERROR LOADING CHANNEL LIST</h2>";
         });
     }
