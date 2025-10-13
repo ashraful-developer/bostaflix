@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
     <title>Jadoo | Buddy✘TV</title>
-    
+
     <!-- Clappr Player Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
@@ -33,7 +33,6 @@
     <div id="player"></div>
 
     <script>
-        // Prevent right-click
         document.addEventListener("contextmenu", e => e.preventDefault());
 
         function getQueryParam(name) {
@@ -53,51 +52,64 @@
                 parentId: "#player"
             });
 
-            // Auto-retry on error
             player.on(Clappr.Events.PLAYER_ERROR, () => {
                 setTimeout(() => {
                     player.load(player.options.source);
                     player.play();
-                }, 100);
+                }, 200);
             });
 
-            // Resume on stop
-            player.on(Clappr.Events.PLAYER_STOP, () => {
-                player.play();
-            });
+            player.on(Clappr.Events.PLAYER_STOP, () => player.play());
         }
 
-        // Get the "id" query param (which actually contains the title)
-        const titleFromId = getQueryParam('id');
+        async function fetchStreamUrl(realId) {
+            const url = `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(realId)}`;
+            const res = await fetch(url);
+            const html = await res.text();
 
-        if (titleFromId) {
-            fetch('/ayna-proxy.json')
-                .then(res => res.json())
-                .then(data => {
-                    const list = data.data?.list || [];
-                    const found = list.find(
-                        ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
-                    );
+            // Try to match "streamUrl: 'https://...m3u8'" or direct .m3u8 URL in HTML
+            let match = html.match(/streamUrl:\s*"(https:\/\/[^"]+\.m3u8[^"]*)"/)
+                      || html.match(/"(https:\/\/[^"]+\.m3u8[^"]*)"/);
 
-                    if (found && found.id) {
-                        const sourceUrl = `ayna-proxy.m3u8?id=${encodeURIComponent(found.id)}`;
-                        createPlayer(sourceUrl);
-                    } else {
-                        console.error('Channel not found in ayna-proxy.json');
-                        document.body.innerHTML =
-                            "<h2 style='color:white;text-align:center;margin-top:20%'>Channel not found.</h2>";
-                    }
-                })
-                .catch(err => {
-                    console.error('Error fetching ayna-proxy.json:', err);
-                    document.body.innerHTML =
-                        "<h2 style='color:white;text-align:center;margin-top:20%'>Error loading channel list.</h2>";
-                });
-        } else {
-            console.error('No id parameter found');
-            document.body.innerHTML =
-                "<h2 style='color:white;text-align:center;margin-top:20%'>No channel ID provided.</h2>";
+            return match ? match[1] : null;
         }
+
+        async function init() {
+            const titleFromId = getQueryParam('id');
+            if (!titleFromId) {
+                document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No channel ID provided.</h2>";
+                return;
+            }
+
+            try {
+                const response = await fetch('/ayna-proxy.json');
+                const data = await response.json();
+                const list = data.data?.list || [];
+                const found = list.find(
+                    ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
+                );
+
+                if (!found || !found.id) {
+                    document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>Channel not found.</h2>";
+                    return;
+                }
+
+                const realStreamUrl = await fetchStreamUrl(found.id);
+
+                if (realStreamUrl) {
+                    createPlayer(realStreamUrl);
+                } else {
+                    document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>Unable to find stream URL.</h2>";
+                    console.error("No .m3u8 URL found in play.php");
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>Error loading stream.</h2>";
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
