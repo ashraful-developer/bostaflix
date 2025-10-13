@@ -80,7 +80,7 @@
                     const found = list.find(ch => ch.title.trim().toLowerCase() === title.trim().toLowerCase());
                     
                     if (found && found.id) {
-                        const sourceUrl = `ayna-proxy.m3u8?id=${encodeURIComponent(found.id)}`;
+                        const sourceUrl = `api/ayna-proxy.m3u8?id=${encodeURIComponent(found.id)}`;
                         createPlayer(sourceUrl);
                     } else {
                         console.error('Channel not found in ayna-proxy.json');
