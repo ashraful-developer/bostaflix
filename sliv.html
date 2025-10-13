@@ -30,6 +30,7 @@
       color: white;
       text-align: center;
       margin-top: 20%;
+      font-family: sans-serif;
     }
   </style>
 </head>
@@ -40,12 +41,12 @@
     // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter (id)
+    // Get query parameter (?id=)
     function getQueryParam(name) {
       return new URLSearchParams(window.location.search).get(name);
     }
 
-    // Clappr setup
+    // Create Clappr player
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -56,11 +57,12 @@
         mute: false,
         mimeType: "application/x-mpegURL",
         plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
       });
 
       // Auto-recover on error
       player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Error detected, reloading stream...");
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
@@ -72,27 +74,36 @@
     }
 
     const requestedId = getQueryParam('id');
-
     if (requestedId) {
-      fetch('https://bostacdn.global.ssl.fastly.net/sliv1/api.php') // JSON endpoint
+      fetch('https://bostacdn.global.ssl.fastly.net/sliv1/api.php')
         .then(res => res.json())
         .then(data => {
-          const channels = data.list || [];
-          const match = channels.find(item => item.id === requestedId);
+          const list = data?.data?.list || data?.list || [];
+          const upperId = requestedId.toUpperCase();
+
+          // Match by uppercase ID or TITLE (for flexibility)
+          const match = list.find(item => 
+            (item.id && item.id.toString().toUpperCase() === upperId) ||
+            (item.title && item.title.toUpperCase() === upperId)
+          );
 
           if (match) {
-            const streamUrl = `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${match.id}&e=.m3u8`;
+            // Prefer "url" field if available, else construct fallback
+            const streamUrl = match.url 
+              ? match.url 
+              : `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${match.id}&e=.m3u8`;
+
             createPlayer(streamUrl);
           } else {
-            document.body.innerHTML = `<h2>Channel with ID "${requestedId}" not found</h2>`;
+            document.body.innerHTML = `<h2>CHANNEL WITH ID "${requestedId}" NOT FOUND</h2>`;
           }
         })
         .catch(err => {
-          console.error('Failed to load channel list:', err);
-          document.body.innerHTML = "<h2>Error loading channel list</h2>";
+          console.error("Failed to load channel list:", err);
+          document.body.innerHTML = "<h2>ERROR LOADING CHANNEL LIST</h2>";
         });
     } else {
-      document.body.innerHTML = "<h2>No Channel Selected</h2>";
+      document.body.innerHTML = "<h2>NO CHANNEL SELECTED</h2>";
     }
   </script>
 </body>
