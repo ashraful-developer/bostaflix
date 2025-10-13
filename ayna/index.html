@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      background-color: #121212;
+      margin: 0;
+      padding: 0;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      scroll-behavior: smooth;
+    }
+    header {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .logo {
+      color: #ff3c3c;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links a {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+    .nav-links a:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+    }
+    .iframe-container {
+      aspect-ratio: 16/9;
+      position: relative;
+      margin: 20px auto;
+      max-width: 100%;
+      color: black;
+    }
+    iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .logos-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 15px;
+      margin: 20px auto;
+    }
+    .logos-container img {
+      width: 100px;
+      height: 75px;
+      object-fit: contain;
+      aspect-ratio: 4/3;
+      padding: 6px;
+      border: 1px solid #ff3c3c;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s;
+      background-color: #4d4d4d;
+      background-image: linear-gradient(white, white);
+      background-size: 100% 70%;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .logos-container img:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(255,60,60,0.5);
+    }
+    @media (max-width:720px){ .nav-links{display:none} }
+    @media (max-width:400px){ .logos-container img{width:80px;height:60px} }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <div class="iframe-container">
+    <iframe id="videoFrame" allowfullscreen></iframe>
+  </div>
+
+  <div class="logos-container" id="logosContainer">
+    <!-- Dynamic JSON content goes here -->
+  </div>
+
+  <script>
+    const jsonURL = "https://bostaflix.vercel.app/ayna-proxy.json"; 
+    // 👆 Replace this with your real JSON endpoint
+
+    async function loadChannels() {
+      try {
+        const response = await fetch(jsonURL);
+        const data = await response.json();
+        const channels = data.data.list;
+        const container = document.getElementById("logosContainer");
+        container.innerHTML = "";
+
+        channels.forEach(ch => {
+          const img = document.createElement("img");
+          img.src = ch.logo;
+          img.alt = ch.title;
+          img.title = ch.title;
+          img.setAttribute("data-category", ch.category);
+          img.onclick = () => loadIframe(`https://bostaflix.vercel.app/ayna.html?id=${encodeURIComponent(ch.title)}`);
+          container.appendChild(img);
+        });
+      } catch (err) {
+        console.error("Error loading JSON:", err);
+      }
+    }
+
+    function loadIframe(url) {
+      document.getElementById("videoFrame").src = url;
+      document.querySelector("header").scrollIntoView({behavior:"smooth"});
+    }
+
+    // load channel by ?id=Title
+    function getQueryParam(param) {
+      return new URLSearchParams(window.location.search).get(param);
+    }
+
+    window.onload = async function() {
+      await loadChannels();
+      const qid = getQueryParam("id");
+      if (qid) loadIframe(`ayna.html?id=${encodeURIComponent(qid)}`);
+    };
+  </script>
+
+  <footer style="color:white; background-color:rgba(0,0,0,0.5); padding:10px; text-align:center;">
+    &copy; Bostafull Live by Syed Ashraful Islam Mahbeer.  
+    Embedded content collected from the internet.  
+    Wait up to 1 min to load; if not, change server.
+  </footer>
+</body>
+</html>
