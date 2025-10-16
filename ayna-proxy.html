@@ -4,13 +4,9 @@
   <meta charset="UTF-8">
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Clappr Player Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -34,20 +30,15 @@
 
   <script>
     // Disable right-click
-    document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter
+    // Get query parameter (?id=Title)
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    // Extract domain like "tvsen6" from m3u8 URL
-    function extractDomain(m3u8Url) {
-      const match = m3u8Url.match(/https:\/\/(tvsen\d+)\.ayna(?:scope|ott)\.net/i);
-      return match ? match[1] : null;
-    }
-
+    // Initialize player
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -60,43 +51,39 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error — retrying...");
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
-        }, 100);
-      });
-
-      player.on(Clappr.Events.PLAYER_STOP, function () {
-        player.play();
+        }, 500);
       });
     }
 
-    const requestedTitle = getQueryParam('id');
+    const requestedTitle = getQueryParam("id");
 
     if (requestedTitle) {
-      fetch('ayna-proxy.json')
+      fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
-          const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (match && match.id && match.m3u8) {
-            const domain = extractDomain(match.m3u8);
-            if (domain) {
-              const realStreamUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${match.id}&format=.m3u8`;
-              createPlayer(realStreamUrl);
-            } else {
-              alert("Invalid m3u8 domain format in JSON.");
-            }
+          // Adjust depending on your JSON structure
+          const list = json.data?.list || [];
+          const match = list.find(
+            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
+          );
+
+          if (match && match.id) {
+            const streamUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${match.id}&format=.m3u8`;
+            createPlayer(streamUrl);
           } else {
-            alert(`Channel "${requestedTitle}" not found or missing fields.`);
+            alert(`Channel "${requestedTitle}" not found in list.`);
           }
         })
         .catch(err => {
-          console.error('Failed to load channel list:', err);
-          alert("Could not load channel list.");
+          console.error("Failed to load channel list:", err);
+          alert("Error loading channel list.");
         });
     } else {
-      console.error("No 'id' parameter in URL.");
       alert("Missing 'id' parameter in URL.");
     }
   </script>
