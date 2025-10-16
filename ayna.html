@@ -1,171 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>Jadoo | Buddy✘TV</title>
+<script>
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-    <!-- Clappr Player Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
 
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        #player {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        #loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 10;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ff0000;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 12px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-</head>
-<body>
-    <div id="player"></div>
-    <div id="loading">
-        <div class="spinner"></div>
-        <div>Loading stream...</div>
-    </div>
+    function hideLoading() {
+        const loader = document.getElementById("loading");
+        if (loader) loader.style.display = "none";
+    }
 
-    <script>
-        document.addEventListener("contextmenu", e => e.preventDefault());
+    function showError(msg) {
+        const loader = document.getElementById("loading");
+        loader.innerHTML = `<div style="color:#f44;text-align:center">${msg}</div>`;
+    }
 
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
+    function createPlayer(sourceUrl, backupUrl = null) {
+        hideLoading();
 
-        function hideLoading() {
-            const loader = document.getElementById("loading");
-            if (loader) loader.style.display = "none";
-        }
+        const player = new Clappr.Player({
+            source: sourceUrl,
+            width: '100%',
+            height: '100%',
+            autoPlay: true,
+            plugins: [HlsjsPlayback, LevelSelector],
+            mimeType: "application/x-mpegURL",
+            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+            parentId: "#player"
+        });
 
-        function showError(msg) {
-            const loader = document.getElementById("loading");
-            loader.innerHTML = `<div style="color:#f44;text-align:center">${msg}</div>`;
-        }
-
-        function createPlayer(sourceUrl) {
-            hideLoading();
-
-            const player = new Clappr.Player({
-                source: sourceUrl,
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                plugins: [HlsjsPlayback, LevelSelector],
-                mimeType: "application/x-mpegURL",
-                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-                parentId: "#player"
-            });
-
-            // Auto-retry on error
-            player.on(Clappr.Events.PLAYER_ERROR, () => {
-                console.warn("Player error – retrying...");
-                setTimeout(() => {
-                    player.load(player.options.source);
-                    player.play();
-                }, 500);
-            });
-
-            // Resume on stop
-            player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-        }
-
-        async function fetchStreamUrl(realId, attempts = 3) {
-            const url = `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(realId)}`;
-            for (let i = 0; i < attempts; i++) {
-                try {
-                    const res = await fetch(url);
-                    const html = await res.text();
-
-                    // Match streamUrl: "https://...m3u8" OR any .m3u8 in page
-                    const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+\.m3u8[^"]*)"/)
-                               || html.match(/"(https:\/\/[^"]+\.m3u8[^"]*)"/);
-
-                    if (match) return match[1];
-                } catch (err) {
-                    console.error("Fetch error:", err);
-                }
-                // Wait before retry
-                await new Promise(r => setTimeout(r, 1000));
+        // Retry logic on player error
+        player.on(Clappr.Events.PLAYER_ERROR, () => {
+            console.warn("Player error detected!");
+            if (backupUrl && player.options.source !== backupUrl) {
+                console.log("Switching to backup stream...");
+                player.load(backupUrl);
+                player.play();
+            } else {
+                showError("Stream failed. Please try again later.");
             }
-            return null;
+        });
+
+        // Resume on stop
+        player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+    }
+
+    async function fetchStreamUrl(realId, attempts = 3) {
+        const url = `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(realId)}`;
+        for (let i = 0; i < attempts; i++) {
+            try {
+                const res = await fetch(url);
+                const html = await res.text();
+
+                const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+\.m3u8[^"]*)"/)
+                           || html.match(/"(https:\/\/[^"]+\.m3u8[^"]*)"/);
+
+                if (match) return match[1];
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        return null;
+    }
+
+    async function testStream(url) {
+        try {
+            const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+            // If fetch doesn’t throw, consider it valid
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    async function init() {
+        const titleFromId = getQueryParam('id');
+        if (!titleFromId) {
+            showError("No channel ID provided.");
+            return;
         }
 
-        async function init() {
-            const titleFromId = getQueryParam('id');
-            if (!titleFromId) {
-                showError("No channel ID provided.");
+        try {
+            const response = await fetch('/ayna-proxy.json');
+            const data = await response.json();
+            const list = data.data?.list || [];
+            const found = list.find(
+                ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
+            );
+
+            if (!found || !found.id) {
+                showError("Channel not found.");
                 return;
             }
 
-            try {
-                const response = await fetch('/ayna-proxy.json');
-                const data = await response.json();
-                const list = data.data?.list || [];
-                const found = list.find(
-                    ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
-                );
+            const backupUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${encodeURIComponent(found.id)}&format=.m3u8`;
 
-                if (!found || !found.id) {
-                    showError("Channel not found.");
+            // Try fetching main stream
+            const realStreamUrl = await fetchStreamUrl(found.id);
+
+            if (realStreamUrl) {
+                const valid = await testStream(realStreamUrl);
+                if (valid) {
+                    createPlayer(realStreamUrl, backupUrl);
                     return;
-                }
-
-                const realStreamUrl = await fetchStreamUrl(found.id);
-
-                if (realStreamUrl) {
-                    createPlayer(realStreamUrl);
                 } else {
-                    showError("Stream unavailable. Try again later.");
-                    console.error("No .m3u8 found in play.php response.");
+                    console.warn("Primary m3u8 failed HEAD test. Switching to backup...");
                 }
-
-            } catch (err) {
-                console.error(err);
-                showError("Error loading channel data.");
+            } else {
+                console.warn("Primary stream URL not found.");
             }
-        }
 
-        init();
-    </script>
-</body>
-</html>
+            // Use backup if main stream invalid
+            createPlayer(backupUrl);
+
+        } catch (err) {
+            console.error(err);
+            showError("Error loading channel data.");
+        }
+    }
+
+    init();
+</script>
