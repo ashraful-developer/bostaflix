@@ -8,26 +8,28 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Target URL
-    const targetUrl = `https://bongoflixbd.top/apis/live.php?id=${encodeURIComponent(id)}`;
+    // Construct the API URL that gives the m3u8 JSON
+    const apiUrl = `https://bongoflixbd.top/apis/live.php?id=${encodeURIComponent(id)}`;
 
-    // Simulate request from a PC (desktop browser)
-    const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36";
-
-    const response = await fetch(targetUrl, {
+    // Fetch the JSON from the API
+    const response = await fetch(apiUrl, {
       headers: {
-        "User-Agent": desktopUA,
-        "Accept": "*/*",
-        "Accept-Language": "en-US,en;q=0.9",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://bongoflixbd.top/"
       }
     });
 
-    // Forward content type
-    const contentType = response.headers.get("content-type") || "text/plain";
-    res.setHeader("Content-Type", contentType);
+    const data = await response.json();
 
-    const body = await response.text();
-    res.status(response.status).send(body);
+    if (!data.url) {
+      res.status(404).json({ error: "No stream URL found" });
+      return;
+    }
+
+    // Redirect the client to the actual m3u8 URL
+    res.writeHead(302, { Location: data.url });
+    res.end();
 
   } catch (err) {
     console.error(err);
