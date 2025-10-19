@@ -111,7 +111,7 @@ function createPlayer(sourceUrl, backupUrl = null) {
 }
 
 async function getStreamFromAPI(streamId) {
-  const apiUrl = `https://bongoflixbd.top/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(streamId)}`;
+  const apiUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(streamId)}`;
   try {
     const res = await fetch(apiUrl);
     const json = await res.json();
