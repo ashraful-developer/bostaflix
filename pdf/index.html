@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PDF Index | BOSTAFLIX</title>
+  <script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
   <style>
     body {
       background-color: #121212;
@@ -97,6 +98,24 @@
       background-color: #0056b3;
     }
 
+    /* Admin panel */
+    #admin-panel {
+      max-width: 600px;
+      margin: 1.5rem auto;
+      background: #111;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    #admin-panel h2 { margin-top: 0; color: #ffd; }
+    .form-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    .form-row input[type="password"]{
+      flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0e0e0e; color:#fff;
+    }
+    .admin-actions { margin-top: 1rem; display:flex; gap:8px; }
+    .small { font-size:0.85rem; color:#bbb; margin-top:6px; }
+
     @media (max-width: 768px) {
       .nav-links { display: none; }
     }
@@ -143,6 +162,131 @@
     <button onclick="window.location.href='https://bostaflix.vercel.app/pdf/Islam.pdf'">View PDF</button>
   </div>
 </div>
+
+<!-- Simple insecure admin panel (hardcoded password) -->
+<div id="admin-panel">
+  <h2>Admin Panel (insecure)</h2>
+  <div class="form-row">
+    <label for="admin-pass" class="small">Password</label>
+    <input id="admin-pass" type="password" placeholder="Enter admin password"/>
+    <button id="login-btn">Login</button>
+  </div>
+
+  <div id="admin-area" style="display:none;">
+    <div class="small">Logged in as <strong>admin</strong>. You can add quick links below (client-side only).</div>
+
+    <div style="margin-top:10px;">
+      <input id="new-title" placeholder="PDF Title" style="padding:8px;border-radius:6px;border:1px solid #333;background:#0e0e0e;color:#fff;width:60%;" />
+      <input id="new-url" placeholder="PDF URL" style="padding:8px;border-radius:6px;border:1px solid #333;background:#0e0e0e;color:#fff;width:30%;" />
+      <button id="add-btn">Add</button>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button id="logout-btn">Logout</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /****************************************************************
+   * Hardcoded password (insecure)
+   * Change this value to whatever password you want.
+   ****************************************************************/
+  const HARDCODED_ADMIN_PASSWORD = 'DevBosta123'; // <-- hardcoded (insecure)
+
+  // Simple show/hide of admin panel via a keyboard shortcut:
+  // Press Ctrl + Alt + A to toggle the admin login panel visibility.
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A')) {
+      const panel = document.getElementById('admin-panel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      // clear fields when opening
+      document.getElementById('admin-pass').value = '';
+      document.getElementById('admin-area').style.display = 'none';
+    }
+  });
+
+  // login logic (client-side)
+  document.getElementById('login-btn').addEventListener('click', function(){
+    const v = document.getElementById('admin-pass').value;
+    if (v === HARDCODED_ADMIN_PASSWORD) {
+      document.getElementById('admin-area').style.display = 'block';
+      alert('Welcome, admin (client-side only).');
+    } else {
+      alert('Wrong password.');
+    }
+  });
+
+  // logout
+  document.getElementById('logout-btn').addEventListener('click', function(){
+    document.getElementById('admin-area').style.display = 'none';
+    document.getElementById('admin-pass').value = '';
+  });
+
+  // add new PDF (client-side only, not persisted)
+  document.getElementById('add-btn').addEventListener('click', function(){
+    const title = document.getElementById('new-title').value.trim();
+    const url = document.getElementById('new-url').value.trim();
+    if (!title || !url) { alert('Fill title and URL'); return; }
+
+    const list = document.getElementById('pdf-list');
+    const item = document.createElement('div');
+    item.className = 'pdf-item';
+    item.innerHTML = '<div class="pdf-title">' + escapeHtml(title) + '</div>'
+      + '<button onclick="window.location.href=\'' + encodeURI(url) + '\'">View PDF</button>';
+    list.appendChild(item);
+
+    // clear fields
+    document.getElementById('new-title').value = '';
+    document.getElementById('new-url').value = '';
+  });
+
+  // small helper to escape HTML
+  function escapeHtml(str) {
+    return str.replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+  }
+
+  /****************************************************************
+   * Basic DevTools deterrents (not foolproof)
+   * - Blocks context menu
+   * - Blocks common key combos for devtools / view-source
+   * - Attempts to detect DevTools open via timing and debugger traps
+   ****************************************************************/
+  (function disableDevtools() {
+    // disable right click
+    window.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+    // disable some keys: F12, Ctrl+Shift+I/C/J, Ctrl+U, Ctrl+Shift+U
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'F12') e.preventDefault();
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j')) e.preventDefault();
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) e.preventDefault();
+      if (e.ctrlKey && e.key === 'S') { /* allow save? */ }
+    });
+
+    // Periodic simple detection using function toString length trick
+    // This is a common snippet; not reliable but may annoy casual snoopers.
+    const threshold = 160;
+    setInterval(function(){
+      const start = new Date();
+      // try to detect if devtools opened by measuring execution delay
+      debugger; // this will pause in devtools if opened
+      const delta = new Date() - start;
+      if (delta > 100) {
+        // if devtools opened, hide admin panel
+        const panel = document.getElementById('admin-panel');
+        if (panel) panel.style.display = 'none';
+      }
+    }, 2000);
+
+    // OPTIONAL: If you have/host a dedicated devtools-blocker script on GitHub,
+    // you can include it via jsDelivr like below (replace USER/REPO/PATH):
+    // var s = document.createElement('script');
+    // s.src = 'https://cdn.jsdelivr.net/gh/USER/REPO/path/to/disable-devtools.js';
+    // document.head.appendChild(s);
+  })();
+</script>
 
 </body>
 </html>
