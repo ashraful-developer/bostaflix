@@ -64,129 +64,123 @@
         <div>Loading stream...</div>
     </div>
 <script>
-    document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("contextmenu", e => e.preventDefault());
 
-    function getQueryParam(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+function hideLoading() {
+  const loader = document.getElementById("loading");
+  if (loader) loader.style.display = "none";
+}
+
+function showError(msg) {
+  const loader = document.getElementById("loading");
+  loader.innerHTML = `<div style="color:#f44;text-align:center">${msg}</div>`;
+}
+
+function createPlayer(sourceUrl, backupUrl = null) {
+  hideLoading();
+
+  const player = new Clappr.Player({
+    source: sourceUrl,
+    width: '100%',
+    height: '100%',
+    autoPlay: true,
+    plugins: [HlsjsPlayback, LevelSelector],
+    mimeType: "application/x-mpegURL",
+    mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
+    parentId: "#player"
+  });
+
+  // Retry logic
+  player.on(Clappr.Events.PLAYER_ERROR, () => {
+    console.warn("Player error detected!");
+    if (backupUrl && player.options.source !== backupUrl) {
+      console.log("Switching to backup stream...");
+      player.load(backupUrl);
+      player.play();
+    } else {
+      showError("Stream failed. Please try again later.");
+    }
+  });
+
+  player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+}
+
+async function getStreamFromAPI(streamId) {
+  const apiUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(streamId)}`;
+  try {
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+    if (json.status === "success" && json.data?.url) {
+      return json.data.url;
+    }
+  } catch (err) {
+    console.error("API fetch error:", err);
+  }
+  return null;
+}
+
+async function testStream(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+    return true; // if fetch doesn’t throw, assume valid
+  } catch {
+    return false;
+  }
+}
+
+async function init() {
+  const titleFromId = getQueryParam('id');
+  if (!titleFromId) {
+    showError("No channel ID provided.");
+    return;
+  }
+
+  try {
+    const response = await fetch('/ayna-proxy.json');
+    const data = await response.json();
+    const list = data.data?.list || [];
+    const found = list.find(
+      ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
+    );
+
+    if (!found || !found.id) {
+      showError("Channel not found.");
+      return;
     }
 
-    function hideLoading() {
-        const loader = document.getElementById("loading");
-        if (loader) loader.style.display = "none";
+    const streamId = found.id; // this is the one used in bongoflixbd API
+    const backupUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${encodeURIComponent(streamId)}&format=.m3u8`;
+
+    // 🔹 Fetch stream URL via JSON API
+    const realStreamUrl = await getStreamFromAPI(streamId);
+
+    if (realStreamUrl) {
+      const valid = await testStream(realStreamUrl);
+      if (valid) {
+        createPlayer(realStreamUrl, backupUrl);
+        return;
+      } else {
+        console.warn("Primary m3u8 failed HEAD test. Switching to backup...");
+      }
+    } else {
+      console.warn("No valid stream URL from API.");
     }
 
-    function showError(msg) {
-        const loader = document.getElementById("loading");
-        loader.innerHTML = `<div style="color:#f44;text-align:center">${msg}</div>`;
-    }
+    createPlayer(backupUrl);
 
-    function createPlayer(sourceUrl, backupUrl = null) {
-        hideLoading();
+  } catch (err) {
+    console.error(err);
+    showError("Error loading channel data.");
+  }
+}
 
-        const player = new Clappr.Player({
-            source: sourceUrl,
-            width: '100%',
-            height: '100%',
-            autoPlay: true,
-            plugins: [HlsjsPlayback, LevelSelector],
-            mimeType: "application/x-mpegURL",
-            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-            parentId: "#player"
-        });
-
-        // Retry logic on player error
-        player.on(Clappr.Events.PLAYER_ERROR, () => {
-            console.warn("Player error detected!");
-            if (backupUrl && player.options.source !== backupUrl) {
-                console.log("Switching to backup stream...");
-                player.load(backupUrl);
-                player.play();
-            } else {
-                showError("Stream failed. Please try again later.");
-            }
-        });
-
-        // Resume on stop
-        player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-    }
-
-    async function fetchStreamUrl(realId, attempts = 3) {
-        const url = `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(realId)}`;
-        for (let i = 0; i < attempts; i++) {
-            try {
-                const res = await fetch(url);
-                const html = await res.text();
-
-                const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+\.m3u8[^"]*)"/)
-                           || html.match(/"(https:\/\/[^"]+\.m3u8[^"]*)"/);
-
-                if (match) return match[1];
-            } catch (err) {
-                console.error("Fetch error:", err);
-            }
-            await new Promise(r => setTimeout(r, 1000));
-        }
-        return null;
-    }
-
-    async function testStream(url) {
-        try {
-            const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-            // If fetch doesn’t throw, consider it valid
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    async function init() {
-        const titleFromId = getQueryParam('id');
-        if (!titleFromId) {
-            showError("No channel ID provided.");
-            return;
-        }
-
-        try {
-            const response = await fetch('/ayna-proxy.json');
-            const data = await response.json();
-            const list = data.data?.list || [];
-            const found = list.find(
-                ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
-            );
-
-            if (!found || !found.id) {
-                showError("Channel not found.");
-                return;
-            }
-
-            const backupUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${encodeURIComponent(found.id)}&format=.m3u8`;
-
-            // Try fetching main stream
-            const realStreamUrl = await fetchStreamUrl(found.id);
-
-            if (realStreamUrl) {
-                const valid = await testStream(realStreamUrl);
-                if (valid) {
-                    createPlayer(realStreamUrl, backupUrl);
-                    return;
-                } else {
-                    console.warn("Primary m3u8 failed HEAD test. Switching to backup...");
-                }
-            } else {
-                console.warn("Primary stream URL not found.");
-            }
-
-            // Use backup if main stream invalid
-            createPlayer(backupUrl);
-
-        } catch (err) {
-            console.error(err);
-            showError("Error loading channel data.");
-        }
-    }
-
-    init();
+init();
 </script>
+
 </body>
 </html>
