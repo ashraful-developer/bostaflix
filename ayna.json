@@ -1,4 +1,12 @@
     {
+    "id": "natgeo",
+    "m3u8": "https://tvsen6.aynascope.net/tsportshd/index.m3u8?e=1751726666&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=c057ecf99803dfb9da0e954de34b130d",
+    "image": "https://s3.aynascope.net/storage/8e998f20a9cc52cb8eb1f52a5bf38204",
+    "landscapeImage": "https://s3.aynascope.net/storage/c09c06d578a6549cf023a09bc3e92dc1",
+    "title": "T Sports HD",
+    "author": "bostaflix"
+  },
+    {
     "id": "tsportshd",
     "m3u8": "https://tvsen7.aynascope.net/tsportshd/index.m3u8?e=1751726666&u=1bf5053c-5d46-4d74-838b-f3370f2d4de8&token=c057ecf99803dfb9da0e954de34b130d",
     "image": "https://s3.aynascope.net/storage/8e998f20a9cc52cb8eb1f52a5bf38204",
