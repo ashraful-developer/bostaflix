@@ -155,7 +155,7 @@ async function init() {
     const proxyM3u8 = foundProxy?.m3u8;
 
     const number = extractTvsenNumber(mainM3u8);
-    const primaryUrl = `https://tvsen${number}.aynaott.com/${mainId}/index.m3u8`;
+    const primaryUrl = `https://tvsen${number}.amynaott.com/${mainId}/index.m3u8`;
     const backupUrl1 = proxyM3u8 || `https://tvsen${number}.aynascope.net/${mainId}/index.m3u8`;
     const backupUrl2 = `https://bostacdn.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(foundProxy?.id || mainId)}`;
 
