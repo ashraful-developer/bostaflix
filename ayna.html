@@ -67,8 +67,7 @@
 document.addEventListener("contextmenu", e => e.preventDefault());
 
 function getQueryParam(name) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 function hideLoading() {
@@ -83,6 +82,7 @@ function showError(msg) {
 
 function createPlayer(sourceUrl, backupUrl = null) {
   hideLoading();
+  console.log("🔹 Playing:", sourceUrl);
 
   const player = new Clappr.Player({
     source: sourceUrl,
@@ -95,11 +95,10 @@ function createPlayer(sourceUrl, backupUrl = null) {
     parentId: "#player"
   });
 
-  // Retry logic
   player.on(Clappr.Events.PLAYER_ERROR, () => {
-    console.warn("Player error detected!");
+    console.warn("⚠️ Player error detected!");
     if (backupUrl && player.options.source !== backupUrl) {
-      console.log("Switching to backup stream...");
+      console.log("🔁 Switching to backup stream...");
       player.load(backupUrl);
       player.play();
     } else {
@@ -111,12 +110,20 @@ function createPlayer(sourceUrl, backupUrl = null) {
 }
 
 async function getStreamFromAPI(streamId) {
-  const apiUrl = `https://aynaapi-bostaflix.global.ssl.fastly.net/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(streamId)}`;
+  const apiUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(streamId)}`;
   try {
     const res = await fetch(apiUrl);
     const json = await res.json();
     if (json.status === "success" && json.data?.url) {
-      return json.data.url;
+      const originalUrl = json.data.url;
+      const match = originalUrl.match(/tvsen(\d+)\.aynascope\.net/);
+      if (!match) return originalUrl;
+
+      const serverNum = match[1]; // e.g. "6"
+      const credentials = originalUrl.split("?")[1]; // e.g. e=...&u=...&token=...
+      const newUrl = `https://tvsen${serverNum}.aynascope.net/${json.data.id}/index.m3u8?${credentials}`;
+      console.log("✅ Rebuilt URL:", newUrl);
+      return newUrl;
     }
   } catch (err) {
     console.error("API fetch error:", err);
@@ -127,7 +134,7 @@ async function getStreamFromAPI(streamId) {
 async function testStream(url) {
   try {
     const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-    return true; // if fetch doesn’t throw, assume valid
+    return true;
   } catch {
     return false;
   }
@@ -153,10 +160,9 @@ async function init() {
       return;
     }
 
-    const streamId = found.id; // this is the one used in bongoflixbd API
+    const streamId = found.id;
     const backupUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${encodeURIComponent(streamId)}&format=.m3u8`;
 
-    // 🔹 Fetch stream URL via JSON API
     const realStreamUrl = await getStreamFromAPI(streamId);
 
     if (realStreamUrl) {
@@ -165,14 +171,13 @@ async function init() {
         createPlayer(realStreamUrl, backupUrl);
         return;
       } else {
-        console.warn("Primary m3u8 failed HEAD test. Switching to backup...");
+        console.warn("Primary m3u8 failed test. Using backup...");
       }
     } else {
-      console.warn("No valid stream URL from API.");
+      console.warn("No valid URL from API, using backup...");
     }
 
     createPlayer(backupUrl);
-
   } catch (err) {
     console.error(err);
     showError("Error loading channel data.");
@@ -181,6 +186,5 @@ async function init() {
 
 init();
 </script>
-
 </body>
 </html>
