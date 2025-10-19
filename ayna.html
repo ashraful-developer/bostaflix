@@ -95,11 +95,10 @@ function createPlayer(sourceUrl, backupUrl1 = null, backupUrl2 = null) {
     parentId: "#player"
   });
 
-  // Retry logic
   player.on(Clappr.Events.PLAYER_ERROR, () => {
     console.warn("Player error detected!");
     if (backupUrl1 && player.options.source !== backupUrl1) {
-      console.log("Switching to Backup 1 (ayna-proxy stream)...");
+      console.log("Switching to Backup 1 (bostacdn API stream)...");
       player.load(backupUrl1);
       player.play();
     } else if (backupUrl2 && player.options.source !== backupUrl2) {
@@ -125,6 +124,20 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+async function getBackupStreamUrl(proxyId) {
+  const apiUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/rest_api.php?action=get_channel_detail&streamid=${encodeURIComponent(proxyId)}`;
+  try {
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+    if (json.status === "success" && json.data?.url) {
+      return json.data.url;
+    }
+  } catch (e) {
+    console.error("Backup API fetch failed:", e);
+  }
+  return null;
+}
+
 async function init() {
   const titleFromId = getQueryParam('id');
   if (!titleFromId) {
@@ -141,7 +154,6 @@ async function init() {
     const aynaList = ayna.data?.list || ayna;
     const proxyList = aynaProxy.data?.list || aynaProxy;
 
-    // Find in both lists by title
     const foundMain = aynaList.find(ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase());
     const foundProxy = proxyList.find(ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase());
 
@@ -151,16 +163,23 @@ async function init() {
     }
 
     const mainId = foundMain.id;
+    const proxyId = foundProxy?.id;
     const mainM3u8 = foundMain.m3u8;
-    const proxyM3u8 = foundProxy?.m3u8;
-
     const number = extractTvsenNumber(mainM3u8);
-    const primaryUrl = `https://tvsen${number}.amynaott.com/${mainId}/index.m3u8`;
-    const backupUrl1 = proxyM3u8 || `https://tvsen${number}.aynascope.net/${mainId}/index.m3u8`;
-    const backupUrl2 = `https://bostacdn.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(foundProxy?.id || mainId)}`;
+
+    const primaryUrl = `https://tvsesn${number}.aynaott.com/${mainId}/index.m3u8`;
+    const backupUrl2 = proxyId
+      ? `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(proxyId)}`
+      : null;
+
+    // 🔹 Fetch backup stream via bostacdn API (ayna-proxy id)
+    let backupUrl1 = null;
+    if (proxyId) {
+      backupUrl1 = await getBackupStreamUrl(proxyId);
+    }
 
     console.log("Primary:", primaryUrl);
-    console.log("Backup1 (proxy):", backupUrl1);
+    console.log("Backup1 (API):", backupUrl1);
     console.log("Backup2 (PHP):", backupUrl2);
 
     createPlayer(primaryUrl, backupUrl1, backupUrl2);
