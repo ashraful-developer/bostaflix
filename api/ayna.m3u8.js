@@ -1,67 +1,36 @@
+// api/proxy.js
 export default async function handler(req, res) {
   try {
-    const { title, type } = req.query;
+    const { id } = req.query;
 
-    if (!title) {
-      res.status(400).end("Missing ?title parameter");
+    if (!id) {
+      res.status(400).json({ error: "Missing 'id' query parameter" });
       return;
     }
 
-    // Fetch Ayna homepage
-    const resp = await fetch("https://aynaxbosta.global.ssl.fastly.net/Ayna/");
-    const html = await resp.text();
+    // Target URL
+    const targetUrl = `https://bongoflixbd.top/apis/live.php?id=${encodeURIComponent(id)}`;
 
-    // Escape regex special characters in title for safe matching
-    const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Simulate request from a PC (desktop browser)
+    const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36";
 
-    // Find all channel cards
-    const cardRegex = /<div class="channel-card[\s\S]*?<\/div>\s*<\/div>/gi;
-    const cards = html.match(cardRegex);
-    if (!cards) {
-      res.status(500).end("No channel cards found");
-      return;
-    }
-
-    let foundId = null;
-
-    // Search for the matching title
-    for (const card of cards) {
-      const titleRegex = new RegExp(
-        `<h6[^>]*class=["']channel-name["'][^>]*>\\s*${safeTitle}\\s*<\\/h6>`,
-        "i"
-      );
-      if (titleRegex.test(card)) {
-        const idMatch = card.match(/href=["']play\.php\?id=([^"']+)["']/i);
-        if (idMatch) {
-          foundId = idMatch[1];
-          break;
-        }
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": desktopUA,
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
       }
-    }
-
-    if (!foundId) {
-      res.status(404).json({ status: "error", message: `Channel not found for title: ${title}` });
-      return;
-    }
-
-    // ✅ If ?type=json → return JSON instead of redirect
-    if (type && type.toLowerCase() === "json") {
-      res.status(200).json({
-        status: "success",
-        title,
-        id: foundId,
-        redirect: `/api/ayna-proxy.m3u8?id=${encodeURIComponent(foundId)}`
-      });
-      return;
-    }
-
-    // ✅ Default: redirect to the proxy .m3u8 endpoint
-    res.writeHead(302, {
-      Location: `/api/ayna-proxy.m3u8?id=${encodeURIComponent(foundId)}`,
     });
-    res.end();
+
+    // Forward content type
+    const contentType = response.headers.get("content-type") || "text/plain";
+    res.setHeader("Content-Type", contentType);
+
+    const body = await response.text();
+    res.status(response.status).send(body);
 
   } catch (err) {
-    res.status(500).end("Server error: " + err.message);
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
