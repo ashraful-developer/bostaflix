@@ -5,7 +5,7 @@
   <title>Bostafull Player | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Clappr Player -->
+  <!-- Clappr Player Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
@@ -33,15 +33,15 @@
 
   <script>
     // Disable right-click
-    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("contextmenu", event => event.preventDefault());
 
-    // Get ?id= parameter (actually the title)
+    // Get query parameter
     function getQueryParam(name) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(name);
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
     }
 
-    // Create Clappr player
+    // Clappr setup
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -55,38 +55,43 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      // Auto recover
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
+      // Auto-recover on error
+      player.on(Clappr.Events.PLAYER_ERROR, function () {
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
-        }, 1500);
+        }, 1000);
       });
-      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
+
+      player.on(Clappr.Events.PLAYER_STOP, function () {
+        player.play();
+      });
     }
 
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
-      fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels')
+      fetch('https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels')
         .then(res => res.json())
         .then(json => {
+          // JSON format: { status, code, message, data: { count, list: [...] } }
           const channels = json?.data?.list || [];
 
-          // Find by title (case-insensitive)
-          const match = channels.find(ch =>
-            ch.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+          // Find channel by title or ID (case insensitive)
+          const match = channels.find(item =>
+            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
+            item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
           );
 
           if (match) {
-            const streamUrl = `https://aynaxbosta.global.ssl.fastly.net/test/live.php?id=${match.id}`;
+            const streamUrl = `https://bostacdn.global.ssl.fastly.net/fuck/live.php?id=${match.id}`;
             createPlayer(streamUrl);
           } else {
-            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "<span style="color:orange">${requestedTitle}</span>" not found</h2>`;
+            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
           }
         })
         .catch(err => {
-          console.error('Channel list load failed:', err);
+          console.error('Failed to load channel list:', err);
           document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
         });
     } else {
