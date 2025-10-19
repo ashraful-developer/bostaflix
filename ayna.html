@@ -42,19 +42,19 @@
       return match ? match[1] : null;
     }
 
-    // Check if URL is actually reachable before trying to play
+    // Check if URL is reachable
     async function urlReachable(url) {
       try {
         const response = await fetch(url, { method: "HEAD", mode: "no-cors" });
-        console.log("URL check passed:", url);
+        console.log("✅ URL check passed:", url);
         return true;
       } catch (err) {
-        console.warn("URL unreachable:", url);
+        console.warn("⚠️ URL unreachable:", url);
         return false;
       }
     }
 
-    // Create player
+    // Create player with fallback function
     function createPlayer(sourceUrl, fallbackFn) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -67,7 +67,7 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      // If player errors or freezes → fallback
+      // Retry or fallback on error
       player.on(Clappr.Events.PLAYER_ERROR, async () => {
         console.warn("Playback error — checking source...");
         const ok = await urlReachable(sourceUrl);
@@ -108,7 +108,7 @@
       });
     }
 
-    // Load from primary (ayna.json)
+    // Load from primary JSON (ayna.json)
     async function loadPrimary(requestedTitle) {
       try {
         const res = await fetch("ayna.json");
@@ -121,25 +121,25 @@
             const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/mono.ts.m3u8`;
             const reachable = await urlReachable(realStreamUrl);
             if (reachable) {
-              console.log("Playing primary stream:", realStreamUrl);
+              console.log("🎬 Playing primary stream:", realStreamUrl);
               createPlayer(realStreamUrl, () => loadBackup(requestedTitle));
               return;
             } else {
-              console.warn("Primary stream not reachable, using backup...");
+              console.warn("Primary stream unreachable, switching to backup...");
               await loadBackup(requestedTitle);
               return;
             }
           }
         }
-        console.warn("Primary not found or invalid, switching to backup...");
+        console.warn("Channel not found or invalid in primary — trying backup...");
         await loadBackup(requestedTitle);
       } catch (err) {
-        console.error("Primary fetch failed:", err);
+        console.error("Primary JSON fetch failed:", err);
         await loadBackup(requestedTitle);
       }
     }
 
-    // Backup logic (ayna-proxy.json)
+    // Load from backup JSON (ayna-proxy.json)
     async function loadBackup(requestedTitle) {
       try {
         const res = await fetch("ayna-proxy.json");
@@ -151,17 +151,17 @@
           const streamUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${match.id}&format=.m3u8`;
           const reachable = await urlReachable(streamUrl);
           if (reachable) {
-            console.log("Playing backup stream:", streamUrl);
+            console.log("🎬 Playing backup stream:", streamUrl);
             createPlayer(streamUrl);
           } else {
-            alert(`Backup stream for "${requestedTitle}" is unreachable.`);
+            alert(`⚠️ Backup stream for "${requestedTitle}" is unreachable.`);
           }
         } else {
-          alert(`Channel "${requestedTitle}" not found in backup list.`);
+          alert(`❌ Channel "${requestedTitle}" not found in backup list.`);
         }
       } catch (err) {
-        console.error("Backup fetch failed:", err);
-        alert("Could not load any valid stream.");
+        console.error("Backup JSON fetch failed:", err);
+        alert("Could not load any valid stream source.");
       }
     }
 
