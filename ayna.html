@@ -65,6 +65,7 @@
       font-size: 13px;
       border-radius: 8px;
       z-index: 20;
+      display: none;
     }
   </style>
 </head>
@@ -74,7 +75,7 @@
     <div class="spinner"></div>
     <div>Loading stream...</div>
   </div>
-  <div id="sourceLabel" style="display:none;"></div>
+  <div id="sourceLabel"></div>
 
 <script>
 document.addEventListener("contextmenu", e => e.preventDefault());
@@ -95,8 +96,8 @@ function showError(msg) {
 
 function showSourceLabel(label) {
   const el = document.getElementById("sourceLabel");
-  el.style.display = "block";
   el.textContent = label;
+  el.style.display = "block";
 }
 
 function extractTvsenNumber(m3u8Url) {
@@ -124,9 +125,9 @@ async function getBackupStreamUrl(proxyId) {
   return null;
 }
 
-function createPlayer(sourceUrl, label, backupUrl1 = null, backupUrl2 = null) {
+function createPlayer(sourceUrl, isPrimary = true, backupUrl1 = null, backupUrl2 = null) {
   hideLoading();
-  showSourceLabel(label);
+  if (!isPrimary) showSourceLabel(isPrimary ? "" : "Backup Source");
 
   const player = new Clappr.Player({
     source: sourceUrl,
@@ -140,16 +141,16 @@ function createPlayer(sourceUrl, label, backupUrl1 = null, backupUrl2 = null) {
   });
 
   let retryCount = 0;
-  const maxRetries = 3;
+  const maxRetries = 1; // fail if frozen for 15s once
   let lastTime = 0;
 
-  // 🧠 Detect freeze / stall
+  // 🧠 Detect freeze / stall (15s)
   const stallChecker = setInterval(() => {
     if (!player.isPlaying()) return;
     const currentTime = player.getCurrentTime();
     if (Math.abs(currentTime - lastTime) < 0.5) {
       retryCount++;
-      console.warn(`No playback progress (${retryCount}/${maxRetries})`);
+      console.warn(`Playback not moving (${retryCount}/${maxRetries})`);
       if (retryCount >= maxRetries) {
         clearInterval(stallChecker);
         console.warn("Playback frozen — switching source...");
@@ -233,7 +234,7 @@ async function init() {
     console.log("Backup1 (API):", backupUrl1);
     console.log("Backup2 (PHP):", backupUrl2);
 
-    createPlayer(primaryUrl, "Primary Stream", backupUrl1, backupUrl2);
+    createPlayer(primaryUrl, true, backupUrl1, backupUrl2);
 
   } catch (err) {
     console.error("Init error:", err);
