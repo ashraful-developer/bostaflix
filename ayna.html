@@ -148,7 +148,7 @@
         const match = list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
 
         if (match && match.id) {
-          const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+          const streamUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${match.id}`;
           const reachable = await urlReachable(streamUrl);
           if (reachable) {
             console.log("🎬 Playing backup stream:", streamUrl);
