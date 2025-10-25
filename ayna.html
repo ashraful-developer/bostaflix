@@ -30,17 +30,16 @@
   <div id="player"></div>
 
   <script>
-    // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter (?id=Title)
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    // Initialize player
-    function createPlayer(sourceUrl) {
+    function createPlayer(sourceUrl, backupUrl = null) {
+      console.log("Loading stream:", sourceUrl);
+
       const player = new Clappr.Player({
         source: sourceUrl,
         parentId: "#player",
@@ -52,13 +51,57 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Playback error — retrying...");
-        setTimeout(() => {
-          player.load(player.options.source);
+      let switched = false;
+      let stuckCheckInterval = null;
+      let lastTime = 0;
+      let sameTimeCount = 0;
+
+      function switchToBackup(reason) {
+        if (!switched && backupUrl) {
+          switched = true;
+          console.warn(`⚠️ Switching to backup stream (${reason})`);
+          player.load(backupUrl);
           player.play();
-        }, 500);
+        }
+      }
+
+      // Detects segment / network errors from HLS.js
+      player.on(Clappr.Events.PLAYER_ERROR, (e) => {
+        console.warn("Clappr error:", e);
+        switchToBackup("player error");
       });
+
+      player.on(Clappr.Events.PLAYER_READY, () => {
+        console.log("Player ready — waiting for authorization (~3 sec)...");
+        setTimeout(() => {
+          console.log("Authorization window passed — monitoring playback...");
+          lastTime = player.getCurrentTime();
+          stuckCheckInterval = setInterval(() => {
+            const current = player.getCurrentTime();
+
+            // Detect stuck video (time not moving)
+            if (current === lastTime) {
+              sameTimeCount++;
+              if (sameTimeCount >= 3 && !switched) { // ~6s stuck
+                switchToBackup("stuck or frozen playback");
+              }
+            } else {
+              sameTimeCount = 0; // reset if progressing
+            }
+            lastTime = current;
+          }, 2000);
+        }, 3000); // wait 3s for token/redirect auth
+      });
+
+      // Optional: network-level detection via Hls.js internals
+      player.on(Clappr.Events.PLAYER_PLAYBACK_ERROR, (err) => {
+        if (err && (err.code === 403 || err.code === 404 || err.code === 500)) {
+          console.warn("Segment fetch error:", err.code);
+          switchToBackup(`segment ${err.code}`);
+        }
+      });
+
+      player.on(Clappr.Events.PLAYER_STOP, () => clearInterval(stuckCheckInterval));
     }
 
     const requestedTitle = getQueryParam("id");
@@ -67,15 +110,15 @@
       fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
-          // Adjust depending on your JSON structure
           const list = json.data?.list || [];
           const match = list.find(
             item => item.title.toLowerCase() === requestedTitle.toLowerCase()
           );
 
           if (match && match.id) {
-            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
-            createPlayer(streamUrl);
+            const mainUrl = `api/ayna.m3u8?id=${match.id}`;
+            const backupUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/live.php?id=${match.id}`;
+            createPlayer(mainUrl, backupUrl);
           } else {
             alert(`Channel "${requestedTitle}" not found in list.`);
           }
