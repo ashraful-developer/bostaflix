@@ -5,21 +5,24 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  
-  <!-- Clappr -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-
   <style>
     html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      background: #000; overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
     }
     #player {
-      width: 100%; height: 100%;
-      position: absolute; top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
@@ -30,32 +33,14 @@
     // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get ?id= parameter
+    // Get query parameter (?id=Title)
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    // Extract domain like tvsen6 from ayna m3u8
-    function extractDomain(m3u8Url) {
-      const match = m3u8Url.match(/https:\/\/(tvsen\d+)\.ayna(?:scope|ott)\.net/i);
-      return match ? match[1] : null;
-    }
-
-    // Check if URL is reachable
-    async function urlReachable(url) {
-      try {
-        const response = await fetch(url, { method: "HEAD", mode: "no-cors" });
-        console.log("✅ URL check passed:", url);
-        return true;
-      } catch (err) {
-        console.warn("⚠️ URL unreachable:", url);
-        return false;
-      }
-    }
-
-    // Create player with fallback function
-    function createPlayer(sourceUrl, fallbackFn) {
+    // Initialize player
+    function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
         parentId: "#player",
@@ -67,108 +52,41 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      // Retry or fallback on error
-      player.on(Clappr.Events.PLAYER_ERROR, async () => {
-        console.warn("Playback error — checking source...");
-        const ok = await urlReachable(sourceUrl);
-        if (!ok && typeof fallbackFn === "function") {
-          console.warn("Primary failed — switching to backup...");
-          fallbackFn();
-        } else {
-          setTimeout(() => {
-            player.load(player.options.source);
-            player.play();
-          }, 500);
-        }
-      });
-
-      // Replay if stopped
-      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-
-      // Detect freeze for 15 seconds
-      let lastTime = 0, freezeTimer;
-      player.on(Clappr.Events.PLAYER_PLAY, () => {
-        clearInterval(freezeTimer);
-        freezeTimer = setInterval(async () => {
-          const t = player.getCurrentTime();
-          if (t === lastTime) {
-            console.warn("Detected freeze — checking reachability...");
-            const ok = await urlReachable(sourceUrl);
-            if (!ok && typeof fallbackFn === "function") {
-              console.warn("Frozen & unreachable — switching to backup...");
-              clearInterval(freezeTimer);
-              fallbackFn();
-            } else {
-              player.load(player.options.source);
-              player.play();
-            }
-          }
-          lastTime = t;
-        }, 15000);
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error — retrying...");
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 500);
       });
     }
 
-    // Load from primary JSON (ayna.json)
-    async function loadPrimary(requestedTitle) {
-      try {
-        const res = await fetch("ayna.json");
-        const json = await res.json();
-        const match = json.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
+    const requestedTitle = getQueryParam("id");
 
-        if (match && match.id && match.m3u8) {
-          const domain = extractDomain(match.m3u8);
-          if (domain) {
-            const realStreamUrl = `https://${domain}.aynaott.com/${match.id}/mono.ts.m3u8`;
-            const reachable = await urlReachable(realStreamUrl);
-            if (reachable) {
-              console.log("🎬 Playing primary stream:", realStreamUrl);
-              createPlayer(realStreamUrl, () => loadBackup(requestedTitle));
-              return;
-            } else {
-              console.warn("Primary stream unreachable, switching to backup...");
-              await loadBackup(requestedTitle);
-              return;
-            }
-          }
-        }
-        console.warn("Channel not found or invalid in primary — trying backup...");
-        await loadBackup(requestedTitle);
-      } catch (err) {
-        console.error("Primary JSON fetch failed:", err);
-        await loadBackup(requestedTitle);
-      }
-    }
+    if (requestedTitle) {
+      fetch("ayna-proxy.json")
+        .then(res => res.json())
+        .then(json => {
+          // Adjust depending on your JSON structure
+          const list = json.data?.list || [];
+          const match = list.find(
+            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
+          );
 
-    // Load from backup JSON (ayna-proxy.json)
-    async function loadBackup(requestedTitle) {
-      try {
-        const res = await fetch("ayna-proxy.json");
-        const json = await res.json();
-        const list = json.data?.list || [];
-        const match = list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-
-        if (match && match.id) {
-          const streamUrl = `https://bostacdn.global.ssl.fastly.net/zuzz/stream.php?id=${match.id}&e=m3u8`;
-          const reachable = await urlReachable(streamUrl);
-          if (reachable) {
-            console.log("🎬 Playing backup stream:", streamUrl);
+          if (match && match.id) {
+            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
             createPlayer(streamUrl);
           } else {
-            alert(`⚠️ Backup stream for "${requestedTitle}" is unreachable.`);
+            alert(`Channel "${requestedTitle}" not found in list.`);
           }
-        } else {
-          alert(`❌ Channel "${requestedTitle}" not found in backup list.`);
-        }
-      } catch (err) {
-        console.error("Backup JSON fetch failed:", err);
-        alert("Could not load any valid stream source.");
-      }
+        })
+        .catch(err => {
+          console.error("Failed to load channel list:", err);
+          alert("Error loading channel list.");
+        });
+    } else {
+      alert("Missing 'id' parameter in URL.");
     }
-
-    // Start
-    const requestedTitle = getQueryParam("id");
-    if (requestedTitle) loadPrimary(requestedTitle);
-    else alert("Missing 'id' parameter in URL.");
   </script>
 </body>
 </html>
