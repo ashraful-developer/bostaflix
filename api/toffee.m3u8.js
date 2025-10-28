@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
   try {
-    const { play } = req.query;
-    if (!play) {
-      return res.status(400).json({ error: "Missing 'play' query parameter" });
+    const { id } = req.query;
+    if (!id) {
+      return res.status(400).json({ error: "Missing 'id' query parameter" });
     }
 
     // Step 1: Fetch HTML from player.php
