@@ -84,7 +84,7 @@
           );
 
           if (match) {
-            const streamUrl = `https://aynaxbosta.global.ssl.fastly.net/test/live.php?id=${match.id}`;
+            const streamUrl = `api/toffee.m3u8?id=${match.id}`;
             createPlayer(streamUrl);
           } else {
             document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
