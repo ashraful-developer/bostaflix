@@ -71,7 +71,7 @@
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
-      fetch('https:/aynaxbosta.global.ssl.fastly.net/test/kaya-app.php?route=getChannels')
+      fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya-app.php?route=getChannels')
         .then(res => res.json())
         .then(json => {
           // JSON format: { status, code, message, data: { count, list: [...] } }
