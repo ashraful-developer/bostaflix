@@ -1,171 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>Jadoo | Buddy✘TV</title>
-
-    <!-- Clappr Player Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        #player {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        #loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 10;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ff0000;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 12px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Jadoo | Buddy✘TV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    #player {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
 </head>
 <body>
-    <div id="player"></div>
-    <div id="loading">
-        <div class="spinner"></div>
-        <div>Loading stream...</div>
-    </div>
+  <div id="player"></div>
 
-    <script>
-        document.addEventListener("contextmenu", e => e.preventDefault());
+  <script>
+    // Disable right-click
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
+    // Get query parameter (?id=Title)
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
 
-        function hideLoading() {
-            const loader = document.getElementById("loading");
-            if (loader) loader.style.display = "none";
-        }
+    // Initialize player
+    function createPlayer(sourceUrl) {
+      const player = new Clappr.Player({
+        source: sourceUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mimeType: "application/x-mpegURL",
+        plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
 
-        function showError(msg) {
-            const loader = document.getElementById("loading");
-            loader.innerHTML = `<div style="color:#f44;text-align:center">${msg}</div>`;
-        }
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error — retrying...");
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 500);
+      });
+    }
 
-        function createPlayer(sourceUrl) {
-            hideLoading();
+    const requestedTitle = getQueryParam("id");
 
-            const player = new Clappr.Player({
-                source: sourceUrl,
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                plugins: [HlsjsPlayback, LevelSelector],
-                mimeType: "application/x-mpegURL",
-                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-                parentId: "#player"
-            });
+    if (requestedTitle) {
+      fetch("ayna-proxy.json")
+        .then(res => res.json())
+        .then(json => {
+          // Adjust depending on your JSON structure
+          const list = json.data?.list || [];
+          const match = list.find(
+            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
+          );
 
-            // Auto-retry on error
-            player.on(Clappr.Events.PLAYER_ERROR, () => {
-                console.warn("Player error – retrying...");
-                setTimeout(() => {
-                    player.load(player.options.source);
-                    player.play();
-                }, 500);
-            });
-
-            // Resume on stop
-            player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-        }
-
-        async function fetchStreamUrl(realId, attempts = 3) {
-            const url = `https://aynaxbosta.global.ssl.fastly.net/Ayna/play.php?id=${encodeURIComponent(realId)}`;
-            for (let i = 0; i < attempts; i++) {
-                try {
-                    const res = await fetch(url);
-                    const html = await res.text();
-
-                    // Match streamUrl: "https://...m3u8" OR any .m3u8 in page
-                    const match = html.match(/streamUrl:\s*"(https:\/\/[^"]+\.m3u8[^"]*)"/)
-                               || html.match(/"(https:\/\/[^"]+\.m3u8[^"]*)"/);
-
-                    if (match) return match[1];
-                } catch (err) {
-                    console.error("Fetch error:", err);
-                }
-                // Wait before retry
-                await new Promise(r => setTimeout(r, 1000));
-            }
-            return null;
-        }
-
-        async function init() {
-            const titleFromId = getQueryParam('id');
-            if (!titleFromId) {
-                showError("No channel ID provided.");
-                return;
-            }
-
-            try {
-                const response = await fetch('/ayna-proxy.json');
-                const data = await response.json();
-                const list = data.data?.list || [];
-                const found = list.find(
-                    ch => ch.title.trim().toLowerCase() === titleFromId.trim().toLowerCase()
-                );
-
-                if (!found || !found.id) {
-                    showError("Channel not found.");
-                    return;
-                }
-
-                const realStreamUrl = await fetchStreamUrl(found.id);
-
-                if (realStreamUrl) {
-                    createPlayer(realStreamUrl);
-                } else {
-                    showError("Stream unavailable. Try again later.");
-                    console.error("No .m3u8 found in play.php response.");
-                }
-
-            } catch (err) {
-                console.error(err);
-                showError("Error loading channel data.");
-            }
-        }
-
-        init();
-    </script>
+          if (match && match.id) {
+            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+            createPlayer(streamUrl);
+          } else {
+            alert(`Channel "${requestedTitle}" not found in list.`);
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load channel list:", err);
+          alert("Error loading channel list.");
+        });
+    } else {
+      alert("Missing 'id' parameter in URL.");
+    }
+  </script>
 </body>
 </html>
