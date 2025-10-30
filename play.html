@@ -340,26 +340,46 @@
         fontSize: '1.5em',
         fontWeight: 'bold',
         zIndex: '5',
+        transition: 'opacity 0.3s ease'
     });
 
     // Add the overlay inside iframe container
     document.querySelector('.iframe-container').appendChild(loadingOverlay);
 
-    // Show loading overlay while switching
+    let currentLoadId = 0; // track ongoing loads
+
     function showLoading() {
         loadingOverlay.style.display = 'flex';
+        loadingOverlay.style.opacity = '1';
     }
 
-    // Hide when iframe loads
-    iframe.addEventListener('load', () => {
-        loadingOverlay.style.display = 'none';
-    });
+    function hideLoading() {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 300);
+    }
 
-    // Load iframe with server link
+    // Load iframe with cancelable loading
     function loadIframe(serverLink) {
         showLoading();
-        iframe.src = serverLink;
+        currentLoadId++; // increment for each new request
+        const thisLoadId = currentLoadId;
+
+        // To cancel the previous load, we clear src before setting a new one
+        iframe.src = 'about:blank';
+
+        // Add a tiny delay to prevent race condition
+        setTimeout(() => {
+            if (thisLoadId !== currentLoadId) return; // another click happened
+            iframe.src = serverLink;
+        }, 100);
     }
+
+    // Hide loading when iframe actually loads (if still valid)
+    iframe.addEventListener('load', () => {
+        if (currentLoadId > 0) hideLoading();
+    });
 
     // Load server buttons dynamically
     function loadServers(servers, channelName) {
@@ -405,6 +425,7 @@
         loadIframe(`${defaultServer}.html?id=${defaultId}`);
     };
 </script>
+
 
     <!-- Footer -->
     <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
