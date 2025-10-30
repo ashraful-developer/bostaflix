@@ -5,9 +5,7 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     html, body {
       margin: 0;
@@ -24,10 +22,18 @@
       top: 0;
       left: 0;
     }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
   </style>
 </head>
 <body>
-  <div id="player"></div>
+  <div id="player">
+    <video id="video" controls autoplay muted playsinline></video>
+  </div>
 
   <script>
     // Disable right-click
@@ -39,26 +45,58 @@
       return urlParams.get(name);
     }
 
-    // Initialize player
+    // Initialize HLS.js player
     function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
+      const video = document.getElementById("video");
 
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Playback error — retrying...");
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 500);
-      });
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          liveSyncDuration: 2,
+          maxLiveSyncPlaybackRate: 1.5,
+          enableWorker: true
+        });
+
+        hls.loadSource(sourceUrl);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+        });
+
+        // Handle fatal errors with auto-retry
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            console.warn("Playback error — retrying...");
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                setTimeout(() => {
+                  hls.loadSource(sourceUrl);
+                  hls.attachMedia(video);
+                }, 500);
+                break;
+            }
+          }
+        });
+
+        video.addEventListener("ended", () => {
+          video.play().catch(() => {});
+        });
+
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // For Safari (native HLS)
+        video.src = sourceUrl;
+        video.addEventListener("loadedmetadata", () => {
+          video.play().catch(() => {});
+        });
+      } else {
+        alert("HLS not supported in this browser.");
+      }
     }
 
     const requestedTitle = getQueryParam("id");
@@ -67,7 +105,6 @@
       fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
-          // Adjust depending on your JSON structure
           const list = json.data?.list || [];
           const match = list.find(
             item => item.title.toLowerCase() === requestedTitle.toLowerCase()
