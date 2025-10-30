@@ -319,58 +319,92 @@
 
         <!-- Add more logos with appropriate data-category attributes -->
     </div>
+<script>
+    const iframe = document.getElementById('videoFrame');
 
+    // Create and style the loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loadingOverlay';
+    loadingOverlay.textContent = 'Loading Player...';
+    Object.assign(loadingOverlay.style, {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        display: 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: '#fff',
+        fontSize: '1.5em',
+        fontWeight: 'bold',
+        zIndex: '5',
+    });
 
-    <script>
-        // Load iframe with server link
-        function loadIframe(serverLink) {
-            document.getElementById('videoFrame').src = serverLink;
-        }
+    // Add the overlay inside iframe container
+    document.querySelector('.iframe-container').appendChild(loadingOverlay);
 
-        // Load server buttons dynamically
-        function loadServers(servers, channelName) {
-            const serverButtons = document.getElementById('serverButtons');
-            serverButtons.innerHTML = '';
+    // Show loading overlay while switching
+    function showLoading() {
+        loadingOverlay.style.display = 'flex';
+    }
 
-            // Load first server by default
-            loadIframe(servers[0]);
+    // Hide when iframe loads
+    iframe.addEventListener('load', () => {
+        loadingOverlay.style.display = 'none';
+    });
 
-            // Create server buttons
-            servers.forEach((server, index) => {
-                const button = document.createElement('button');
-                button.innerText = `Server ${index + 1}`;
-                button.onclick = () => loadIframe(server);
-                serverButtons.appendChild(button);
-            });
+    // Load iframe with server link
+    function loadIframe(serverLink) {
+        showLoading();
+        iframe.src = serverLink;
+    }
 
-            serverButtons.classList.add('show');
-            document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
-        }
+    // Load server buttons dynamically
+    function loadServers(servers, channelName) {
+        const serverButtons = document.getElementById('serverButtons');
+        serverButtons.innerHTML = '';
 
-        // Filter channels by category
-        function filterChannels() {
-            const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
-            const images = document.querySelectorAll('img[data-category]');
+        // Load first server by default
+        loadIframe(servers[0]);
 
-            images.forEach(img => {
-                const categories = img.getAttribute('data-category').toLowerCase().split(',').map(c => c.trim());
-                img.style.display = (selectedCategory === 'all' || categories.includes(selectedCategory)) ? '' : 'none';
-            });
-        }
+        // Create server buttons
+        servers.forEach((server, index) => {
+            const button = document.createElement('button');
+            button.innerText = `Server ${index + 1}`;
+            button.onclick = () => loadIframe(server);
+            serverButtons.appendChild(button);
+        });
 
-        // Get query parameters
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
+        serverButtons.classList.add('show');
+        document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
+    }
 
-        // Load default channel from query
-        window.onload = function () {
-            const defaultId = getQueryParam('id') || 'id';
-            const defaultServer = getQueryParam('server') || 'server';
-            loadIframe(`${defaultServer}.html?id=${defaultId}`);
-        };
-    </script>
+    // Filter channels by category
+    function filterChannels() {
+        const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
+        const images = document.querySelectorAll('img[data-category]');
+
+        images.forEach(img => {
+            const categories = img.getAttribute('data-category').toLowerCase().split(',').map(c => c.trim());
+            img.style.display = (selectedCategory === 'all' || categories.includes(selectedCategory)) ? '' : 'none';
+        });
+    }
+
+    // Get query parameters
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Load default channel from query
+    window.onload = function () {
+        const defaultId = getQueryParam('id') || 'id';
+        const defaultServer = getQueryParam('server') || 'server';
+        loadIframe(`${defaultServer}.html?id=${defaultId}`);
+    };
+</script>
 
     <!-- Footer -->
     <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
