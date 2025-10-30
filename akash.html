@@ -55,17 +55,7 @@
 
             if (Hls.isSupported()) {
 const hls = new Hls({
-    // 🚀 Adaptive + Low-buffer optimization
-    startLevel: 0,                  // start from lowest quality for fast start
-    maxBufferLength: 10,            // seconds of buffer to maintain
-    maxMaxBufferLength: 20,         // absolute upper limit
-    liveSyncDuration: 3,            // low latency for live
-    liveMaxLatencyDuration: 10,     // prevent huge lag on slow networks
-    abrEwmaDefaultEstimate: 500000, // initial bandwidth guess (smoother startup)
-    abrBandWidthFactor: 0.8,        // less aggressive down-switch
-    abrBandWidthUpFactor: 0.6,      // avoid buffer spikes on up-switch
     enableWorker: true,             // decode segments in a web worker
-    lowLatencyMode: true,           // minimize delay for live playback
 });
 
                 hls.loadSource(sourceUrl);
