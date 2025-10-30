@@ -5,10 +5,8 @@
   <title>Bostafull Player | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Clappr Player Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
     html, body {
@@ -26,10 +24,18 @@
       top: 0;
       left: 0;
     }
+    video {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+    }
   </style>
 </head>
 <body>
-  <div id="player"></div>
+  <div id="player">
+    <video id="video" controls autoplay playsinline></video>
+  </div>
 
   <script>
     // Disable right-click
@@ -41,31 +47,59 @@
       return urlParams.get(name);
     }
 
-    // Clappr setup
+    // HLS.js player setup
     function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mute: false,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
+      const video = document.getElementById('video');
 
-      // Auto-recover on error
-      player.on(Clappr.Events.PLAYER_ERROR, function () {
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 1000);
-      });
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          liveSyncDuration: 2,
+          maxLiveSyncPlaybackRate: 1.5,
+          enableWorker: true
+        });
 
-      player.on(Clappr.Events.PLAYER_STOP, function () {
-        player.play();
-      });
+        hls.loadSource(sourceUrl);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+        });
+
+        // Auto-recover on error
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            console.warn('Playback error — retrying...');
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                setTimeout(() => {
+                  hls.loadSource(sourceUrl);
+                  hls.attachMedia(video);
+                }, 1000);
+                break;
+            }
+          }
+        });
+
+        // Auto-restart if stopped
+        video.addEventListener('ended', () => {
+          video.play().catch(() => {});
+        });
+
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native support (Safari)
+        video.src = sourceUrl;
+        video.addEventListener('loadedmetadata', () => {
+          video.play().catch(() => {});
+        });
+      } else {
+        document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>HLS not supported in this browser.</h2>";
+      }
     }
 
     const requestedTitle = getQueryParam('id');
@@ -74,10 +108,8 @@
       fetch('https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels')
         .then(res => res.json())
         .then(json => {
-          // JSON format: { status, code, message, data: { count, list: [...] } }
           const channels = json?.data?.list || [];
 
-          // Find channel by title or ID (case insensitive)
           const match = channels.find(item =>
             item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
             item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
