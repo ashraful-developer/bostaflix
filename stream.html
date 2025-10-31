@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>Jadoo | Buddy✘TV</title>
     
     <link rel="stylesheet" type="text/css" href="style.css">
-    
-    <!-- HLS.js Script -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
     
     <style>
         html, body {
@@ -26,18 +28,10 @@
             top: 0;
             left: 0;
         }
-        video {
-            width: 100%;
-            height: 100%;
-            background: #000;
-            object-fit: contain;
-        }
     </style>
 </head>
 <body>
-    <div id="player">
-        <video id="video" controls autoplay muted playsinline></video>
-    </div>
+    <div id="player"></div>
 
     <script>
         // Prevent right-click
@@ -45,73 +39,48 @@
             event.preventDefault();
         });
 
+        // Helper to get query parameters
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
+        // Create the Clappr player
         function createPlayer(sourceUrl) {
-            const video = document.getElementById('video');
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player",
+                playback: {
+                    // Modern way to prevent Referer headers
+                    referrerPolicy: 'no-referrer'
+                }
+            }); 
 
-            if (Hls.isSupported()) {
-const hls = new Hls({
-    // 🚀 Adaptive + Low-buffer optimization
-    startLevel: 0,                  // start from lowest quality for fast start
-    maxBufferLength: 10,            // seconds of buffer to maintain
-    maxMaxBufferLength: 20,         // absolute upper limit
-    liveSyncDuration: 3,            // low latency for live
-    liveMaxLatencyDuration: 10,     // prevent huge lag on slow networks
-    abrEwmaDefaultEstimate: 500000, // initial bandwidth guess (smoother startup)
-    abrBandWidthFactor: 0.8,        // less aggressive down-switch
-    abrBandWidthUpFactor: 0.6,      // avoid buffer spikes on up-switch
-    enableWorker: true,             // decode segments in a web worker
-    lowLatencyMode: true,           // minimize delay for live playback
-});
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
 
-                hls.loadSource(sourceUrl);
-                hls.attachMedia(video);
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                hls.startLoad(); // retry network
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                setTimeout(() => {
-                                    hls.loadSource(sourceUrl);
-                                    hls.attachMedia(video);
-                                }, 100);
-                                break;
-                        }
-                    }
-                });
-
-                video.addEventListener('ended', () => {
-                    video.play();
-                });
-
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = sourceUrl;
-                video.addEventListener('loadedmetadata', () => {
-                    video.play();
-                });
-            } else {
-                console.error("HLS not supported in this browser.");
-            }
+            return player;
         }
 
         // Get channel ID from query parameter
         var channelId = getQueryParam('id');
         
         if (channelId) {
+            // Use the jadoo.php API URL structure
             const sourceUrl = `${channelId}`;
             createPlayer(sourceUrl);
         } else {
