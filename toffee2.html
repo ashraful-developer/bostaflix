@@ -1,82 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Channel Player</title>
+  <meta charset="UTF-8">
+  <title>Bostafull Player | Buddy✘TV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Clappr Player Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
   <style>
     html, body {
-      margin:0;
-      padding:0;
-      width:100vw;
-      height:100vh;
-      overflow:hidden;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
     }
-    iframe {
-      position: fixed;
-      top:0;
-      left:0;
-      width:100vw;
-      height:100vh;
-      border:0;
-    }
-    .message {
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      color:#fff;
-      background:#000;
-      font-size:1.5rem;
-      text-align:center;
+    #player {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
+  <div id="player"></div>
 
-<iframe id="player" src=""></iframe>
-<div id="msg" class="message" style="display:none;"></div>
+  <script>
+    // Disable right-click
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-<script>
-  async function init() {
-    const params = new URLSearchParams(window.location.search);
-    const queryTitle = params.get('id');
-    if (!queryTitle) {
-      showMessage('No channel title specified in query parameters.');
-      return;
+    // Get query parameter
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
     }
 
-    try {
-      const resp = await fetch('https://xfireflix.fun/test/kaya_app.php?route=getChannels');
-      if (!resp.ok) {
-        showMessage('Failed to fetch channel list. Status: ' + resp.status);
-        return;
-      }
-      const json = await resp.json();
-      const list = (json.data && json.data.list) ? json.data.list : [];
+    // Create Clappr player
+    function createPlayer(sourceUrl) {
+      const player = new Clappr.Player({
+        source: sourceUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mute: false,
+        mimeType: "application/x-mpegURL",
+        plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
 
-      const channel = list.find(c => c.title && c.title.toLowerCase() === queryTitle.toLowerCase());
-      if (channel && channel.id) {
-        document.getElementById('player').src = `https://xfireflix.fun/test/player.php?id=${channel.id}`;
-      } else {
-        showMessage('Channel not found: ' + queryTitle);
-      }
-    } catch (err) {
-      console.error(err);
-      showMessage('An error occurred loading channel list.');
+      // Auto-retry on errors
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 1500);
+      });
+
+      // Prevent accidental stops
+      player.on(Clappr.Events.PLAYER_STOP, () => {
+        player.play();
+      });
     }
-  }
 
-  function showMessage(msg) {
-    const banner = document.getElementById('msg');
-    banner.textContent = msg;
-    banner.style.display = 'flex';
-    document.getElementById('player').style.display = 'none';
-  }
+    const requestedTitle = getQueryParam('id');
 
-  // run
-  init();
-</script>
+    if (requestedTitle) {
+      fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels')
+        .then(res => res.json())
+        .then(json => {
+          const channels = json?.data?.list || [];
 
+          // Find channel by title or ID (case insensitive)
+          const match = channels.find(item =>
+            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
+            item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+          );
+
+          if (match) {
+            const streamUrl = `api/toffee.m3u8?id=${match.id}`;
+            createPlayer(streamUrl);
+          } else {
+            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load channel list:', err);
+          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
+        });
+    } else {
+      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
+    }
+  </script>
 </body>
 </html>
