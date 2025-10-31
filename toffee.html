@@ -47,7 +47,7 @@
     }
 
     try {
-      const resp = await fetch('https://xfireflix.fun/test/kaya_app.php?route=getChannels');
+      const resp = await fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels');
       if (!resp.ok) {
         showMessage('Failed to fetch channel list. Status: ' + resp.status);
         return;
@@ -57,7 +57,7 @@
 
       const channel = list.find(c => c.title && c.title.toLowerCase() === queryTitle.toLowerCase());
       if (channel && channel.id) {
-        document.getElementById('player').src = `https://xfireflix.fun/test/player.php?id=${channel.id}`;
+        document.getElementById('player').src = `https://aynaxbosta.global.ssl.fastly.net/test/player.php?play=${channel.id}`;
       } else {
         showMessage('Channel not found: ' + queryTitle);
       }
