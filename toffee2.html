@@ -5,8 +5,11 @@
   <title>Bostafull Player | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- HLS.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <!-- Clappr Player Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
   <style>
     html, body {
       margin: 0;
@@ -23,18 +26,10 @@
       top: 0;
       left: 0;
     }
-    video {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      object-fit: contain;
-    }
   </style>
 </head>
 <body>
-  <div id="player">
-    <video id="video" controls autoplay playsinline></video>
-  </div>
+  <div id="player"></div>
 
   <script>
     // Disable right-click
@@ -46,59 +41,31 @@
       return urlParams.get(name);
     }
 
-    // HLS.js player setup
+    // Clappr setup
     function createPlayer(sourceUrl) {
-      const video = document.getElementById('video');
+      const player = new Clappr.Player({
+        source: sourceUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mute: false,
+        mimeType: "application/x-mpegURL",
+        plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
 
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          liveSyncDuration: 2,
-          maxLiveSyncPlaybackRate: 1.5,
-          enableWorker: true
-        });
+      // Auto-recover on error
+      player.on(Clappr.Events.PLAYER_ERROR, function () {
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 1000);
+      });
 
-        hls.loadSource(sourceUrl);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {});
-        });
-
-        // Auto-recover on error
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            console.warn('Playback error — retrying...');
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
-              default:
-                setTimeout(() => {
-                  hls.loadSource(sourceUrl);
-                  hls.attachMedia(video);
-                }, 1000);
-                break;
-            }
-          }
-        });
-
-        // Auto-restart if stopped
-        video.addEventListener('ended', () => {
-          video.play().catch(() => {});
-        });
-
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native support (Safari)
-        video.src = sourceUrl;
-        video.addEventListener('loadedmetadata', () => {
-          video.play().catch(() => {});
-        });
-      } else {
-        document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>HLS not supported in this browser.</h2>";
-      }
+      player.on(Clappr.Events.PLAYER_STOP, function () {
+        player.play();
+      });
     }
 
     const requestedTitle = getQueryParam('id');
@@ -107,8 +74,10 @@
       fetch('https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels')
         .then(res => res.json())
         .then(json => {
+          // JSON format: { status, code, message, data: { count, list: [...] } }
           const channels = json?.data?.list || [];
 
+          // Find channel by title or ID (case insensitive)
           const match = channels.find(item =>
             item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
             item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
@@ -129,76 +98,5 @@
       document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
     }
   </script>
-  <script>
-(function() {
-  function showOverlay() {
-    // Create overlay
-    const overlay = document.createElement("div");
-    overlay.id = "universal-loading-overlay";
-    overlay.innerHTML = `
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-    `;
-
-    // Base styles
-    Object.assign(overlay.style, {
-      position: "fixed",
-      top: "0",
-      left: "0",
-      width: "100%",
-      height: "100%",
-      background: "rgba(0,0,0,0.85)",
-      color: "#fff",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      fontFamily: "Arial, sans-serif",
-      fontSize: "18px",
-      zIndex: "9999",
-      opacity: "1",
-      transition: "opacity 0.5s ease"
-    });
-
-    // Spinner styling
-    const spinner = overlay.querySelector(".spinner");
-    Object.assign(spinner.style, {
-      border: "4px solid rgba(255,255,255,0.2)",
-      borderTop: "4px solid #fff",
-      borderRadius: "50%",
-      width: "50px",
-      height: "50px",
-      animation: "spin 1s linear infinite",
-      marginBottom: "15px"
-    });
-
-    // Add animation style
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Append overlay
-    document.body.appendChild(overlay);
-
-    // Fade out & remove after 3s
-    setTimeout(() => {
-      overlay.style.opacity = "0";
-      setTimeout(() => overlay.remove(), 600);
-    }, 3000);
-  }
-
-  // Wait for body to exist
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", showOverlay);
-  } else {
-    showOverlay();
-  }
-})();
-</script>
 </body>
 </html>
