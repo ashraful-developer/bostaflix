@@ -5,7 +5,9 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -14,9 +16,7 @@
       height: 100%;
       background: #000;
       overflow: hidden;
-      font-family: Arial, sans-serif;
     }
-
     #player {
       width: 100%;
       height: 100%;
@@ -24,63 +24,14 @@
       top: 0;
       left: 0;
     }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-    }
-
-    /* Loading overlay */
-    #loading {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 18px;
-      z-index: 10;
-    }
-
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   </style>
 </head>
 <body>
-  <div id="player">
-    <video id="video" controls autoplay muted playsinline></video>
-  </div>
-
-  <!-- Loading overlay -->
-  <div id="loading">
-    <div class="spinner"></div>
-    <div>Loading Stream...</div>
-  </div>
+  <div id="player"></div>
 
   <script>
     // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
-
-    const loading = document.getElementById("loading");
 
     // Get query parameter (?id=Title)
     function getQueryParam(name) {
@@ -88,95 +39,53 @@
       return urlParams.get(name);
     }
 
-    // Initialize HLS.js player
+    // Initialize player
     function createPlayer(sourceUrl) {
-      const video = document.getElementById("video");
+      const player = new Clappr.Player({
+        source: sourceUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mimeType: "application/x-mpegURL",
+        plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
 
-      if (Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: true });
-
-        hls.loadSource(sourceUrl);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          loading.style.display = "none";
-          video.play().catch(() => {});
-        });
-
-        // Retry on fatal errors
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            console.warn("Playback error — retrying...");
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
-              default:
-                setTimeout(() => {
-                  hls.loadSource(sourceUrl);
-                  hls.attachMedia(video);
-                }, 500);
-                break;
-            }
-          }
-        });
-
-        video.addEventListener("ended", () => {
-          video.play().catch(() => {});
-        });
-
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = sourceUrl;
-        video.addEventListener("loadedmetadata", () => {
-          loading.style.display = "none";
-          video.play().catch(() => {});
-        });
-      } else {
-        loading.innerText = "HLS not supported in this browser.";
-      }
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error — retrying...");
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 500);
+      });
     }
 
-    // Fetch redirect from API
-    async function resolveStream(apiUrl) {
-      try {
-        const response = await fetch(apiUrl, { redirect: "follow" });
-        const finalUrl = response.url;
-        console.log("Resolved Stream URL:", finalUrl);
-        createPlayer(finalUrl);
-      } catch (err) {
-        console.error("Failed to load actual stream:", err);
-        loading.innerText = "Failed to load stream.";
-      }
-    }
-
-    // Main
     const requestedTitle = getQueryParam("id");
 
     if (requestedTitle) {
       fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
+          // Adjust depending on your JSON structure
           const list = json.data?.list || [];
           const match = list.find(
             item => item.title.toLowerCase() === requestedTitle.toLowerCase()
           );
 
           if (match && match.id) {
-            const apiUrl = `api/ayna.m3u8?id=${match.id}`;
-            resolveStream(apiUrl);
+            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+            createPlayer(streamUrl);
           } else {
-            loading.innerText = `Channel "${requestedTitle}" not found.`;
+            alert(`Channel "${requestedTitle}" not found in list.`);
           }
         })
         .catch(err => {
           console.error("Failed to load channel list:", err);
-          loading.innerText = "Error loading channel list.";
+          alert("Error loading channel list.");
         });
     } else {
-      loading.innerText = "Missing 'id' parameter in URL.";
+      alert("Missing 'id' parameter in URL.");
     }
   </script>
 </body>
