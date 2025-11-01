@@ -11,21 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
+    html, body {margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}
+    #player {width:100%;height:100%;position:absolute;top:0;left:0;}
   </style>
 </head>
 <body>
@@ -39,6 +26,52 @@
       return urlParams.get(name);
     }
 
+    function normalizeName(name) {
+      return name
+        .trim()
+        .toLowerCase()
+        .replace(/^sony ten sports\s*(\d)/i, 'sony sports ten $1');
+    }
+
+    async function loadChannels(apiUrl) {
+      try {
+        const res = await fetch(apiUrl);
+        const json = await res.json();
+        return json?.data?.list || [];
+      } catch {
+        return [];
+      }
+    }
+
+    const requestedTitle = getQueryParam('id');
+    const mainAPI = 'https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels';
+    const backupAPI = 'https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels';
+    let backupStreamUrl = null;
+
+    async function findChannel() {
+      let channels = await loadChannels(mainAPI);
+      let match = channels.find(item =>
+        normalizeName(item.title) === normalizeName(requestedTitle) ||
+        item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+      );
+
+      // Fallback if main failed or not found
+      if (!match) {
+        channels = await loadChannels(backupAPI);
+        match = channels.find(item =>
+          normalizeName(item.title) === normalizeName(requestedTitle) ||
+          item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+        );
+        if (match) backupStreamUrl = `api/toffee.m3u8?id=${match.id}`;
+      } else {
+        backupStreamUrl = `api/toffee.m3u8?id=${match.id}`;
+      }
+
+      return match
+        ? `https://bostacdn.global.ssl.fastly.net/fuck/live.php?id=${match.id}&e=.m3u8`
+        : null;
+    }
+
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -46,86 +79,45 @@
         width: "100%",
         height: "100%",
         autoPlay: true,
-        mute: false,
         mimeType: "application/x-mpegURL",
         plugins: [HlsjsPlayback, LevelSelector],
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
+      // Stream error fallback
       player.on(Clappr.Events.PLAYER_ERROR, () => {
-        setTimeout(() => {
-          player.load(player.options.source);
+        console.warn("Main stream failed. Trying backup...");
+        if (backupStreamUrl) {
+          player.load(backupStreamUrl);
           player.play();
-        }, 1500);
+          backupStreamUrl = null; // only try once
+        } else {
+          setTimeout(() => {
+            player.load(player.options.source);
+            player.play();
+          }, 1500);
+        }
       });
 
-      player.on(Clappr.Events.PLAYER_STOP, () => {
-        player.play();
-      });
+      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
     }
 
-    const requestedTitle = getQueryParam('id');
-
-    const mainAPI = 'https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels';
-    const backupAPI = 'https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels';
-
-    // Normalize name mappings
-    function normalizeName(name) {
-      return name
-        .trim()
-        .toLowerCase()
-        .replace(/^sony ten sports\s*(\d)/i, 'sony sports ten $1'); // handle Sony Ten Sports → Sony Sports Ten
-    }
-
-    async function loadChannels(apiUrl) {
-      const res = await fetch(apiUrl);
-      const json = await res.json();
-      return json?.data?.list || [];
-    }
-
-    async function initPlayer() {
+    async function init() {
       if (!requestedTitle) {
         document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
         return;
       }
 
-      try {
-        // Try main first
-        let channels = await loadChannels(mainAPI);
-        let match = channels.find(item =>
-          normalizeName(item.title) === normalizeName(requestedTitle) ||
-          item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
-        );
+      const mainStreamUrl = await findChannel();
 
-        if (match) {
-          const streamUrl = `https://bostacdn.global.ssl.fastly.net/fuck/live.php?id=${match.id}&e=.m3u8`;
-          createPlayer(streamUrl);
-          return;
-        }
-
-        // Try backup
-        channels = await loadChannels(backupAPI);
-        match = channels.find(item =>
-          normalizeName(item.title) === normalizeName(requestedTitle) ||
-          item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
-        );
-
-        if (match) {
-          const streamUrl = `api/toffee.m3u8?id=${match.id}`;
-          createPlayer(streamUrl);
-          return;
-        }
-
-        // Not found anywhere
+      if (mainStreamUrl) {
+        createPlayer(mainStreamUrl);
+      } else {
         document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
-
-      } catch (err) {
-        console.error('Error loading channel data:', err);
-        document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
       }
     }
 
-    initPlayer();
+    init();
   </script>
 </body>
 </html>
