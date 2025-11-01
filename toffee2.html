@@ -32,16 +32,13 @@
   <div id="player"></div>
 
   <script>
-    // Disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter
     function getQueryParam(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    // Create Clappr player
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
         source: sourceUrl,
@@ -55,7 +52,6 @@
         mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
       });
 
-      // Auto-retry on errors
       player.on(Clappr.Events.PLAYER_ERROR, () => {
         setTimeout(() => {
           player.load(player.options.source);
@@ -63,7 +59,6 @@
         }, 1500);
       });
 
-      // Prevent accidental stops
       player.on(Clappr.Events.PLAYER_STOP, () => {
         player.play();
       });
@@ -71,32 +66,66 @@
 
     const requestedTitle = getQueryParam('id');
 
-    if (requestedTitle) {
-      fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels')
-        .then(res => res.json())
-        .then(json => {
-          const channels = json?.data?.list || [];
+    const mainAPI = 'https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels';
+    const backupAPI = 'https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels';
 
-          // Find channel by title or ID (case insensitive)
-          const match = channels.find(item =>
-            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
-            item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
-          );
-
-          if (match) {
-            const streamUrl = `api/toffee.m3u8?id=${match.id}`;
-            createPlayer(streamUrl);
-          } else {
-            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
-          }
-        })
-        .catch(err => {
-          console.error('Failed to load channel list:', err);
-          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
-        });
-    } else {
-      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
+    // Normalize name mappings
+    function normalizeName(name) {
+      return name
+        .trim()
+        .toLowerCase()
+        .replace(/^sony ten sports\s*(\d)/i, 'sony sports ten $1'); // handle Sony Ten Sports → Sony Sports Ten
     }
+
+    async function loadChannels(apiUrl) {
+      const res = await fetch(apiUrl);
+      const json = await res.json();
+      return json?.data?.list || [];
+    }
+
+    async function initPlayer() {
+      if (!requestedTitle) {
+        document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
+        return;
+      }
+
+      try {
+        // Try main first
+        let channels = await loadChannels(mainAPI);
+        let match = channels.find(item =>
+          normalizeName(item.title) === normalizeName(requestedTitle) ||
+          item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+        );
+
+        if (match) {
+          const streamUrl = `https://bostacdn.global.ssl.fastly.net/fuck/live.php?id=${match.id}&e=.m3u8`;
+          createPlayer(streamUrl);
+          return;
+        }
+
+        // Try backup
+        channels = await loadChannels(backupAPI);
+        match = channels.find(item =>
+          normalizeName(item.title) === normalizeName(requestedTitle) ||
+          item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
+        );
+
+        if (match) {
+          const streamUrl = `api/toffee.m3u8?id=${match.id}`;
+          createPlayer(streamUrl);
+          return;
+        }
+
+        // Not found anywhere
+        document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+
+      } catch (err) {
+        console.error('Error loading channel data:', err);
+        document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
+      }
+    }
+
+    initPlayer();
   </script>
 </body>
 </html>
