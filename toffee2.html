@@ -69,7 +69,7 @@
     }
 
     const requestedTitle = getQueryParam('id');
-    const mainAPI = 'https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels';
+    const mainAPI = 'https://allottplay.com/tv/toffee/kaya_app.php?route=getChannels';
     const backupAPI = 'https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels';
     let backupStreamUrl = null;
 
@@ -93,7 +93,7 @@
       }
 
       return match
-        ? `https://bostacdn.global.ssl.fastly.net/fuck/live.php?id=${match.id}&e=.m3u8`
+        ? `https://allottplay.com/tv/toffee/live.php?id=${match.id}&e=.m3u8`
         : null;
     }
 
