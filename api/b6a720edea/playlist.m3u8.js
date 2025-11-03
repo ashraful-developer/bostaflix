@@ -1,40 +1,20 @@
 export default async function handler(req, res) {
-  const targetUrl = "https://bostaflix.vercel.app/video.mp4";
+  res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+  res.setHeader("Cache-Control", "no-cache");
 
-  try {
-    // Pass through Range headers for seeking support
-    const range = req.headers.range ? { Range: req.headers.range } : {};
+  // Generate a random ID for uniqueness (optional)
+  const id = Math.random().toString(36).substring(2, 10);
 
-    const response = await fetch(targetUrl, {
-      headers: range,
-    });
+  const playlist = `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:6
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:EVENT
 
-    // Copy status and headers from origin
-    res.status(response.status);
+#EXTINF:6.0,
+https://bostaflix.vercel.app/api/video.mp4
+#EXT-X-ENDLIST
+`;
 
-    // Forward essential headers
-    for (const [key, value] of response.headers.entries()) {
-      if (["content-type", "content-length", "accept-ranges", "content-range"].includes(key.toLowerCase())) {
-        res.setHeader(key, value);
-      }
-    }
-
-    // Add CORS headers for Clappr
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Range, Content-Type");
-
-    // Handle OPTIONS preflight
-    if (req.method === "OPTIONS") {
-      return res.status(200).end();
-    }
-
-    // Stream data to the client
-    const buffer = await response.arrayBuffer();
-    res.send(Buffer.from(buffer));
-
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Error fetching video");
-  }
+  res.status(200).send(playlist);
 }
