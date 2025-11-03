@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 #EXT-X-PLAYLIST-TYPE:EVENT
 
 #EXTINF:6.0,
-https://bostaflix.vercel.app/api/video.mp4
+https://bostaflix.vercel.app/api/video.ts
 #EXT-X-ENDLIST
 `;
 
