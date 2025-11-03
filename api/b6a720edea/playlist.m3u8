@@ -1,0 +1,24 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:6
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:EVENT
+
+# Segment 1
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random1
+# Segment 2
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random2
+# Segment 3
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random3
+# Segment 4
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random4
+# Segment 5
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random5
+# Segment 6
+#EXTINF:6.0,
+https://bostaflix.vercel.app/video.mp4?id=random6
