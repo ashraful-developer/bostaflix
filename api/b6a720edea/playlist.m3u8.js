@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 #EXT-X-TARGETDURATION:6
 #EXT-X-MEDIA-SEQUENCE:0
 #EXTINF:6.0,
-https://bostaflix.vercel.app/video.mp4
+https://bostaflix.vercel.app/api/video.mp4
 #EXT-X-ENDLIST`;
 
   res.status(200).send(playlist);
