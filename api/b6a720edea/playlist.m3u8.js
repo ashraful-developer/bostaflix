@@ -4,9 +4,9 @@ export default async function handler(req, res) {
 
   const playlist = `#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:8
+#EXT-X-TARGETDURATION:6
 #EXT-X-MEDIA-SEQUENCE:0
-#EXTINF:8.0,
+#EXTINF:6.0,
 https://bostaflix.vercel.app/video.mp4
 #EXT-X-ENDLIST`;
 
