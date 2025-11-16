@@ -91,11 +91,9 @@
       } else {
         backupStreamUrl = `api/toffee.m3u8?id=${match.id}`;
       }
-
-      return match
-        ? `Request URLhttps://bostacdn.global.ssl.fastly.net/test/live.php?id=${match.id}&e=.m3u8`
+return match
+        ? `Request URL \`https://bostacdn.global.ssl.fastly.net/test/live.php?id=${match.id}&e=.m3u8\``
         : null;
-    }
 
     function createPlayer(sourceUrl) {
       const player = new Clappr.Player({
