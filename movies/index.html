@@ -11,10 +11,10 @@
 <style>
 /* ---------- GLOBAL ---------- */
 body {
-    background-color: #121212;
+    background-color: #ffffff;
     margin: 0;
     padding: 0;
-    color: #f0f0f0;
+    color: #000000;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     scroll-behavior: smooth;
 }
@@ -25,13 +25,13 @@ body {
 
 /* ---------- HEADER ---------- */
 header {
-    background-color: #1e1e1e;
-    color: #fff;
+    background-color: #f7f7f7;
+    color: #000;
     padding: 10px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
 }
 
 .logo {
@@ -48,11 +48,11 @@ header {
 }
 
 .nav-links a {
-    color: #e0e0e0;
+    color: #444;
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 6px;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .nav-links a:hover {
@@ -70,14 +70,14 @@ header {
 
 /* ---------- VIDEO CARD ---------- */
 .video-card {
-    background-color: #000;
+    background-color: #ffffff;
     border-radius: 8px;
     overflow: hidden;
     border: 2px solid #ff3c3c;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     transition: transform 0.2s ease;
     text-decoration: none;
-    color: white;
+    color: #000;
 }
 
 .video-card:hover {
@@ -90,6 +90,7 @@ header {
     object-fit: cover;
 }
 
+/* ---------- VIDEO DETAILS ---------- */
 .video-details {
     padding: 10px;
 }
@@ -97,12 +98,12 @@ header {
 .video-details h3 {
     margin: 0;
     font-size: 1em;
-    color: #fff;
+    color: #000;
 }
 
 .video-details p {
     font-size: 0.85em;
-    color: #ccc;
+    color: #444;
     margin-top: 5px;
 }
 
@@ -122,7 +123,7 @@ header {
     .video-card {
         border-radius: 4px;
         border: 1px solid #ff3c3c;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
 
     .video-details {
@@ -138,6 +139,7 @@ header {
     }
 }
 </style>
+
 
 </head>
 <body>
