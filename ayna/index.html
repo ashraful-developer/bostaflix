@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
-
 <style>
 body {
-    background-color: #121212;
+    background-color: #F2F2F2;
     margin: 0;
     padding: 0;
-    color: #f0f0f0;
+    color: #000; /* black text for white background */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     scroll-behavior: smooth;
 }
@@ -24,11 +23,11 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    border-bottom: 1px solid #ff3c3c;
 }
 
 .logo {
-    color: #fff; /* white logo for contrast */
+    color: white;
     text-decoration: none;
     font-size: 1.5em;
     font-weight: bold;
@@ -41,7 +40,7 @@ header {
 }
 
 .nav-links a {
-    color: #fff; /* white links for contrast */
+    color: white;
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 6px;
@@ -49,7 +48,7 @@ header {
 }
 
 .nav-links a:hover {
-    background-color: #e60000; /* slightly darker red on hover */
+    background-color: red;
     color: #fff;
 }
 
@@ -71,8 +70,39 @@ iframe {
     height: 100%;
     border: none;
     border-radius: 0;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    color: black;
+    background-color: black;
+}
+
+/* Server buttons */
+.server-buttons-container {
+    width: 100%;
+    padding: 15px 0;
+    text-align: center;
+    display: none;
+    transition: all 0.3s ease;
+    color: #000;
+}
+
+.server-buttons-container.show {
+    display: block;
+}
+
+.server-buttons-container button {
+    background-color: white;
+    border: 1px solid #ff3c3c;
+    padding: 10px 18px;
+    margin: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #ff3c3c;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.server-buttons-container button:hover {
+    background-color: #ff3c3c;
+    color: white;
+    transform: scale(1.05);
 }
 
 /* Logo container */
@@ -87,22 +117,14 @@ iframe {
 
 .logos-container img {
     width: 100px;
-    height: 75px;
+    height: 75px; /* 4:3 container */
     object-fit: contain;
     aspect-ratio: 4 / 3;
     padding: 6px;
     border: 1px solid #ff3c3c; /* red border */
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s;
-
-    /* Gray background as base */
-    background-color: #4d4d4d;
-
-    /* White 16:9 centered "screen" */
-    background-image: linear-gradient(white, white);
-    background-size: 100% 70%;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: white;
 }
 
 .logos-container img:hover {
@@ -114,14 +136,15 @@ iframe {
 .category-filter {
     margin: 25px auto;
     text-align: center;
+    color: #ff3c3c;
 }
 
 .category-filter select {
     padding: 10px 14px;
     font-size: 16px;
     border-radius: 6px;
-    background-color: #1e1e1e;
-    color: #fff;
+    background-color: white;
+    color: #ff3c3c;
     border: 1px solid #555;
     outline: none;
 }
@@ -130,6 +153,7 @@ iframe {
     .iframe-container {
         max-height: 70vh;
         max-width: 80%;
+        border: 3px solid red;
     }
     .logos-container {
         max-width: 80vw;
@@ -139,6 +163,8 @@ iframe {
 @media (max-width: 720px) {
     .iframe-container {
         width: 100%;
+        border-top: 2px solid red;
+        border-bottom: 2px solid red;
     }
     .nav-links {
         display: none;
