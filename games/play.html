@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOSTAFLIX Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #212121;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+        iframe {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+        }
+        #error {
+            padding: 20px;
+            text-align: center;
+            color: red;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+        <nav class="nav-links">
+            <a href="https://bostaflix.vercel.app/games">Go Back</a>
+        </nav>
+    </header>
+
+    <div id="content"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        const container = document.getElementById("content");
+
+        if (!id) {
+            container.innerHTML = "<div id='error'>Error: No game ID provided in URL.</div>";
+        } else {
+            const url = `https://baldis-basics-online.github.io/${id}/`;
+
+            container.innerHTML = `<iframe src="${url}"></iframe>`;
+        }
+    </script>
+
+</body>
+</html>
