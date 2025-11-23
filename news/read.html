@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <title>BOSTAFLIX News</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
+<style>
 * {
   box-sizing: border-box;
 }
@@ -15,24 +14,23 @@ body {
   line-height: 1.6;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9;
+  background-color: #F2F2F2; /* light theme */
 }
 
-/* Header styling */
+/* Header styling (adapted to red theme) */
 header {
   width: 100%;
-  background-color: #1e1e1e;
+  background-color: #ff3c3c;  /* red header */
   color: #fff;
   display: flex;
   padding: 10px 20px;
   align-items: center;
   justify-content: space-between;
   margin: 0;
-  box-sizing: border-box;
 }
 
 .logo {
-  color: #ff3c3c;
+  color: #fff;   /* white text for logo */
   text-decoration: none;
   font-size: 1.5em;
   font-weight: bold;
@@ -45,7 +43,7 @@ header {
 }
 
 .nav-links a {
-  color: #e0e0e0;
+  color: white;
   text-decoration: none;
   padding: 6px 12px;
   border-radius: 6px;
@@ -53,8 +51,8 @@ header {
 }
 
 .nav-links a:hover {
-  background-color: #ff3c3c;
-  color: #fff;
+  background-color: white;  /* white hover */
+  color: #ff3c3c;           /* red text */
 }
 
 @media (max-width: 720px) {
@@ -63,32 +61,36 @@ header {
   }
 }
 
+/* Headline */
 .headline {
   font-size: 24px;
   font-weight: bold;
-  color: #d63031;
+  color: #ff3c3c;       /* red theme */
   margin: 20px auto 10px;
   width: 90%;
-  padding: 10px;
+  padding: 10px 0;
 }
 
+/* Brief */
 .brief {
   font-size: 18px;
-  color: #2d3436;
-  margin: 0 auto;
+  color: #444;          /* dark gray */
+  margin: 0 auto 10px;
   width: 90%;
-  padding: 0 10px 10px;
+  padding: 0 0 10px;
 }
 
+/* Content */
 .content {
   font-size: 16px;
   color: #333;
   margin: 10px auto 40px;
   width: 90%;
-  padding: 10px;
+  padding: 10px 0;
   text-align: justify;
 }
-  </style>
+</style>
+
 </head>
 <body>
     <header>
