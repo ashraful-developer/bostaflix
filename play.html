@@ -9,27 +9,27 @@
      crossorigin="anonymous"></script>
 <style>
     body {
-        background-color: #121212;
+        background-color: #F2F2F2;
         margin: 0;
         padding: 0;
-        color: #f0f0f0;
+        color: white;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         scroll-behavior: smooth;
     }
 
     /* Header styling */
     header {
-        background-color: #1e1e1e;
+        background-color: #ff3c3c;
         color: #fff;
         padding: 10px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        border-bottom: 1px solid #ff3c3c;
     }
 
     .logo {
-        color: #ff3c3c;
+        color: white;
         text-decoration: none;
         font-size: 1.5em;
         font-weight: bold;
@@ -42,7 +42,7 @@
     }
 
     .nav-links a {
-        color: #e0e0e0;
+        color: white;
         text-decoration: none;
         padding: 6px 12px;
         border-radius: 6px;
@@ -50,7 +50,7 @@
     }
 
     .nav-links a:hover {
-        background-color: #ff3c3c;
+        background-color: red;
         color: #fff;
     }
 
@@ -72,15 +72,13 @@
         height: 100%;
         border: none;
         border-radius: 0; /* No round edges */
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        color: black;
+        background-color: black;
     }
 
     /* Server buttons */
     .server-buttons-container {
         width: 100%;
         padding: 15px 0;
-        background: #1a1a1a;
         text-align: center;
         display: none;
         transition: all 0.3s ease;
@@ -92,14 +90,14 @@
     }
 
     .server-buttons-container button {
-        background-color: #2a2a2a;
+        background-color: white;
         border: 1px solid #ff3c3c;
         padding: 10px 18px;
         margin: 6px;
         font-size: 16px;
         cursor: pointer;
         border-radius: 4px;
-        color: #fff;
+        color: #ff3c3c;
         transition: background-color 0.3s ease, transform 0.2s;
     }
 
@@ -126,16 +124,8 @@
     padding: 6px;
     border: 1px solid #ff3c3c; /* red border */
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s;
-
-    /* Gray background as base */
-    background-color: #4d4d4d;
-
-    /* White 16:9 centered "screen" */
-    background-image: linear-gradient(white, white);
-    background-size: 100% 70%; /* 16:9 = 9/16 = 56.25% of height */
-    background-position: center;
-    background-repeat: no-repeat;
+    transition: transform 0.3s ease, box-shadow 0.3s;	
+	background-color: white;
 }
 
     .logos-container img:hover {
@@ -147,14 +137,15 @@
     .category-filter {
         margin: 25px auto;
         text-align: center;
+        color: #ff3c3c;
     }
 
     .category-filter select {
         padding: 10px 14px;
         font-size: 16px;
         border-radius: 6px;
-        background-color: #1e1e1e;
-        color: #fff;
+        background-color: white;
+        color: #ff3c3c;
         border: 1px solid #555;
         outline: none;
     }
@@ -163,7 +154,7 @@
         .iframe-container {
             max-height: 70vh;
             max-width: 80%;
-            
+	border: 3px solid red;            
         }
             .logos-container {
                 max-width: 80vw;
@@ -173,6 +164,8 @@
     @media (max-width: 720px) {
         .iframe-container {
             width: 100%;
+			border-top: 2px solid red;
+	border-bottom: 2px solid red;
         }
 
         .nav-links {
