@@ -4,114 +4,116 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouTube Downloader</title>
-  <style>
-    body {
-      background-color: #121212;
-      color: #f0f0f0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+body {
+    background-color: #F2F2F2; /* light background */
+    color: #000; /* black text */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
 
-    h2 {
-      color: #f0f0f0;
-    }
+h2 {
+    color: #000;
+}
 
-    header {
-      background-color: #1e1e1e;
-      color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
+header {
+    background-color: #ff3c3c; /* red header */
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
 
-    .logo {
-      color: #ff3c3c;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+}
 
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: red;
+    color: #fff;
+}
+
+input {
+    padding: 10px;
+    width: 80vw;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+    background-color: white;
+    color: #ff3c3c;
+}
+
+button {
+    background-color: #ff3c3c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #cc0000;
+}
+
+#video-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+video {
+    width: 90%;
+    max-width: 800px;
+    border-radius: 8px;
+    display: none;
+    background-color: black; /* video background if not loaded */
+}
+
+.error-message {
+    color: #ff3c3c;
+    margin-top: 10px;
+}
+
+#download-link {
+    margin-top: 15px;
+    display: none;
+}
+
+@media (max-width: 768px) {
     .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav-links a {
-      color: #e0e0e0;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: background 0.3s ease;
-    }
-
-    .nav-links a:hover {
-      background-color: #ff3c3c;
-      color: #fff;
-    }
-
-    input {
-      padding: 10px;
-      width: 80vw;
-      max-width: 400px;
-      border: 1px solid #555;
-      border-radius: 5px;
-      margin-top: 10px;
-      background-color: #1e1e1e;
-      color: #f0f0f0;
-    }
-
-    button {
-      background-color: #ff3c3c;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      margin: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #cc0000;
-    }
-
-    #video-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
+        display: none;
     }
 
     video {
-      width: 90%;
-      max-width: 800px;
-      border-radius: 8px;
-      display: none;
-    }
-
-    .error-message {
-      color: #ff3c3c;
-      margin-top: 10px;
-    }
-
-    #download-link {
-      margin-top: 15px;
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-
-      video {
         height: auto;
-      }
     }
-  </style>
+}
+</style>
+
 </head>
 <body>
   <header>
