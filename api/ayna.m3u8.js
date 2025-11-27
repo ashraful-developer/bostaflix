@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // FIXED regex
+    // Extract the stream URL from the HTML
     const match = html.match(/const\s+streamUrl\s*=\s*"([^"]+)"/);
 
     if (!match) {
@@ -28,9 +28,12 @@ export default async function handler(req, res) {
       return;
     }
 
-    const streamUrl = match[1];
+    let streamUrl = match[1];
 
-    // Redirect to actual m3u8
+    // 🔧 FIX: remove all double/triple slashes but keep protocol (https://)
+    streamUrl = streamUrl.replace(/([^:]\/)\/+/g, "$1");
+
+    // Redirect to normalized URL
     res.writeHead(302, { Location: streamUrl });
     res.end();
 
