@@ -20,9 +20,7 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // Extract the stream URL from the HTML
     const match = html.match(/const\s+streamUrl\s*=\s*"([^"]+)"/);
-
     if (!match) {
       res.status(404).json({ error: "No stream URL found" });
       return;
@@ -30,10 +28,15 @@ export default async function handler(req, res) {
 
     let streamUrl = match[1];
 
-    // 🔧 FIX: remove all double/triple slashes but keep protocol (https://)
+    // STEP 1 → Fix escaped slashes (\/)
+    streamUrl = streamUrl.replace(/\\\//g, "/");
+
+    // STEP 2 → Collapse double slashes but keep https:// intact
     streamUrl = streamUrl.replace(/([^:]\/)\/+/g, "$1");
 
-    // Redirect to normalized URL
+    // Optional: Log to verify
+    console.log("CLEAN URL:", streamUrl);
+
     res.writeHead(302, { Location: streamUrl });
     res.end();
 
