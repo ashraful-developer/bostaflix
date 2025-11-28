@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     let html = await response.text();
 
     // --- 3) Replace aes.js and remove <a href> ---
-    html = html.replace(/aes\.js/g, "https://xfireflix.ct.ws/aes.js");
+    html = html.replace(/(src\s*=\s*["'])\/?aes\.js(["'])/gi, '$1https://xfireflix.ct.ws/aes.js$2');
     html = html.replace(/<a\s+[^>]*href=["'][^"']*["'][^>]*>.*?<\/a>/gi, "");
 
     // --- 4) Try to extract m3u8 URL ---
