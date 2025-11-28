@@ -2,118 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ayna Player</title>
+  <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-
-  <!-- AES decryptor (your copy, unchanged) -->
-  <script src="/aes.js"></script>
-
-  <!-- Player libs -->
+    <script src="api/ayna.m3u8"></script>
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
 
-  <style>
-    html, body { margin:0; padding:0; width:100%; height:100%; background:#000; }
-    #player { width:100%; height:100%; position:absolute; top:0; left:0; }
-    @media (max-width:400px) {
-      body { transform:scale(0.8); transform-origin:top left; width:125%; height:125%; }
+  #player {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* When screen width is below 400px, scale down entire page */
+  @media (max-width: 400px) {
+    body {
+      transform: scale(0.8);
+      transform-origin: top left;
+      width: 125%;   /* compensate for scaling shrink */
+      height: 125%;
     }
-  </style>
+  }
+</style>
 </head>
-
 <body>
+  <div id="player"></div>
 
-<div id="player"></div>
+  <script>
+    // Disable right-click
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
-<script>
-// ----------------------------
-// Extract AES values and set cookie
-// ----------------------------
-async function generateTokenCookie() {
-    console.log("Retrieving AES page...");
-
-    const response = await fetch(`/api/token?url=${encodeURIComponent("https://xfireflix.ct.ws/ayna/")}`);
-    const html = await response.text();
-
-    const match = html.match(
-      /toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)/
-    );
-
-    if (!match) {
-        console.error("❌ AES keys not found in token page");
-        return;
+    // Get query parameter (?id=Title)
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
     }
 
-    const [_, aHex, bHex, cHex] = match;
-
-    const toNumbers = hex => hex.match(/../g).map(h => parseInt(h, 16));
-
-    const a = toNumbers(aHex);
-    const b = toNumbers(bHex);
-    const c = toNumbers(cHex);
-
-    const decrypted = slowAES.decrypt(c, 2, a, b);
-    const token = decrypted.map(v => ("0" + v.toString(16)).slice(-2)).join("");
-
-    document.cookie = `__test=${token}; path=/; max-age=21600`;
-    console.log("✔ AES Cookie Set:", token);
-
-    return token;
-}
-
-// ----------------------------
-// Clappr Player
-// ----------------------------
-function createPlayer(url) {
-    const player = new Clappr.Player({
-        source: url,
+    // Initialize player
+    function createPlayer(sourceUrl) {
+      const player = new Clappr.Player({
+        source: sourceUrl,
         parentId: "#player",
+        width: "100%",
+        height: "100%",
         autoPlay: true,
+        mimeType: "application/x-mpegURL",
         plugins: [HlsjsPlayback, LevelSelector],
+        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      });
 
-        playback: {
-          hlsjsConfig: {
-            xhrSetup: xhr => {
-              xhr.withCredentials = true;  // SEND AES COOKIE
-            }
-          }
-        }
-    });
-
-    player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Playback error—retrying...");
+      player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error — retrying...");
         setTimeout(() => {
           player.load(player.options.source);
           player.play();
         }, 500);
-    });
-}
+      });
+    }
 
-// ----------------------------
-// Find channel in JSON
-// ----------------------------
-async function loadChannel() {
-    await generateTokenCookie();
+    const requestedTitle = getQueryParam("id");
 
-    const idParam = new URLSearchParams(location.search).get("id");
-    if (!idParam) return alert("Missing id");
+    if (requestedTitle) {
+      fetch("ayna-proxy.json")
+        .then(res => res.json())
+        .then(json => {
+          // Adjust depending on your JSON structure
+          const list = json.data?.list || [];
+          const match = list.find(
+            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
+          );
 
-    const json = await fetch("ayna-proxy.json").then(r => r.json());
-    const list = json.data?.list || [];
-
-    const match = list.find(x => x.title.toLowerCase() === idParam.toLowerCase());
-    if (!match) return alert("Channel not found");
-
-    const streamUrl = `/api/ayna.m3u8?id=${match.id}`;
-    console.log("Streaming from:", streamUrl);
-
-    createPlayer(streamUrl);
-}
-
-loadChannel();
-</script>
-
+          if (match && match.id) {
+            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+            createPlayer(streamUrl);
+          } else {
+            alert(`Channel "${requestedTitle}" not found in list.`);
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load channel list:", err);
+          alert("Error loading channel list.");
+        });
+    } else {
+      alert("Missing 'id' parameter in URL.");
+    }
+  </script>
 </body>
 </html>
