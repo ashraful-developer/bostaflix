@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
       'accept-encoding': 'gzip, deflate, br',
       'accept-language': 'en-US,en;q=0.9,bn;q=0.8',
-      'cookie': '__test=392f9bcbab403b32d5586ef28a71f6f1',
+      'cookie': '__test=6f91247a3a55d1b157de84fd89cd8a7f',
       'dnt': '1',
       'pragma': 'no-cache',
       'referer': `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`,
