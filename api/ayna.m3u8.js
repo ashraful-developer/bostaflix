@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const { id } = req.query;
 
     // --- 1) Read dynamic cookie ---
-    let userCookie = (req.cookies && req.cookies.mytoken) || "";
+    let userCookie = (req.cookies && req.cookies.cookie) || "";
 
     if (!userCookie && req.headers.cookie) {
       const parsed = Object.fromEntries(
