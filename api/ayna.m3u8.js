@@ -52,7 +52,7 @@ export default async function handler(req, res) {
 
     // --- 3) Replace aes.js and remove <a href> ---
     html = html.replace(/(src\s*=\s*["'])\/?aes\.js(["'])/gi, '$1https://xfireflix.ct.ws/aes.js$2');
-    html = html.replace(/<a\s+[^>]*href=["'][^"']*["'][^>]*>.*?<\/a>/gi, "");
+    html = html.replace(/location\.href\s*=\s*['"][^'"]*['"]/gi, '// $& removed by proxy');
 
     // --- 4) Try to extract m3u8 URL ---
     const match = html.match(/(https?:\/\/[^'"]+\.m3u8[^'"]*)/);
