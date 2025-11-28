@@ -9,6 +9,40 @@
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+  <script>
+(function() {
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'fullpage-loader';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.backgroundColor = '#000'; // black background
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+  overlay.style.transition = 'opacity 0.5s ease';
+  
+  // Add loader content (simple spinner)
+  overlay.innerHTML = `
+    <div style="width:50px;height:50px;border:5px solid #fff;border-top:5px solid #888;border-radius:50%;animation:spin 1s linear infinite;"></div>
+    <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  `;
+  
+  document.body.appendChild(overlay);
+
+  // Hide overlay after 2 seconds
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 500); // remove after fade-out
+  }, 2000);
+})();
+</script>
 <style>
   html, body {
     margin: 0;
