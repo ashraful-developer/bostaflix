@@ -5,7 +5,6 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-    <script src="api/auth.js?id=cookie"></script>
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
@@ -71,6 +70,49 @@
     <style>
       @keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
     </style>
+    <script>
+async function loadAuthHtml() {
+  try {
+    // Fetch the auth HTML page
+    const res = await fetch('api/auth.js?id=cookie'); // your HTML endpoint
+    const htmlText = await res.text();
+
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlText;
+
+    // Find all <script> tags in the fetched HTML
+    const scripts = tempDiv.querySelectorAll('script');
+
+    for (let script of scripts) {
+      if (script.src) {
+        // External scripts: create a new script element
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = script.src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      } else {
+        // Inline scripts: execute via eval
+        eval(script.textContent);
+      }
+    }
+
+    console.log("Auth HTML loaded and executed, cookie should be set");
+  } catch (err) {
+    console.error("Failed to load auth HTML:", err);
+  }
+}
+
+// Use this before initializing your player
+loadAuthHtml().then(() => {
+  console.log("Ready to initialize player after auth");
+  // You can now safely run your player code here
+});
+</script>
+
   `;
 
   // Append to <body> immediately
