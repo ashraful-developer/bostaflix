@@ -6,37 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
 
-  <!-- AES decryption -->
+  <!-- AES decryptor (your copy, unchanged) -->
   <script src="/aes.js"></script>
 
-  <!-- Player dependencies -->
+  <!-- Player libs -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    @media (max-width: 400px) {
-      body {
-        transform: scale(0.8);
-        transform-origin: top left;
-        width: 125%;
-        height: 125%;
-      }
+    html, body { margin:0; padding:0; width:100%; height:100%; background:#000; }
+    #player { width:100%; height:100%; position:absolute; top:0; left:0; }
+    @media (max-width:400px) {
+      body { transform:scale(0.8); transform-origin:top left; width:125%; height:125%; }
     }
   </style>
 </head>
@@ -46,15 +28,23 @@
 <div id="player"></div>
 
 <script>
-// -----------------------------
-// 1) Generate AES Token Cookie
-// -----------------------------
+// ----------------------------
+// Extract AES values and set cookie
+// ----------------------------
 async function generateTokenCookie() {
+    console.log("Retrieving AES page...");
+
     const response = await fetch(`/api/token?url=${encodeURIComponent("https://xfireflix.ct.ws/ayna/")}`);
     const html = await response.text();
 
-    const match = html.match(/toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)/);
-    if (!match) { console.log("AES values not found"); return; }
+    const match = html.match(
+      /toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)/
+    );
+
+    if (!match) {
+        console.error("❌ AES keys not found in token page");
+        return;
+    }
 
     const [_, aHex, bHex, cHex] = match;
 
@@ -67,79 +57,59 @@ async function generateTokenCookie() {
     const decrypted = slowAES.decrypt(c, 2, a, b);
     const token = decrypted.map(v => ("0" + v.toString(16)).slice(-2)).join("");
 
-    // Save cookie for 1 day
-    document.cookie = `mytoken=${token}; path=/; max-age=86400`;
+    document.cookie = `__test=${token}; path=/; max-age=21600`;
+    console.log("✔ AES Cookie Set:", token);
 
-    console.log("Generated Token:", token);
+    return token;
 }
 
-// -----------------------------
-// 2) Read URL parameter
-// -----------------------------
-function getQueryParam(name) {
-    return new URLSearchParams(window.location.search).get(name);
-}
+// ----------------------------
+// Clappr Player
+// ----------------------------
+function createPlayer(url) {
+    const player = new Clappr.Player({
+        source: url,
+        parentId: "#player",
+        autoPlay: true,
+        plugins: [HlsjsPlayback, LevelSelector],
 
-// -----------------------------
-// 3) Create Clappr Player
-// -----------------------------
-function createPlayer(sourceUrl) {
-  const player = new Clappr.Player({
-    source: sourceUrl,
-    parentId: "#player",
-    autoPlay: true,
-    width: "100%",
-    height: "100%",
-    mimeType: "application/x-mpegURL",
-    plugins: [HlsjsPlayback, LevelSelector],
-
-    playback: {
-      hlsjsConfig: {
-        xhrSetup: function(xhr) {
-          xhr.withCredentials = true;   // <-- SEND COOKIE AUTOMATICALLY
-        }
-      }
-    },
-
-    mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-  });
-
-  player.on(Clappr.Events.PLAYER_ERROR, () => {
-    console.warn("Playback error — retrying...");
-    setTimeout(() => {
-      player.load(player.options.source);
-      player.play();
-    }, 500);
-  });
-}
-
-// -----------------------------
-// 4) Load Channel from JSON
-// -----------------------------
-async function loadChannel() {
-    await generateTokenCookie(); // generate token first
-
-    const requestedId = getQueryParam("id");
-    if (!requestedId) {
-        alert("Missing ?id= parameter");
-        return;
-    }
-
-    fetch("ayna-proxy.json")
-        .then(res => res.json())
-        .then(json => {
-            const list = json.data?.list || [];
-            const found = list.find(i => i.title.toLowerCase() === requestedId.toLowerCase());
-
-            if (!found) {
-                alert("Channel not found");
-                return;
+        playback: {
+          hlsjsConfig: {
+            xhrSetup: xhr => {
+              xhr.withCredentials = true;  // SEND AES COOKIE
             }
+          }
+        }
+    });
 
-            // Use backend proxy (cookies included)
-            const streamUrl = `api/ayna.m3u8?id=${found.id}`;
-            createPlayer(streamUrl);
-        });
+    player.on(Clappr.Events.PLAYER_ERROR, () => {
+        console.warn("Playback error—retrying...");
+        setTimeout(() => {
+          player.load(player.options.source);
+          player.play();
+        }, 500);
+    });
+}
+
+// ----------------------------
+// Find channel in JSON
+// ----------------------------
+async function loadChannel() {
+    await generateTokenCookie();
+
+    const idParam = new URLSearchParams(location.search).get("id");
+    if (!idParam) return alert("Missing id");
+
+    const json = await fetch("ayna-proxy.json").then(r => r.json());
+    const list = json.data?.list || [];
+
+    const match = list.find(x => x.title.toLowerCase() === idParam.toLowerCase());
+    if (!match) return alert("Channel not found");
+
+    const streamUrl = `/api/ayna.m3u8?id=${match.id}`;
+    console.log("Streaming from:", streamUrl);
+
+    createPlayer(streamUrl);
 }
 
 loadChannel();
