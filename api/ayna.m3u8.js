@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const response = await fetch(playUrl, { headers });
     const html = await response.text();
 
-    // Attempt to match m3u8 URL from JS variable
+    // Match the m3u8 URL (includes query params)
     const match = html.match(/(https?:\/\/[^'"]+\.m3u8[^'"]*)/);
     if (!match) {
       res.status(404).json({ error: "No m3u8 URL found" });
@@ -45,7 +45,10 @@ export default async function handler(req, res) {
     // Clean escaped slashes and double slashes
     m3u8Url = m3u8Url.replace(/\\\//g, "/").replace(/([^:]\/)\/+/g, "$1");
 
-    res.status(200).json({ m3u8: m3u8Url });
+    // Redirect directly to the m3u8 URL
+    res.writeHead(302, { Location: m3u8Url });
+    res.end();
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
