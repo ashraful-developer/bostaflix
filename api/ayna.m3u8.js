@@ -1,4 +1,4 @@
-// api/proxy.js
+// /api/m3u8.js
 export default async function handler(req, res) {
   try {
     const { id } = req.query;
@@ -7,39 +7,45 @@ export default async function handler(req, res) {
       return;
     }
 
-    const playUrl = `https://bdixtv24.com/Ayna/play.php?id=${encodeURIComponent(id)}`;
+    const playUrl = `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`;
 
-    const response = await fetch(playUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
-        "Accept": "text/html",
-        "Referer": "https://bdixtv24.com/Ayna/play.php?id=${encodeURIComponent(id)}",
-      },
-    });
+    const headers = {
+      'cache-control': 'no-cache, max-age=0',
+      'connection': 'keep-alive',
+      'content-type': 'text/html; charset=UTF-8',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      'accept-encoding': 'gzip, deflate, br',
+      'accept-language': 'en-US,en;q=0.9,bn;q=0.8',
+      'cookie': '__test=392f9bcbab403b32d5586ef28a71f6f1',
+      'dnt': '1',
+      'pragma': 'no-cache',
+      'referer': `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`,
+      'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+      'sec-ch-ua-mobile': '?1',
+      'sec-ch-ua-platform': '"Android"',
+      'sec-fetch-dest': 'document',
+      'sec-fetch-mode': 'navigate',
+      'sec-fetch-site': 'same-origin',
+      'upgrade-insecure-requests': '1',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+    };
 
+    const response = await fetch(playUrl, { headers });
     const html = await response.text();
 
-    const match = html.match(/const\s+streamUrl\s*=\s*"([^"]+)"/);
+    // Attempt to match m3u8 URL from JS variable
+    const match = html.match(/(https?:\/\/[^'"]+\.m3u8[^'"]*)/);
     if (!match) {
-      res.status(404).json({ error: "No stream URL found" });
+      res.status(404).json({ error: "No m3u8 URL found" });
       return;
     }
 
-    let streamUrl = match[1];
+    let m3u8Url = match[1];
 
-    // STEP 1 → Fix escaped slashes (\/)
-    streamUrl = streamUrl.replace(/\\\//g, "/");
+    // Clean escaped slashes and double slashes
+    m3u8Url = m3u8Url.replace(/\\\//g, "/").replace(/([^:]\/)\/+/g, "$1");
 
-    // STEP 2 → Collapse double slashes but keep https:// intact
-    streamUrl = streamUrl.replace(/([^:]\/)\/+/g, "$1");
-
-    // Optional: Log to verify
-    console.log("CLEAN URL:", streamUrl);
-
-    res.writeHead(302, { Location: streamUrl });
-    res.end();
-
+    res.status(200).json({ m3u8: m3u8Url });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
