@@ -2,102 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Jadoo | Buddy✘TV</title>
+  <title>Ayna Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
+
+  <!-- AES decryption -->
+  <script src="/aes.js"></script>
+
+  <!-- Player dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-  }
 
-  #player {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  /* When screen width is below 400px, scale down entire page */
-  @media (max-width: 400px) {
-    body {
-      transform: scale(0.8);
-      transform-origin: top left;
-      width: 125%;   /* compensate for scaling shrink */
-      height: 125%;
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
     }
-  }
-</style>
+    #player {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    @media (max-width: 400px) {
+      body {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+        height: 125%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <div id="player"></div>
 
-  <script>
-    // Disable right-click
-    document.addEventListener("contextmenu", e => e.preventDefault());
+<div id="player"></div>
 
-    // Get query parameter (?id=Title)
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
+<script>
+// -----------------------------
+// 1) Generate AES Token Cookie
+// -----------------------------
+async function generateTokenCookie() {
+    const response = await fetch(`/api/token?url=${encodeURIComponent("https://xfireflix.ct.ws/ayna/")}`);
+    const html = await response.text();
+
+    const match = html.match(/toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)[\s\S]*toNumbers\("([0-9a-f]+)"\)/);
+    if (!match) { console.log("AES values not found"); return; }
+
+    const [_, aHex, bHex, cHex] = match;
+
+    const toNumbers = hex => hex.match(/../g).map(h => parseInt(h, 16));
+
+    const a = toNumbers(aHex);
+    const b = toNumbers(bHex);
+    const c = toNumbers(cHex);
+
+    const decrypted = slowAES.decrypt(c, 2, a, b);
+    const token = decrypted.map(v => ("0" + v.toString(16)).slice(-2)).join("");
+
+    // Save cookie for 1 day
+    document.cookie = `mytoken=${token}; path=/; max-age=86400`;
+
+    console.log("Generated Token:", token);
+}
+
+// -----------------------------
+// 2) Read URL parameter
+// -----------------------------
+function getQueryParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+// -----------------------------
+// 3) Create Clappr Player
+// -----------------------------
+function createPlayer(sourceUrl) {
+  const player = new Clappr.Player({
+    source: sourceUrl,
+    parentId: "#player",
+    autoPlay: true,
+    width: "100%",
+    height: "100%",
+    mimeType: "application/x-mpegURL",
+    plugins: [HlsjsPlayback, LevelSelector],
+
+    playback: {
+      hlsjsConfig: {
+        xhrSetup: function(xhr) {
+          xhr.withCredentials = true;   // <-- SEND COOKIE AUTOMATICALLY
+        }
+      }
+    },
+
+    mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+  });
+
+  player.on(Clappr.Events.PLAYER_ERROR, () => {
+    console.warn("Playback error — retrying...");
+    setTimeout(() => {
+      player.load(player.options.source);
+      player.play();
+    }, 500);
+  });
+}
+
+// -----------------------------
+// 4) Load Channel from JSON
+// -----------------------------
+async function loadChannel() {
+    await generateTokenCookie(); // generate token first
+
+    const requestedId = getQueryParam("id");
+    if (!requestedId) {
+        alert("Missing ?id= parameter");
+        return;
     }
 
-    // Initialize player
-    function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
-
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Playback error — retrying...");
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 500);
-      });
-    }
-
-    const requestedTitle = getQueryParam("id");
-
-    if (requestedTitle) {
-      fetch("ayna-proxy.json")
+    fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
-          // Adjust depending on your JSON structure
-          const list = json.data?.list || [];
-          const match = list.find(
-            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
-          );
+            const list = json.data?.list || [];
+            const found = list.find(i => i.title.toLowerCase() === requestedId.toLowerCase());
 
-          if (match && match.id) {
-            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+            if (!found) {
+                alert("Channel not found");
+                return;
+            }
+
+            // Use backend proxy (cookies included)
+            const streamUrl = `api/ayna.m3u8?id=${found.id}`;
             createPlayer(streamUrl);
-          } else {
-            alert(`Channel "${requestedTitle}" not found in list.`);
-          }
-        })
-        .catch(err => {
-          console.error("Failed to load channel list:", err);
-          alert("Error loading channel list.");
         });
-    } else {
-      alert("Missing 'id' parameter in URL.");
-    }
-  </script>
+}
+
+loadChannel();
+</script>
+
 </body>
 </html>
