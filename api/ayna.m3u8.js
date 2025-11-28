@@ -2,10 +2,6 @@
 export default async function handler(req, res) {
   try {
     const { id } = req.query;
-    if (!id) {
-      res.status(400).json({ error: "Missing 'id' query parameter" });
-      return;
-    }
 
     // --- 1) Read dynamic cookie ---
     let userCookie = (req.cookies && req.cookies.mytoken) || "";
@@ -21,15 +17,15 @@ export default async function handler(req, res) {
     }
 
     const forwardedCookie = `__test=${userCookie || ""}`;
-
     console.log(`[m3u8] Cookie used: ${forwardedCookie}`);
 
-    const playUrl = `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`;
+    const playUrl = id
+      ? `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`
+      : `https://xfireflix.ct.ws/ayna/play.php`;
 
     const headers = {
       "cache-control": "no-cache, max-age=0",
       "connection": "keep-alive",
-      "content-type": "text/html; charset=UTF-8",
       "accept":
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       "accept-encoding": "gzip, deflate, br",
@@ -52,32 +48,27 @@ export default async function handler(req, res) {
 
     // --- 2) Fetch remote page ---
     const response = await fetch(playUrl, { headers });
-    const html = await response.text();
+    let html = await response.text();
 
-    const first100 = html.slice(0, 100).replace(/\s+/g, " ");
+    // --- 3) Replace aes.js and remove <a href> ---
+    html = html.replace(/aes\.js/g, "https://xfireflix.ct.ws/aes.js");
+    html = html.replace(/<a\s+[^>]*href=["'][^"']*["'][^>]*>.*?<\/a>/gi, "");
 
-    console.log(`[m3u8] First 100 chars: ${first100}`);
-
-    // --- 3) Extract m3u8 URL ---
+    // --- 4) Try to extract m3u8 URL ---
     const match = html.match(/(https?:\/\/[^'"]+\.m3u8[^'"]*)/);
 
-    if (!match) {
-      // ❗ ERROR MODE — RETURN DEBUG INFORMATION ❗
-      return res.status(404).json({
-        error: "No m3u8 URL found",
-        sent_cookie: forwardedCookie,
-        html_preview: first100
-      });
+    if (id && userCookie && match) {
+      // ✅ Normal case: redirect
+      const m3u8Url = match[1].replace(/\\\//g, "/").replace(/([^:]\/)\/+/g, "$1");
+      console.log(`[m3u8] Redirecting to: ${m3u8Url}`);
+      res.writeHead(302, { Location: m3u8Url });
+      res.end();
+      return;
     }
 
-    // --- 4) Redirect to actual m3u8 ---
-    let m3u8Url = match[1];
-    m3u8Url = m3u8Url.replace(/\\\//g, "/").replace(/([^:]\/)\/+/g, "$1");
-
-    console.log(`[m3u8] Redirecting: ${m3u8Url}`);
-
-    res.writeHead(302, { Location: m3u8Url });
-    res.end();
+    // ⚠️ Fallback: fully proxy HTML
+    res.setHeader("content-type", "text/html; charset=UTF-8");
+    res.status(200).send(html);
   } catch (err) {
     console.error("[m3u8] Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
