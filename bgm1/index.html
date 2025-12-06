@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News Background Music Handler</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 15px;
+      user-select: none;
+    }
+    button {
+      background: #1e88e5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1565c0;
+    }
+    h2 { margin-bottom: 10px; }
+    p { opacity: 0.8; font-size: 14px; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>🎙️ News Headlines Music Control</h2>
+  <button id="startBtn">▶️ Start</button>
+  <button id="transitionBtn">🔄 Transition</button>
+  <button id="duckBtn">🎚️ Duck</button>
+  <button id="endBtn">⏹️ End</button>
+  <p>⌨️ <b>Shortcuts:</b> Enter → Start/End &nbsp;|&nbsp; Z–M → Transition &nbsp;|&nbsp; Space → Duck</p>
+
+  <script>
+    // --- CONFIG ---
+    const overlapIntroLoop = 250; // ms before end -> start next
+    const overlapLoopLoop = 100;
+    const overlapLoopOutro = 100;
+    const fadeDuration = 150;     // normal crossfade duration (ms)
+
+    // --- DUCK CONFIG (changed to 1s default) ---
+    const duckFadeMs = 1000;   // duck/unduck fade (ms) — 1000ms = 1s
+    const duckVolume = 0.25;   // volume when ducked (0..1)
+
+    // --- AUDIO FILES ---
+    const intro = new Audio("https://bostaflix.vercel.app/bgm/intro.mp3");
+    const loopA = new Audio("https://bostaflix.vercel.app/bgm/loop.mp3");
+    const loopB = new Audio("https://bostaflix.vercel.app/bgm/loop.mp3");
+    const outro = new Audio("https://bostaflix.vercel.app/bgm/intro-complete.mp3");
+    const transition = new Audio("transition.mp3");
+
+    // state
+    let isRunning = false;
+    let ending = false;
+    let usingA = true;        // toggled each loop start
+    let nextTimer = null;
+    let ducked = false;
+    let currentLoop = null;   // points to loopA or loopB when playing
+
+    // map to track and clear ongoing fade timers per audio
+    const audioFaders = new Map();
+
+    // --- UTIL: clear any fader for audio ---
+    function clearFader(audio) {
+      const id = audioFaders.get(audio);
+      if (id) {
+        clearInterval(id);
+        audioFaders.delete(audio);
+      }
+    }
+
+    // --- UTIL: smooth volume move (interruptible) ---
+    // audio: HTMLAudioElement
+    // targetVol: 0..1
+    // ms: duration in ms
+    // onComplete: optional callback
+    function setVolumeSmooth(audio, targetVol, ms, onComplete) {
+      clearFader(audio);
+      const interval = 15; // ms per tick (smooth enough)
+      const steps = Math.max(1, Math.round(ms / interval));
+      // Normalize current volume
+      let current = (typeof audio.volume === "number") ? audio.volume : 1;
+      const step = (targetVol - current) / steps;
+      let counter = 0;
+
+      // If target > 0, ensure audio plays (browsers may block autoplay, so catch)
+      if (targetVol > 0 && audio.paused) {
+        try { audio.play().catch(()=>{}); } catch(e) {}
+      }
+
+      // Begin interval
+      const id = setInterval(() => {
+        counter++;
+        current += step;
+        // clamp
+        audio.volume = Math.max(0, Math.min(1, current));
+        if (counter >= steps) {
+          audio.volume = Math.max(0, Math.min(1, targetVol));
+          clearInterval(id);
+          audioFaders.delete(audio);
+          // if volume reached 0, pause to stop CPU/decoding
+          if (audio.volume === 0 && !audio.paused) {
+            try { audio.pause(); } catch(e) {}
+          }
+          if (typeof onComplete === "function") onComplete();
+        }
+      }, interval);
+      audioFaders.set(audio, id);
+    }
+
+    // Small wrappers for clarity
+    function fadeIn(audio, ms, target = 1) {
+      // start from (near) 0 so fade is audible
+      audio.volume = Math.max(0, Math.min(1, audio.volume)); // leave current if set
+      // If audio is paused and target > 0, set a low starting point to fade from
+      if (audio.paused) audio.volume = 0;
+      setVolumeSmooth(audio, target, ms);
+    }
+
+    function fadeOut(audio, ms) {
+      setVolumeSmooth(audio, 0, ms);
+    }
+
+    // --- STOP ALL & CLEAR ---
+    function stopAll() {
+      // clear scheduled overlaps
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+      // clear any faders
+      for (const id of audioFaders.values()) clearInterval(id);
+      audioFaders.clear();
+
+      // pause and reset
+      [intro, loopA, loopB, outro].forEach(a => {
+        try { a.pause(); } catch(e) {}
+        try { a.currentTime = 0; } catch(e) {}
+        a.volume = 1;
+      });
+
+      isRunning = false;
+      ending = false;
+      currentLoop = null;
+    }
+
+    // schedule overlap helper
+    function scheduleOverlap(current, overlapMs, nextAction) {
+      if (!current.duration || current.duration === Infinity) {
+        current.addEventListener("loadedmetadata", () => scheduleOverlap(current, overlapMs, nextAction), { once: true });
+        return;
+      }
+      const trigger = (current.duration * 1000) - overlapMs;
+      if (trigger > 0) nextTimer = setTimeout(nextAction, trigger);
+    }
+
+    // --- PLAY LOGIC ---
+    function startIntro() {
+      stopAll();
+      isRunning = true;
+      intro.currentTime = 0;
+      // if ducked, fade into duck volume, otherwise full
+      const target = ducked ? duckVolume : 1;
+      fadeIn(intro, fadeDuration, target);
+      scheduleOverlap(intro, overlapIntroLoop, startLoop);
+    }
+
+    function startLoop() {
+      if (!isRunning || ending) return;
+      // pick the audio to start
+      const current = usingA ? loopA : loopB;
+      usingA = !usingA; // toggle for next time
+      currentLoop = current;
+
+      current.currentTime = 0;
+      const target = ducked ? duckVolume : 1;
+      fadeIn(current, fadeDuration, target);
+
+      // ensure the other loop isn't accidentally still playing loudly (optional safety)
+      const other = (current === loopA) ? loopB : loopA;
+      if (!other.paused) {
+        // gently reduce other in overlap time to avoid harsh stacking
+        fadeOut(other, overlapLoopLoop + 20);
+      }
+
+      scheduleOverlap(current, overlapLoopLoop, startLoop);
+    }
+
+    function playOutro() {
+      if (!isRunning || ending) return;
+      ending = true;
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+
+      // active loop is the currentLoop pointer; fall back if missing
+      const active = currentLoop || (usingA ? loopB : loopA);
+
+      outro.currentTime = 0;
+      // outro plays at full volume (you can change to ducked behavior if desired)
+      fadeIn(outro, fadeDuration, 1);
+
+      // fade out active loop quickly (use overlapLoopOutro)
+      fadeOut(active, overlapLoopOutro);
+
+      if (!intro.paused) fadeOut(intro, overlapLoopOutro);
+
+      outro.onended = () => stopAll();
+    }
+
+    // --- DUCKING ---
+    function toggleDuck() {
+      // choose all playing audios for ducking
+      const group = [intro, loopA, loopB, outro].filter(a => !a.paused);
+
+      if (!ducked) {
+        // duck: fade playing audio(s) to duckVolume
+        group.forEach(a => setVolumeSmooth(a, duckVolume, duckFadeMs));
+        ducked = true;
+        document.getElementById("duckBtn").textContent = "🎚️ Unduck";
+      } else {
+        // unduck: fade back to full (1)
+        group.forEach(a => setVolumeSmooth(a, 1, duckFadeMs));
+        ducked = false;
+        document.getElementById("duckBtn").textContent = "🎚️ Duck";
+      }
+    }
+
+    // --- UI BUTTONS ---
+    document.getElementById("startBtn").addEventListener("click", () => {
+      if (!isRunning) startIntro();
+    });
+
+    document.getElementById("transitionBtn").addEventListener("click", () => {
+      if (!isRunning) return;
+      const t = transition.cloneNode();
+      t.play().catch(()=>{});
+    });
+
+    document.getElementById("duckBtn").addEventListener("click", toggleDuck);
+    document.getElementById("endBtn").addEventListener("click", playOutro);
+
+    // --- KEYBOARD SHORTCUTS ---
+    document.addEventListener("keydown", (e) => {
+      // ignore repeats and typing in editable fields
+      if (e.repeat) return;
+      const target = e.target;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+
+      // Enter => Start / End
+      if (e.key === "Enter") {
+        if (!isRunning) startIntro();
+        else playOutro();
+        return;
+      }
+
+      // Space => toggle duck (prevent page scroll)
+      if (e.code === "Space") {
+        e.preventDefault();
+        toggleDuck();
+        return;
+      }
+
+      // z x c v b n m => transition
+      const k = (e.key || "").toLowerCase();
+      if ("zxcvbnm".includes(k)) {
+        if (isRunning) {
+          const t = transition.cloneNode();
+          t.play().catch(()=>{});
+        }
+      }
+    });
+
+    // Optional: expose some controls to console for quick testing
+    window._nbmh = {
+      startIntro, startLoop, playOutro, toggleDuck,
+      _state: () => ({ isRunning, ending, ducked, currentLoop: currentLoop === loopA ? "loopA" : currentLoop === loopB ? "loopB" : null })
+    };
+  </script>
+</body>
+</html>
