@@ -44,9 +44,9 @@
 <script>
 (function () {
 
-  /* ---------------------------------------------------
-     1) FULL-PAGE LOADING SPINNER (restored exactly)
-  --------------------------------------------------- */
+  /* ---------------------------------------------
+     FULL-PAGE LOADING SCREEN (no timer)
+  --------------------------------------------- */
   const overlay = document.createElement('div');
   overlay.id = 'fullpage-loader';
   overlay.style.cssText = `
@@ -57,7 +57,7 @@
       align-items:center;
       justify-content:center;
       z-index:99999;
-      transition:opacity 0.5s ease;
+      transition:opacity 0.4s ease;
   `;
   overlay.innerHTML = `
       <div style="
@@ -77,77 +77,71 @@
   `;
   document.body.appendChild(overlay);
 
-  // Hide loader after 2 seconds
-  setTimeout(() => {
-    overlay.style.opacity = '0';
-    setTimeout(() => overlay.remove(), 500);
-  }, 2000);
+  function hideLoader() {
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 400);
+  }
 
 
-  /* ---------------------------------------------------
-     2) PARSE M3U
-  --------------------------------------------------- */
+  /* ---------------------------------------------
+     PARSE M3U
+  --------------------------------------------- */
   const M3U_URL =
     "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/main/ayna-playlist.m3u";
 
   function parseM3U(text) {
     const lines = text.split("\n").map(l => l.trim());
-    const list = [];
-    let lastName = null;
+    const out = [];
+    let name = null;
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith("#EXTINF")) {
-        const commaIndex = lines[i].indexOf(",");
-        lastName = lines[i].substring(commaIndex + 1).trim();
-      } else if (lastName && lines[i] && !lines[i].startsWith("#")) {
-        list.push({ title: lastName, url: lines[i] });
-        lastName = null;
+        name = lines[i].substring(lines[i].indexOf(",") + 1).trim();
+      } else if (name && lines[i] && !lines[i].startsWith("#")) {
+        out.push({ title: name, url: lines[i] });
+        name = null;
       }
     }
-    return list;
+    return out;
   }
 
 
-  /* ---------------------------------------------------
-     3) Try loading from M3U first
-  --------------------------------------------------- */
-  async function loadFromM3U(requestedTitle) {
+  /* ---------------------------------------------
+     TRY NEW PLAYLIST FIRST
+  --------------------------------------------- */
+  async function loadFromM3U(title) {
     try {
       const res = await fetch(M3U_URL);
-      if (!res.ok) throw new Error("M3U fetch failed");
+      if (!res.ok) throw "M3U fetch failed";
 
       const text = await res.text();
       const list = parseM3U(text);
+      const match = list.find(c => c.title.toLowerCase() === title.toLowerCase());
 
-      const match = list.find(
-        c => c.title.toLowerCase() === requestedTitle.toLowerCase()
-      );
+      if (!match) throw "Not in M3U";
 
-      if (!match) throw new Error("Channel not found in M3U");
-
-      console.log("M3U OK → using:", match.url);
       return match.url;
 
     } catch (e) {
-      console.warn("M3U failed, fallback next →", e);
+      console.warn("M3U failed → fallback", e);
       return null;
     }
   }
 
 
-  /* ---------------------------------------------------
-     4) Fallback → load auth.js + use old system
-  --------------------------------------------------- */
-  async function loadFallbackStream(requestedTitle) {
+  /* ---------------------------------------------
+     FALLBACK → OLD SYSTEM
+  --------------------------------------------- */
+  async function loadFallbackStream(title) {
 
     try {
       const res = await fetch("api/auth.js?id=cookie");
-      const htmlText = await res.text();
+      const html = await res.text();
 
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = htmlText;
+      const div = document.createElement("div");
+      div.innerHTML = html;
 
-      const scripts = tempDiv.querySelectorAll("script");
+      const scripts = div.querySelectorAll("script");
       for (const sc of scripts) {
         if (sc.src) {
           await new Promise((resolve, reject) => {
@@ -163,28 +157,25 @@
       }
 
     } catch (err) {
-      console.error("auth.js load failed:", err);
+      console.error("auth.js failed", err);
     }
 
-    const data = await fetch("ayna-proxy.json").then(r => r.json());
-    const list = data.data?.list || [];
+    const json = await fetch("ayna-proxy.json").then(r => r.json());
+    const list = json.data?.list || [];
+    const match = list.find(x => x.title.toLowerCase() === title.toLowerCase());
 
-    const match = list.find(
-      item => item.title.toLowerCase() === requestedTitle.toLowerCase()
-    );
-
-    if (!match) return alert(`Channel "${requestedTitle}" not found`);
+    if (!match) alert(`Channel "${title}" not found`);
 
     return `api/ayna.m3u8?id=${match.id}`;
   }
 
 
-  /* ---------------------------------------------------
-     5) Initialize Clappr Player
-  --------------------------------------------------- */
+  /* ---------------------------------------------
+     PLAYER INIT
+  --------------------------------------------- */
   function startPlayer(url) {
+    hideLoader();
 
-    // disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
     new Clappr.Player({
@@ -200,27 +191,26 @@
   }
 
 
-  /* ---------------------------------------------------
-     6) MAIN FLOW
-  --------------------------------------------------- */
+  /* ---------------------------------------------
+     MAIN FLOW
+  --------------------------------------------- */
   async function init() {
-    const requestedTitle = new URLSearchParams(location.search).get("id");
-    if (!requestedTitle) return alert("Missing ?id=");
+    const id = new URLSearchParams(location.search).get("id");
+    if (!id) return alert("Missing ?id");
 
-    // Try M3U first
-    let streamUrl = await loadFromM3U(requestedTitle);
+    let url = await loadFromM3U(id);
 
-    // Else fallback
-    if (!streamUrl) {
-      streamUrl = await loadFallbackStream(requestedTitle);
+    if (!url) {
+      url = await loadFallbackStream(id);
     }
 
-    startPlayer(streamUrl);
+    startPlayer(url);
   }
 
   init();
 
 })();
 </script>
+
 </body>
 </html>
