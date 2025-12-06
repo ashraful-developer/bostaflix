@@ -44,10 +44,52 @@
 <script>
 (function () {
 
-  const M3U_URL =
-    "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/main/ayna-playlst.m3u";
+  /* ---------------------------------------------------
+     1) FULL-PAGE LOADING SPINNER (restored exactly)
+  --------------------------------------------------- */
+  const overlay = document.createElement('div');
+  overlay.id = 'fullpage-loader';
+  overlay.style.cssText = `
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      transition:opacity 0.5s ease;
+  `;
+  overlay.innerHTML = `
+      <div style="
+        width:60px;
+        height:60px;
+        border:6px solid #fff;
+        border-top:6px solid #888;
+        border-radius:50%;
+        animation:spin 1s linear infinite;">
+      </div>
+      <style>
+        @keyframes spin { 
+          0% { transform:rotate(0deg); } 
+          100% { transform:rotate(360deg); } 
+        }
+      </style>
+  `;
+  document.body.appendChild(overlay);
 
-  // 1. Helper: Parse M3U into { title, url } list
+  // Hide loader after 2 seconds
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 500);
+  }, 2000);
+
+
+  /* ---------------------------------------------------
+     2) PARSE M3U
+  --------------------------------------------------- */
+  const M3U_URL =
+    "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/main/ayna-playlist.m3u";
+
   function parseM3U(text) {
     const lines = text.split("\n").map(l => l.trim());
     const list = [];
@@ -62,38 +104,42 @@
         lastName = null;
       }
     }
-
     return list;
   }
 
-  // 2. Load M3U first
+
+  /* ---------------------------------------------------
+     3) Try loading from M3U first
+  --------------------------------------------------- */
   async function loadFromM3U(requestedTitle) {
     try {
       const res = await fetch(M3U_URL);
-      if (!res.ok) throw new Error("M3U download failed");
+      if (!res.ok) throw new Error("M3U fetch failed");
 
       const text = await res.text();
-      const channels = parseM3U(text);
+      const list = parseM3U(text);
 
-      const match = channels.find(
+      const match = list.find(
         c => c.title.toLowerCase() === requestedTitle.toLowerCase()
       );
 
       if (!match) throw new Error("Channel not found in M3U");
 
-      console.log("M3U found → using direct URL:\n", match.url);
+      console.log("M3U OK → using:", match.url);
       return match.url;
 
-    } catch (err) {
-      console.warn("M3U failed → fallback.", err);
+    } catch (e) {
+      console.warn("M3U failed, fallback next →", e);
       return null;
     }
   }
 
-  // 3. Fallback auth.js + old JSON system
+
+  /* ---------------------------------------------------
+     4) Fallback → load auth.js + use old system
+  --------------------------------------------------- */
   async function loadFallbackStream(requestedTitle) {
 
-    // Load and execute auth.js
     try {
       const res = await fetch("api/auth.js?id=cookie");
       const htmlText = await res.text();
@@ -116,11 +162,10 @@
         }
       }
 
-    } catch (e) {
-      console.error("auth.js failed", e);
+    } catch (err) {
+      console.error("auth.js load failed:", err);
     }
 
-    // Load backup ayna-proxy.json
     const data = await fetch("ayna-proxy.json").then(r => r.json());
     const list = data.data?.list || [];
 
@@ -133,8 +178,13 @@
     return `api/ayna.m3u8?id=${match.id}`;
   }
 
-  // 4. Initialize Clappr Player
+
+  /* ---------------------------------------------------
+     5) Initialize Clappr Player
+  --------------------------------------------------- */
   function startPlayer(url) {
+
+    // disable right-click
     document.addEventListener("contextmenu", e => e.preventDefault());
 
     new Clappr.Player({
@@ -149,7 +199,10 @@
     });
   }
 
-  // 5. Main flow
+
+  /* ---------------------------------------------------
+     6) MAIN FLOW
+  --------------------------------------------------- */
   async function init() {
     const requestedTitle = new URLSearchParams(location.search).get("id");
     if (!requestedTitle) return alert("Missing ?id=");
@@ -157,7 +210,7 @@
     // Try M3U first
     let streamUrl = await loadFromM3U(requestedTitle);
 
-    // If failed, fallback
+    // Else fallback
     if (!streamUrl) {
       streamUrl = await loadFallbackStream(requestedTitle);
     }
@@ -169,6 +222,5 @@
 
 })();
 </script>
-
 </body>
 </html>
