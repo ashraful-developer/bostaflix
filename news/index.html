@@ -4,19 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOSTAFLIX News</title>
+
 <style>
 /* Global */
 body {
   margin: 0;
   font-family: sans-serif;
-  background-color: #F2F2F2; /* light theme */
+  background-color: #F2F2F2;
   color: #333;
+  padding-bottom: 70px; /* space for bottom bar */
 }
 
-/* Header (adapted to red theme) */
+/* Header */
 header {
   width: 100%;
-  background-color: #ff3c3c;  /* red header */
+  background-color: #ff3c3c;
   color: #fff;
   padding: 10px 20px;
   display: flex;
@@ -26,7 +28,7 @@ header {
 }
 
 .logo {
-  color: #fff;              /* white logo text */
+  color: #fff;
   text-decoration: none;
   font-size: 1.5em;
   font-weight: bold;
@@ -48,7 +50,7 @@ header {
 
 .nav-links a:hover {
   background-color: white;
-  color: #ff3c3c;           /* hover revert */
+  color: #ff3c3c;
 }
 
 @media (max-width: 720px) {
@@ -66,11 +68,11 @@ header {
   justify-content: center;
 }
 
-/* Cards */
+/* News Card */
 .news-card {
-  background: white;  /* white card */
+  background: white;
   border-radius: 8px;
-  border: 2px solid #ff3c3c;   /* red border */
+  border: 2px solid #ff3c3c;
   box-shadow: 0 2px 8px rgba(255, 60, 60, 0.15);
   width: 320px;
   overflow: hidden;
@@ -81,17 +83,16 @@ header {
 
 .news-card:hover {
   transform: scale(1.01);
-  background: #ffeaea; /* subtle red tint */
+  background: #ffeaea;
 }
 
 .news-image {
   width: 100%;
   height: 180px;
   object-fit: cover;
-  border-bottom: 2px solid #ff3c3c; /* theme consistent */
+  border-bottom: 2px solid #ff3c3c;
 }
 
-/* Content */
 .news-content {
   padding: 10px 15px;
 }
@@ -103,75 +104,130 @@ header {
   color: #000;
 }
 
-.news-brief {
-  font-size: 0.95em;
-  color: #444;
+/* Bottom Scrolling TV Channel Bar */
+.tv-scroll-bar {
+  width: 100%;
+  background: #fff;
+  padding: 8px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  border-top: 2px solid #ff3c3c;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.tv-scroll-content {
+  display: flex;
+  gap: 35px;
+  align-items: center;
+  animation: scroll-left 18s linear infinite;
+}
+
+.tv-scroll-content img {
+  height: 40px;
+  width: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tv-scroll-content img:hover {
+  transform: scale(1.15);
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-100%); }
 }
 </style>
 </head>
+
 <body>
 
-    <header>
-    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
-    <nav class="nav-links">
-      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
-      <a href="https://bostaflix.vercel.app/news.html">News</a>
-      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
-      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
-      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
-    </nav>
-  </header>
-<div id="newsContainer">
-  <div class="headline" id="headline"></div>
-  <div class="content" id="content"></div>
-</div>
+<header>
+  <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+  <nav class="nav-links">
+    <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+    <a href="https://bostaflix.vercel.app/news.html">News</a>
+    <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+    <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+    <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+  </nav>
+</header>
 
 <div class="news-container" id="news-container"></div>
 
+<!-- Bottom Scrolling News Channel Bar -->
+<div class="tv-scroll-bar">
+  <div class="tv-scroll-content">
+
+    <img src="logos/somoy.png" alt="Somoy TV" onclick="openChannel('Somoy TV')">
+    <img src="logos/dbc-news.png" alt="DBC News" onclick="openChannel('DBC News')">
+    <img src="logos/channel24.jpg" alt="Channel 24" onclick="openChannel('Channel 24')">
+    <img src="logos/desh.png" alt="Desh TV" onclick="openChannel('Desh TV')">
+    <img src="logos/ekattor_tv.png" alt="Ekattor TV" onclick="openChannel('Ekattor TV')">
+    <img src="logos/ekhon.jpg" alt="Ekhon TV" onclick="openChannel('Ekhon TV')">
+    <img src="logos/independent.png" alt="Independent TV" onclick="openChannel('Independent TV')">
+    <img src="logos/jamuna.png" alt="Jamuna TV" onclick="openChannel('Jamuna TV')">
+    <img src="logos/news24.jpg" alt="News 24" onclick="openChannel('News 24')">
+    <img src="logos/atnnews.png" alt="ATN News" onclick="openChannel('ATN News')">
+    <img src="https://s3.aynaott.com/storage/9801b88ff036f0ba5607cbe40edb8b80" alt="CNN" onclick="openChannel('CNN')">
+
+  </div>
+</div>
+
 <script>
-  const endpoints = [
-    'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
-    'https://backoffice.channel24bd.tv/api/json/file/generateSpecial2.json',
-    'https://backoffice.channel24bd.tv/api/json/file/generatePopular.json',
-    'https://backoffice.channel24bd.tv/api/json/file/generateLatest.json',
-  ];
+const endpoints = [
+  'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
+  'https://backoffice.channel24bd.tv/api/json/file/generateSpecial2.json',
+  'https://backoffice.channel24bd.tv/api/json/file/generatePopular.json',
+  'https://backoffice.channel24bd.tv/api/json/file/generateLatest.json',
+];
 
-  const container = document.getElementById('news-container');
-  const seenNews = new Set(); // Prevent duplicate entries based on Slug + ContentID
+const container = document.getElementById('news-container');
+const seenNews = new Set();
 
-  async function loadNews() {
-    for (const url of endpoints) {
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-        const newsItems = json.data;
+async function loadNews() {
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const newsItems = json.data;
 
-        newsItems.forEach(item => {
-          const uniqueKey = `${item.Slug}-${item.ContentID}`;
-          if (seenNews.has(uniqueKey)) return; // Skip duplicates
-          seenNews.add(uniqueKey); // Mark as seen
+      newsItems.forEach(item => {
+        const uniqueKey = `${item.Slug}-${item.ContentID}`;
+        if (seenNews.has(uniqueKey)) return;
+        seenNews.add(uniqueKey);
 
-          const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
-          const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
+        const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
+        const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
 
-          const card = document.createElement('a');
-          card.className = 'news-card';
-          card.href = link;
-          card.innerHTML = `
-            <img src="${imageUrl}" alt="${item.ContentHeading}" class="news-image">
-            <div class="news-content">
-              <h3 class="news-heading">${item.ContentHeading}</h3>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      } catch (error) {
-        console.error('Error loading data from:', url, error);
-      }
+        const card = document.createElement('a');
+        card.className = 'news-card';
+        card.href = link;
+        card.innerHTML = `
+          <img src="${imageUrl}" alt="${item.ContentHeading}" class="news-image">
+          <div class="news-content">
+            <h3 class="news-heading">${item.ContentHeading}</h3>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Error loading:', url, error);
     }
   }
+}
 
-  loadNews();
+loadNews();
+
+/* Channel Click Handler */
+function openChannel(name) {
+  const url = `https://bostaflix.vercel.app/news/play.html?id=${encodeURIComponent(name)}`;
+  window.location.href = url;
+}
 </script>
+
 </body>
 </html>
