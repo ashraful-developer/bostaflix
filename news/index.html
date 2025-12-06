@@ -118,7 +118,7 @@
       flex: 1;
       display: flex;
       overflow-x: auto;
-      scroll-behavior: smooth;
+      scroll-behavior: auto; /* we use JS smooth */
       gap: 25px;
       padding: 5px 0;
       scrollbar-width: none;
@@ -183,7 +183,7 @@
         <img src="/logos/jamuna.png" alt="Jamuna TV">
       </div>
       <div class="logo" data-name="DBC News">
-        <img src="/logos/dbc-news.png" alt="DBC News">
+        <img src="/logos/dbc.png" alt="DBC News">
       </div>
       <div class="logo" data-name="CNN">
         <img src="https://s3.aynaott.com/storage/9801b88ff036f0ba5607cbe40edb8b80" alt="CNN">
@@ -216,6 +216,9 @@
 
   <!-- JavaScript -->
   <script>
+    // ------------------------
+    // Load News Cards
+    // ------------------------
     const container = document.getElementById('news-container');
     const endpoints = [
       'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
@@ -257,16 +260,34 @@
 
     loadNews();
 
-    // Scroll buttons
+    // ------------------------
+    // Smooth Scroll for Buttons
+    // ------------------------
     const scrollBox = document.getElementById("logoScroll");
     const btnLeft = document.getElementById("btnLeft");
     const btnRight = document.getElementById("btnRight");
-    const SCROLL_AMOUNT = 250;
+    const SCROLL_AMOUNT = 250; // px per click
 
-    btnLeft.onclick = () => scrollBox.scrollBy({ left: -SCROLL_AMOUNT, behavior: "smooth" });
-    btnRight.onclick = () => scrollBox.scrollBy({ left: SCROLL_AMOUNT, behavior: "smooth" });
+    function smoothScroll(element, distance, duration = 400) {
+      const start = element.scrollLeft;
+      const startTime = performance.now();
 
-    // Click → go to play page
+      function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        element.scrollLeft = start + distance * progress;
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    btnLeft.onclick = () => smoothScroll(scrollBox, -SCROLL_AMOUNT, 400);
+    btnRight.onclick = () => smoothScroll(scrollBox, SCROLL_AMOUNT, 400);
+
+    // ------------------------
+    // Click → Open Play Page
+    // ------------------------
     document.addEventListener("click", e => {
       const logo = e.target.closest(".logo");
       if (!logo) return;
@@ -275,7 +296,9 @@
         "https://bostaflix.vercel.app/news/play.html?id=" + encodeURIComponent(name);
     });
 
-    // Touch swipe support
+    // ------------------------
+    // Swipe support for mobile
+    // ------------------------
     let startX = 0;
     scrollBox.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
     scrollBox.addEventListener("touchmove", e => {
