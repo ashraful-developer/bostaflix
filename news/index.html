@@ -105,41 +105,50 @@ header {
 }
 
 /* Bottom Scrolling TV Channel Bar */
+/* Bottom Scrolling TV Channel Bar */
 .tv-scroll-bar {
   width: 100%;
   background: #fff;
-  padding: 8px 0;
+  padding: 10px 0;
   position: fixed;
   bottom: 0;
   left: 0;
-  border-top: 2px solid #ff3c3c;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  border-top: 3px solid #ff3c3c;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
   overflow: hidden;
   z-index: 9999;
+  height: 70px; /* bigger bar */
 }
 
 .tv-scroll-content {
   display: flex;
-  gap: 35px;
+  gap: 40px;
   align-items: center;
   animation: scroll-left 18s linear infinite;
+  height: 100%;
 }
 
 .tv-scroll-content img {
-  height: 40px;
+  height: 55px; /* bigger logos */
   width: auto;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease;
 }
 
 .tv-scroll-content img:hover {
-  transform: scale(1.15);
+  transform: scale(1.22);
 }
 
 @keyframes scroll-left {
   from { transform: translateX(100%); }
   to   { transform: translateX(-100%); }
 }
+
+/* Pause animation on hover */
+.tv-scroll-bar:hover .tv-scroll-content {
+  animation-play-state: paused !important;
+}
+
 </style>
 </head>
 
@@ -159,20 +168,21 @@ header {
 <div class="news-container" id="news-container"></div>
 
 <!-- Bottom Scrolling News Channel Bar -->
+<!-- Bottom Scrolling News Channel Bar -->
 <div class="tv-scroll-bar">
   <div class="tv-scroll-content">
 
-    <img src="logos/somoy.png" alt="Somoy TV" onclick="openChannel('Somoy TV')">
-    <img src="logos/dbc-news.png" alt="DBC News" onclick="openChannel('DBC News')">
-    <img src="logos/channel24.jpg" alt="Channel 24" onclick="openChannel('Channel 24')">
-    <img src="logos/desh.png" alt="Desh TV" onclick="openChannel('Desh TV')">
-    <img src="logos/ekattor_tv.png" alt="Ekattor TV" onclick="openChannel('Ekattor TV')">
-    <img src="logos/ekhon.jpg" alt="Ekhon TV" onclick="openChannel('Ekhon TV')">
-    <img src="logos/independent.png" alt="Independent TV" onclick="openChannel('Independent TV')">
-    <img src="logos/jamuna.png" alt="Jamuna TV" onclick="openChannel('Jamuna TV')">
-    <img src="logos/news24.jpg" alt="News 24" onclick="openChannel('News 24')">
-    <img src="logos/atnnews.png" alt="ATN News" onclick="openChannel('ATN News')">
-    <img src="https://s3.aynaott.com/storage/9801b88ff036f0ba5607cbe40edb8b80" alt="CNN" onclick="openChannel('CNN')">
+    <img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Somoy TV" onclick="openChannel('Somoy TV')">
+    <img src="https://bostaflix.vercel.app/logos/dbc-news.png" alt="DBC News" onclick="openChannel('DBC News')">
+    <img src="https://bostaflix.vercel.app/logos/channel24.jpg" alt="Channel 24" onclick="openChannel('Channel 24')">
+    <img src="https://bostaflix.vercel.app/logos/desh.png" alt="Desh TV" onclick="openChannel('Desh TV')">
+    <img src="https://bostaflix.vercel.app/logos/ekattor_tv.png" alt="Ekattor TV" onclick="openChannel('Ekattor TV')">
+    <img src="https://bostaflix.vercel.app/logos/ekhon.jpg" alt="Ekhon TV" onclick="openChannel('Ekhon TV')">
+    <img src="https://bostaflix.vercel.app/logos/independent.png" alt="Independent TV" onclick="openChannel('Independent TV')">
+    <img src="https://bostaflix.vercel.app/logos/jamuna.png" alt="Jamuna TV" onclick="openChannel('Jamuna TV')">
+    <img src="https://bostaflix.vercel.app/logos/news24.jpg" alt="News 24" onclick="openChannel('News 24')">
+    <img src="https://bostaflix.vercel.app/logos/atnnews.png" alt="ATN News" onclick="openChannel('ATN News')">
+    <img src="https://bostaflix.vercel.app/logos/cnn.png" alt="CNN" onclick="openChannel('CNN')">
 
   </div>
 </div>
