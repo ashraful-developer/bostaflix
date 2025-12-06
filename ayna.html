@@ -41,108 +41,134 @@
 </head>
 <body>
   <div id="player"></div>
+<script>
+(function () {
 
-  <script>
-  (function() {
-    // --- 1. Full-page loader ---
-    const overlay = document.createElement('div');
-    overlay.id = 'fullpage-loader';
-    overlay.style.cssText = `
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      background:#000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:99999;
-      transition:opacity 0.5s ease;
-    `;
-    overlay.innerHTML = `
-      <div style="
-        width:60px;
-        height:60px;
-        border:6px solid #fff;
-        border-top:6px solid #888;
-        border-radius:50%;
-        animation:spin 1s linear infinite;">
-      </div>
-      <style>@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style>
-    `;
-    document.body.appendChild(overlay);
+  const M3U_URL =
+    "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/main/ayna-playlist.m3u";
 
-    setTimeout(() => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 500);
-    }, 2000);
+  // 1. Helper: Parse M3U into { title, url } list
+  function parseM3U(text) {
+    const lines = text.split("\n").map(l => l.trim());
+    const list = [];
+    let lastName = null;
 
-    // --- 2. Load auth HTML and execute scripts ---
-    async function loadAuthHtml() {
-      try {
-        const res = await fetch('api/auth.js?id=cookie'); // your auth HTML endpoint
-        const htmlText = await res.text();
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlText;
-
-        const scripts = tempDiv.querySelectorAll('script');
-        for (let script of scripts) {
-          if (script.src) {
-            await new Promise((resolve, reject) => {
-              const s = document.createElement('script');
-              s.src = script.src;
-              s.onload = resolve;
-              s.onerror = reject;
-              document.head.appendChild(s);
-            });
-          } else {
-            eval(script.textContent);
-          }
-        }
-
-        console.log("Auth HTML executed, cookie should be set");
-      } catch (err) {
-        console.error("Failed to load auth HTML:", err);
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith("#EXTINF")) {
+        const commaIndex = lines[i].indexOf(",");
+        lastName = lines[i].substring(commaIndex + 1).trim();
+      } else if (lastName && lines[i] && !lines[i].startsWith("#")) {
+        list.push({ title: lastName, url: lines[i] });
+        lastName = null;
       }
     }
 
-    // --- 3. Initialize player after auth ---
-    loadAuthHtml().then(() => {
-      console.log("Ready to initialize player");
+    return list;
+  }
 
-      // Disable right-click
-      document.addEventListener("contextmenu", e => e.preventDefault());
+  // 2. Load M3U first
+  async function loadFromM3U(requestedTitle) {
+    try {
+      const res = await fetch(M3U_URL);
+      if (!res.ok) throw new Error("M3U download failed");
 
-      // Get query parameter (?id=Title)
-      const requestedTitle = new URLSearchParams(location.search).get("id");
-      if (!requestedTitle) return alert("Missing 'id' parameter");
+      const text = await res.text();
+      const channels = parseM3U(text);
 
-      fetch("ayna-proxy.json")
-        .then(res => res.json())
-        .then(json => {
-          const list = json.data?.list || [];
-          const match = list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
-          if (!match) return alert(`Channel "${requestedTitle}" not found`);
+      const match = channels.find(
+        c => c.title.toLowerCase() === requestedTitle.toLowerCase()
+      );
 
-          const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+      if (!match) throw new Error("Channel not found in M3U");
 
-          const player = new Clappr.Player({
-            source: streamUrl,
-            parentId: "#player",
-            width: "100%",
-            height: "100%",
-            autoPlay: true,
-            mimeType: "application/x-mpegURL",
-            plugins: [HlsjsPlayback, LevelSelector],
-            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+      console.log("M3U found → using direct URL:\n", match.url);
+      return match.url;
+
+    } catch (err) {
+      console.warn("M3U failed → fallback.", err);
+      return null;
+    }
+  }
+
+  // 3. Fallback auth.js + old JSON system
+  async function loadFallbackStream(requestedTitle) {
+
+    // Load and execute auth.js
+    try {
+      const res = await fetch("api/auth.js?id=cookie");
+      const htmlText = await res.text();
+
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = htmlText;
+
+      const scripts = tempDiv.querySelectorAll("script");
+      for (const sc of scripts) {
+        if (sc.src) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = sc.src;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
           });
+        } else {
+          eval(sc.textContent);
+        }
+      }
 
-          player.on(Clappr.Events.PLAYER_ERROR, () => {
-            console.warn("Playback error — retrying...");
-            setTimeout(() => { player.load(streamUrl); player.play(); }, 500);
-          });
-        })
-        .catch(err => alert("Error loading channel list: " + err));
+    } catch (e) {
+      console.error("auth.js failed", e);
+    }
+
+    // Load backup ayna-proxy.json
+    const data = await fetch("ayna-proxy.json").then(r => r.json());
+    const list = data.data?.list || [];
+
+    const match = list.find(
+      item => item.title.toLowerCase() === requestedTitle.toLowerCase()
+    );
+
+    if (!match) return alert(`Channel "${requestedTitle}" not found`);
+
+    return `api/ayna.m3u8?id=${match.id}`;
+  }
+
+  // 4. Initialize Clappr Player
+  function startPlayer(url) {
+    document.addEventListener("contextmenu", e => e.preventDefault());
+
+    new Clappr.Player({
+      source: url,
+      parentId: "#player",
+      width: "100%",
+      height: "100%",
+      autoPlay: true,
+      mimeType: "application/x-mpegURL",
+      plugins: [HlsjsPlayback, LevelSelector],
+      mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
     });
-  })();
-  </script>
+  }
+
+  // 5. Main flow
+  async function init() {
+    const requestedTitle = new URLSearchParams(location.search).get("id");
+    if (!requestedTitle) return alert("Missing ?id=");
+
+    // Try M3U first
+    let streamUrl = await loadFromM3U(requestedTitle);
+
+    // If failed, fallback
+    if (!streamUrl) {
+      streamUrl = await loadFallbackStream(requestedTitle);
+    }
+
+    startPlayer(streamUrl);
+  }
+
+  init();
+
+})();
+</script>
+
 </body>
 </html>
