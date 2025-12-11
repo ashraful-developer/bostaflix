@@ -12,7 +12,7 @@ html, body {
     color: white;
     font-family: 'Segoe UI', sans-serif;
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 /* Top Image */
@@ -22,10 +22,10 @@ html, body {
     background-size: cover;
     background-position: center;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
-/* Scrolling background text */
+/* Scrolling background text behind image */
 #dynamic-bg {
     position: absolute;
     top: 0;
@@ -34,7 +34,7 @@ html, body {
     height: 60vh;
     overflow: hidden;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
 }
 
 #dynamic-bg span {
@@ -73,7 +73,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 /* Headline text */
@@ -97,15 +97,18 @@ html, body {
     text-decoration: none;
 }
 
-/* Ticker + logo + clock bar */
-#ticker-bar {
+/* Ticker + logo + clock container */
+#ticker-container {
     position: fixed;
     bottom: 0;
     width: 100%;
     z-index: 5;
 }
 
-#logo-clock {
+/* White bar with logo and clock */
+#logo-clock-bar {
+    background: white;
+    color: black;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -113,21 +116,20 @@ html, body {
 }
 
 #bostaflix-logo {
-    font-size: 5vh;
+    font-size: 4.5vh;
     font-weight: bold;
     color: red;
-    text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
 }
 
 .clock {
+    font-family: 'Orbitron', sans-serif;
     color: #17D4FE;
     font-size: 4.5vh;
-    font-family: 'Orbitron', sans-serif;
     letter-spacing: 2px;
     text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
 
-/* Bottom ticker */
+/* Ticker below logo/clock bar */
 #ticker {
     width: 100%;
     height: 8vh;
@@ -178,9 +180,9 @@ html, body {
     <a id="read-more" href="#" target="_blank">Read More</a>
 </div>
 
-<!-- Ticker + logo + clock bar -->
-<div id="ticker-bar">
-    <div id="logo-clock">
+<!-- Logo + Clock + Ticker -->
+<div id="ticker-container">
+    <div id="logo-clock-bar">
         <div id="bostaflix-logo">BOSTAFLIX</div>
         <div id="MyClockDisplay" class="clock"></div>
     </div>
