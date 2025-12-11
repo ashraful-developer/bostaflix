@@ -93,7 +93,7 @@
     font-size: 4.5vh;
     text-decoration: none;
     border-radius: 5px;
-    max-width: 50%;
+    max-width: 70%;
     text-align: center;
   }
 
@@ -127,12 +127,8 @@
   }
 
   @keyframes scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-100%);
-    }
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
   }
   </style>
 </head>
@@ -166,7 +162,6 @@
 
         container.innerHTML = finalText;
 
-        // Scrolling speed based on characters per second
         const charactersPerSecond = 12;
         const totalCharacters = container.textContent.length;
         const durationSeconds = totalCharacters / charactersPerSecond;
@@ -190,16 +185,17 @@
 
       const item = newsData[index];
 
-      // Image
+      // Background Image
       const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
       imageBox.style.backgroundImage = `url(${imageUrl})`;
 
-      // Headline
+      // Headline Text
       headlineBox.textContent = item.ContentHeading.trim();
 
-      // Read More button
-      if(item.Slug && item.ContentID){
-          readMoreBtn.href = `https://backoffice.channel24bd.tv/${item.Slug}/details/${item.ContentID}`;
+      // Read More Button URL
+      if(item.Slug && item.ContentID && item.ImageBgPath){
+          const encodedImage = encodeURIComponent(item.ImageBgPath);
+          readMoreBtn.href = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodedImage}`;
           readMoreBtn.style.display = 'inline-block';
       } else {
           readMoreBtn.style.display = 'none';
@@ -215,7 +211,7 @@
         if (newsData.length === 0) return;
 
         updateHeadline();
-        setInterval(updateHeadline, 15000); // every 15 seconds
+        setInterval(updateHeadline, 15000);
       })
       .catch(err => {
         headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
@@ -223,21 +219,22 @@
       });
 
     function showTime() {
-      var date = new Date();
-      var h = date.getHours();
-      var m = date.getMinutes();
-      var s = date.getSeconds();
-      var session = "AM";
+      const date = new Date();
+      let h = date.getHours();
+      let m = date.getMinutes();
+      let s = date.getSeconds();
+      let session = "AM";
 
-      if (h == 0) { h = 12; }
+      if (h == 0) h = 12;
       if (h > 12) { h -= 12; session = "PM"; }
 
-      h = (h < 10) ? "0" + h : h;
-      m = (m < 10) ? "0" + m : m;
-      s = (s < 10) ? "0" + s : s;
+      h = h < 10 ? "0"+h : h;
+      m = m < 10 ? "0"+m : m;
+      s = s < 10 ? "0"+s : s;
 
-      var time = h + ":" + m + ":" + s + " " + session;
+      const time = `${h}:${m}:${s} ${session}`;
       document.getElementById("MyClockDisplay").innerText = time;
+
       setTimeout(showTime, 1000);
     }
 
