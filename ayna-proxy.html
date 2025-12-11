@@ -5,9 +5,12 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
+  
+  <!-- Clappr Player -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+
   <style>
     html, body {
       margin: 0;
@@ -17,6 +20,7 @@
       background: #000;
       overflow: hidden;
     }
+
     #player {
       width: 100%;
       height: 100%;
@@ -24,69 +28,121 @@
       top: 0;
       left: 0;
     }
+
+    @media (max-width: 400px) {
+      body {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+        height: 125%;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="player"></div>
 
   <script>
-    // Disable right-click
-    document.addEventListener("contextmenu", e => e.preventDefault());
+  (function() {
+    // --- 1. Full-page loader ---
+    const overlay = document.createElement('div');
+    overlay.id = 'fullpage-loader';
+    overlay.style.cssText = `
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      transition:opacity 0.5s ease;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        width:60px;
+        height:60px;
+        border:6px solid #fff;
+        border-top:6px solid #888;
+        border-radius:50%;
+        animation:spin 1s linear infinite;">
+      </div>
+      <style>@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style>
+    `;
+    document.body.appendChild(overlay);
 
-    // Get query parameter (?id=Title)
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 500);
+    }, 2000);
+
+    // --- 2. Load auth HTML and execute scripts ---
+    async function loadAuthHtml() {
+      try {
+        const res = await fetch('api/auth.js?id=cookie'); // your auth HTML endpoint
+        const htmlText = await res.text();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlText;
+
+        const scripts = tempDiv.querySelectorAll('script');
+        for (let script of scripts) {
+          if (script.src) {
+            await new Promise((resolve, reject) => {
+              const s = document.createElement('script');
+              s.src = script.src;
+              s.onload = resolve;
+              s.onerror = reject;
+              document.head.appendChild(s);
+            });
+          } else {
+            eval(script.textContent);
+          }
+        }
+
+        console.log("Auth HTML executed, cookie should be set");
+      } catch (err) {
+        console.error("Failed to load auth HTML:", err);
+      }
     }
 
-    // Initialize player
-    function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
+    // --- 3. Initialize player after auth ---
+    loadAuthHtml().then(() => {
+      console.log("Ready to initialize player");
 
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Playback error — retrying...");
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 500);
-      });
-    }
+      // Disable right-click
+      document.addEventListener("contextmenu", e => e.preventDefault());
 
-    const requestedTitle = getQueryParam("id");
+      // Get query parameter (?id=Title)
+      const requestedTitle = new URLSearchParams(location.search).get("id");
+      if (!requestedTitle) return alert("Missing 'id' parameter");
 
-    if (requestedTitle) {
       fetch("ayna-proxy.json")
         .then(res => res.json())
         .then(json => {
-          // Adjust depending on your JSON structure
           const list = json.data?.list || [];
-          const match = list.find(
-            item => item.title.toLowerCase() === requestedTitle.toLowerCase()
-          );
+          const match = list.find(item => item.title.toLowerCase() === requestedTitle.toLowerCase());
+          if (!match) return alert(`Channel "${requestedTitle}" not found`);
 
-          if (match && match.id) {
-            const streamUrl = `api/ayna.m3u8?id=${match.id}`;
-            createPlayer(streamUrl);
-          } else {
-            alert(`Channel "${requestedTitle}" not found in list.`);
-          }
+          const streamUrl = `api/ayna.m3u8?id=${match.id}`;
+
+          const player = new Clappr.Player({
+            source: streamUrl,
+            parentId: "#player",
+            width: "100%",
+            height: "100%",
+            autoPlay: true,
+            mimeType: "application/x-mpegURL",
+            plugins: [HlsjsPlayback, LevelSelector],
+            mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+          });
+
+          player.on(Clappr.Events.PLAYER_ERROR, () => {
+            console.warn("Playback error — retrying...");
+            setTimeout(() => { player.load(streamUrl); player.play(); }, 500);
+          });
         })
-        .catch(err => {
-          console.error("Failed to load channel list:", err);
-          alert("Error loading channel list.");
-        });
-    } else {
-      alert("Missing 'id' parameter in URL.");
-    }
+        .catch(err => alert("Error loading channel list: " + err));
+    });
+  })();
   </script>
 </body>
 </html>
