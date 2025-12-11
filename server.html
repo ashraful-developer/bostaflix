@@ -15,96 +15,76 @@ html, body {
     overflow: hidden;
 }
 
-/* Bengali text style */
+/* Bengali text */
 .bn-text {
     font-family: 'Kalpurush', sans-serif;
 }
 
-/* Top section: headline left, image right */
-#top-section {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2vh 2vw;
-    height: 90vh;
-    box-sizing: border-box;
-}
-
-/* Headline container */
-#headline-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2vh;
-}
-
-/* Headline text */
-#headline-box {
-    font-size: 6vh;
-    font-weight: bold;
-    color: yellow;
-    line-height: 1.2;
-}
-
-/* Read more button */
-#read-more {
-    margin-top: 2vh;
-    padding: 1vh 2vw;
-    background-color: red;
-    border: none;
-    color: white;
-    font-size: 4vh;
-    cursor: pointer;
-    border-radius: 5px;
-    text-align: center;
-    width: fit-content;
-}
-
-/* Image box */
-#image-box {
-    flex: 0 0 45%;
-    height: 80%;
-    background-size: cover;
-    background-position: center;
-    border-radius: 5px;
-    border: 2px solid red;
-}
-
-/* BOSTAFLIX overlay */
+/* Top BOSTAFLIX logo */
 #bostaflix-logo {
     position: absolute;
     top: 2vh;
     left: 2vw;
-    font-size: 6vh;
+    font-size: 5vh;
     font-weight: bold;
     color: red;
-    text-shadow: 
-        -1px -1px 0 white,  
-        1px -1px 0 white,  
-        -1px 1px 0 white,  
-        1px 1px 0 white;
-    z-index: 5;
+    text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+    z-index: 10;
 }
 
 /* Clock */
 .clock {
     position: absolute;
     top: 2vh;
-    right: 15vw;
+    right: 2vw;
     color: #17D4FE;
-    font-size: 5vh;
+    font-size: 4.5vh;
     font-family: 'Orbitron', sans-serif;
     letter-spacing: 2px;
-    text-shadow: 
-        -1px -1px 0 black,  
-        1px -1px 0 black,  
-        -1px 1px 0 black,  
-        1px 1px 0 black;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
 
-/* Ticker */
+/* Top image */
+#image-box {
+    width: 100%;
+    height: 50vh;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Headline bar below image */
+#headline-bar {
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    padding: 2vh 2vw;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Headline text */
+#headline-box {
+    font-size: 5vh;
+    font-weight: bold;
+    color: yellow;
+    text-align: center;
+    margin-bottom: 2vh;
+}
+
+/* Read More button inside headline bar */
+#read-more {
+    padding: 1vh 3vw;
+    background-color: red;
+    border: none;
+    color: white;
+    font-size: 3.5vh;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* Ticker at bottom */
 #ticker {
     position: fixed;
     bottom: 0;
@@ -114,13 +94,13 @@ html, body {
     display: flex;
     align-items: center;
     overflow: hidden;
-    z-index: 4;
+    z-index: 5;
 }
 
 #ticker-content {
     display: inline-block;
     white-space: nowrap;
-    font-size: 5vh;
+    font-size: 4.5vh;
     padding-left: 100%;
 }
 
@@ -140,36 +120,30 @@ html, body {
     to { transform: translateX(-100%); }
 }
 
-/* Responsive: image below headline on small screens */
+/* Responsive adjustments */
 @media(max-width: 600px){
-    #top-section {
-        flex-direction: column-reverse;
-        align-items: center;
-    }
-    #image-box {
-        width: 90%;
-        height: 40vh;
-        margin-bottom: 2vh;
-    }
+    #headline-box { font-size: 4vh; }
+    #read-more { font-size: 3vh; }
+    #ticker-content { font-size: 3.5vh; }
+    #image-box { height: 35vh; }
 }
 </style>
 </head>
 <body>
 
-<div id="top-section">
-    <div id="headline-container">
-        <div id="headline-box">লোড হচ্ছে...</div>
-        <a id="read-more" href="#" target="_blank">Read More</a>
-    </div>
-    <div id="image-box"></div>
-    <div id="bostaflix-logo">BOSTAFLIX</div>
+<div id="bostaflix-logo">BOSTAFLIX</div>
+<div id="MyClockDisplay" class="clock"></div>
+
+<div id="image-box"></div>
+
+<div id="headline-bar">
+    <div id="headline-box">লোড হচ্ছে...</div>
+    <a id="read-more" href="#" target="_blank">Read More</a>
 </div>
 
 <div id="ticker">
     <div id="ticker-content"></div>
 </div>
-
-<div id="MyClockDisplay" class="clock"></div>
 
 <script>
 // Clock
