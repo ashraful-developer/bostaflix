@@ -2,148 +2,142 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>News Display</title>
+  <title>News Display - BBC Style</title>
   <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
   <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    color: white;
-    font-family: 'Kalpurush', sans-serif;
-    height: 100%;
-    overflow: hidden;
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Kalpurush', sans-serif;
+      background: black;
+      color: white;
+      height: 100%;
+      overflow: hidden;
+    }
 
-  #top-section {
-    position: relative;
-    height: 90vh;
-    overflow: hidden;
-  }
+    #top-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2vh 2vw;
+      height: 90vh;
+      box-sizing: border-box;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    }
 
-  #news-overlay {
-    position: absolute;
-    top: 2vh;
-    left: 2vw;
-    font-family: Calibri, sans-serif;
-    font-size: 6vh;
-    color: red;
-    text-shadow: 
-      -1px -1px 0 white,  
-      1px -1px 0 white,  
-      -1px 1px 0 white,  
-      1px 1px 0 white;
-    z-index: 5;
-    pointer-events: none;
-  }
+    #headline-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2vh;
+    }
 
-  #image-box {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
+    #headline-box {
+      font-size: 6vh;
+      font-weight: bold;
+      color: yellow;
+      line-height: 1.2;
+    }
 
-  .clock {
-    position: absolute;
-    top: 2vh;
-    right: 2vw;
-    color: #17D4FE;
-    font-size: 5vh;
-    font-family: Orbitron, sans-serif;
-    letter-spacing: 2px;
-    text-shadow: 
-      -1px -1px 0 black,  
-      1px -1px 0 black,  
-      -1px 1px 0 black,  
-      1px 1px 0 black;
-  }
+    #read-more-btn {
+      display: inline-block;
+      padding: 1vh 3vw;
+      background: red;
+      color: white;
+      text-decoration: none;
+      font-size: 4vh;
+      border-radius: 5px;
+      width: max-content;
+      transition: 0.3s;
+    }
 
-  #details-block {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    max-height: 50vh;
-    padding: 2vh 2vw;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.3));
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 1vh;
-    box-sizing: border-box;
-  }
+    #read-more-btn:hover {
+      background: darkred;
+    }
 
-  #headline-box {
-    font-size: 6.5vh;
-    font-weight: bold;
-    color: yellow;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-  }
+    #image-box {
+      flex: 0 0 45%;
+      height: 80%;
+      background-size: cover;
+      background-position: center;
+      border: 2px solid red;
+      border-radius: 5px;
+    }
 
-  #brief-box a {
-    display: inline-block;
-    padding: 1vh 2vw;
-    background: red;
-    color: white;
-    font-size: 4.5vh;
-    text-decoration: none;
-    border-radius: 5px;
-    max-width: 70%;
-    text-align: center;
-  }
+    #ticker {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 10vh;
+      background: black;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 4;
+    }
 
-  #ticker {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 10vh;
-    background: black;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    z-index: 4;
-  }
+    #ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 4.5vh;
+      padding-left: 100%;
+    }
 
-  #ticker-content {
-    display: inline-block;
-    white-space: nowrap;
-    font-size: 5vh;
-    padding-left: 100%;
-  }
+    .headline {
+      margin: 0 2vw;
+    }
 
-  .headline {
-    margin: 0 2vw;
-  }
-  .separator {
-    color: red;
-    font-weight: bold;
-    margin: 0 2vw;
-    font-family: 'Calibri', sans-serif;
-  }
+    .separator {
+      color: red;
+      font-weight: bold;
+      margin: 0 2vw;
+    }
 
-  @keyframes scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-  }
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    .clock {
+      position: absolute;
+      top: 2vh;
+      right: 2vw;
+      color: #17D4FE;
+      font-size: 5vh;
+      font-family: Orbitron, sans-serif;
+      letter-spacing: 2px;
+      text-shadow: 
+        -1px -1px 0 black,  
+        1px -1px 0 black,  
+        -1px 1px 0 black,  
+        1px 1px 0 black;
+    }
+
+    @media(max-width: 900px){
+      #top-section {
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 2vh;
+      }
+      #image-box {
+        width: 90%;
+        height: 40vh;
+      }
+      #headline-box { font-size: 5vh; }
+      #read-more-btn { font-size: 3.5vh; }
+    }
   </style>
 </head>
 <body>
   <div id="top-section">
-    <div id="image-box">
-      <div id="news-overlay">BOSTAFLIX</div>
-      <div id="MyClockDisplay" class="clock"></div>
-      <div id="details-block">
-        <div id="headline-box">লোড হচ্ছে...</div>
-        <div id="brief-box">
-          <a id="read-more-btn" href="#" target="_blank">Read More</a>
-        </div>
-      </div>
+    <div id="headline-container">
+      <div id="headline-box">লোড হচ্ছে...</div>
+      <a id="read-more-btn" href="#" target="_blank">Read More</a>
     </div>
+    <div id="image-box"></div>
+    <div id="MyClockDisplay" class="clock"></div>
   </div>
 
   <div id="ticker">
@@ -151,94 +145,75 @@
   </div>
 
   <script>
-    // Ticker Scroll
+    // Clock
+    function showTime(){
+      const date = new Date();
+      let h = date.getHours();
+      let m = date.getMinutes();
+      let s = date.getSeconds();
+      let session = "AM";
+      if(h==0) h=12;
+      if(h>12){ h-=12; session="PM";}
+      h=h<10?"0"+h:h;
+      m=m<10?"0"+m:m;
+      s=s<10?"0"+s:s;
+      const time = `${h}:${m}:${s} ${session}`;
+      document.getElementById("MyClockDisplay").innerText = time;
+      setTimeout(showTime,1000);
+    }
+    showTime();
+
+    // Ticker
     fetch("https://ekhon.tv/api/news/ticker.json")
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById('ticker-content');
-        const headlines = data.data.map(item => `<span class="headline">${item.content}</span>`);
-        const separator = `<span class="separator">BOSTAFLIX</span>`;
-        const finalText = headlines.join(separator);
-
-        container.innerHTML = finalText;
-
-        const charactersPerSecond = 12;
-        const totalCharacters = container.textContent.length;
-        const durationSeconds = totalCharacters / charactersPerSecond;
-
-        container.style.animation = `scroll ${durationSeconds}s linear infinite`;
+      .then(res=>res.json())
+      .then(data=>{
+        const container=document.getElementById('ticker-content');
+        const headlines=data.data.map(item=>`<span class="headline">${item.content}</span>`).join('<span class="separator">BOSTAFLIX</span>');
+        container.innerHTML=headlines;
+        const duration = container.textContent.length / 12;
+        container.style.animation=`scroll ${duration}s linear infinite`;
       })
-      .catch(err => {
-        document.getElementById('ticker-content').textContent = "খবর লোড করা যায়নি...";
-      });
+      .catch(()=>document.getElementById('ticker-content').textContent="খবর লোড করা যায়নি...");
 
-    // Top Headline Section
-    const imageBox = document.getElementById("image-box");
+    // Headline Section
     const headlineBox = document.getElementById("headline-box");
+    const imageBox = document.getElementById("image-box");
     const readMoreBtn = document.getElementById("read-more-btn");
 
     let newsData = [];
     let index = 0;
 
-    function updateHeadline() {
-      if (!newsData.length) return;
-
+    function updateHeadline(){
+      if(!newsData.length) return;
       const item = newsData[index];
 
-      // Background Image
-      const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
-      imageBox.style.backgroundImage = `url(${imageUrl})`;
-
-      // Headline Text
+      // Headline text
       headlineBox.textContent = item.ContentHeading.trim();
 
-      // Read More Button URL
+      // Image
+      imageBox.style.backgroundImage = `url(https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath})`;
+
+      // Read More URL
       if(item.Slug && item.ContentID && item.ImageBgPath){
-          const encodedImage = encodeURIComponent(item.ImageBgPath);
-          readMoreBtn.href = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodedImage}`;
-          readMoreBtn.style.display = 'inline-block';
+        const encodedImage = encodeURIComponent(item.ImageBgPath);
+        readMoreBtn.href=`https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodedImage}`;
+        readMoreBtn.style.display='inline-block';
       } else {
-          readMoreBtn.style.display = 'none';
+        readMoreBtn.style.display='none';
       }
 
       index = (index + 1) % newsData.length;
     }
 
     fetch("https://backoffice.channel24bd.tv/api/json/file/generateLatest.json")
-      .then(response => response.json())
-      .then(data => {
+      .then(res=>res.json())
+      .then(data=>{
         newsData = data.data || [];
-        if (newsData.length === 0) return;
-
+        if(!newsData.length) return;
         updateHeadline();
-        setInterval(updateHeadline, 15000);
+        setInterval(updateHeadline,15000);
       })
-      .catch(err => {
-        headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
-        readMoreBtn.style.display = 'none';
-      });
-
-    function showTime() {
-      const date = new Date();
-      let h = date.getHours();
-      let m = date.getMinutes();
-      let s = date.getSeconds();
-      let session = "AM";
-
-      if (h == 0) h = 12;
-      if (h > 12) { h -= 12; session = "PM"; }
-
-      h = h < 10 ? "0"+h : h;
-      m = m < 10 ? "0"+m : m;
-      s = s < 10 ? "0"+s : s;
-
-      const time = `${h}:${m}:${s} ${session}`;
-      document.getElementById("MyClockDisplay").innerText = time;
-
-      setTimeout(showTime, 1000);
-    }
-
-    showTime();
+      .catch(()=>{headlineBox.textContent="শিরোনাম লোড করা যায়নি"; readMoreBtn.style.display='none';});
   </script>
 </body>
 </html>
