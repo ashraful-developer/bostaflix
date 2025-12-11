@@ -20,22 +20,22 @@
     height: 90vh;
     overflow: hidden;
   }
-    
-    #news-overlay {
-  position: absolute;
-  top: 2vh;
-  left: 2vw;
-  font-family: Calibri, sans-serif;
-  font-size: 6vh;
-  color: red;
-  text-shadow: 
-    -1px -1px 0 white,  
-    1px -1px 0 white,  
-    -1px 1px 0 white,  
-    1px 1px 0 white;
-  z-index: 5;
-  pointer-events: none;
-}
+
+  #news-overlay {
+    position: absolute;
+    top: 2vh;
+    left: 2vw;
+    font-family: Calibri, sans-serif;
+    font-size: 6vh;
+    color: red;
+    text-shadow: 
+      -1px -1px 0 white,  
+      1px -1px 0 white,  
+      -1px 1px 0 white,  
+      1px 1px 0 white;
+    z-index: 5;
+    pointer-events: none;
+  }
 
   #image-box {
     width: 100%;
@@ -43,21 +43,21 @@
     background-size: cover;
     background-position: center;
     position: relative;
-        .clock {
-      position: absolute;
-      top: 2vh;
-      right: 2vw;
-      color: #17D4FE;
-      font-size: 5vh;
-      font-family: Orbitron, sans-serif;
-      letter-spacing: 2px;
-        text-shadow: 
-    -1px -1px 0 black,  
-    1px -1px 0 black,  
-    -1px 1px 0 black,  
-    1px 1px 0 black;
-    }
+  }
 
+  .clock {
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    color: #17D4FE;
+    font-size: 5vh;
+    font-family: Orbitron, sans-serif;
+    letter-spacing: 2px;
+    text-shadow: 
+      -1px -1px 0 black,  
+      1px -1px 0 black,  
+      -1px 1px 0 black,  
+      1px 1px 0 black;
   }
 
   #details-block {
@@ -85,11 +85,16 @@
     flex-shrink: 0;
   }
 
-  #brief-box {
+  #brief-box a {
+    display: inline-block;
+    padding: 1vh 2vw;
+    background: red;
+    color: white;
     font-size: 4.5vh;
-    line-height: 1.4;
-    overflow: hidden;
-    word-break: break-word;
+    text-decoration: none;
+    border-radius: 5px;
+    max-width: 50%;
+    text-align: center;
   }
 
   #ticker {
@@ -114,12 +119,13 @@
   .headline {
     margin: 0 2vw;
   }
-.separator {
-  color: red;
-  font-weight: bold;
-  margin: 0 2vw;
-  font-family: 'Calibri', sans-serif;
-}
+  .separator {
+    color: red;
+    font-weight: bold;
+    margin: 0 2vw;
+    font-family: 'Calibri', sans-serif;
+  }
+
   @keyframes scroll {
     from {
       transform: translateX(0);
@@ -128,19 +134,20 @@
       transform: translateX(-100%);
     }
   }
-</style>
-
+  </style>
 </head>
 <body>
   <div id="top-section">
     <div id="image-box">
-  <div id="news-overlay">BOSTAFLIX</div>
+      <div id="news-overlay">BOSTAFLIX</div>
       <div id="MyClockDisplay" class="clock"></div>
-  <div id="details-block">
-    <div id="headline-box">লোড হচ্ছে...</div>
-    <div id="brief-box"></div>
-  </div>
-</div>
+      <div id="details-block">
+        <div id="headline-box">লোড হচ্ছে...</div>
+        <div id="brief-box">
+          <a id="read-more-btn" href="#" target="_blank">Read More</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="ticker">
@@ -173,7 +180,7 @@
     // Top Headline Section
     const imageBox = document.getElementById("image-box");
     const headlineBox = document.getElementById("headline-box");
-    const briefBox = document.getElementById("brief-box");
+    const readMoreBtn = document.getElementById("read-more-btn");
 
     let newsData = [];
     let index = 0;
@@ -190,8 +197,13 @@
       // Headline
       headlineBox.textContent = item.ContentHeading.trim();
 
-      // Brief
-      briefBox.textContent = item.ContentBrief.trim();
+      // Read More button
+      if(item.Slug && item.ContentID){
+          readMoreBtn.href = `https://backoffice.channel24bd.tv/${item.Slug}/details/${item.ContentID}`;
+          readMoreBtn.style.display = 'inline-block';
+      } else {
+          readMoreBtn.style.display = 'none';
+      }
 
       index = (index + 1) % newsData.length;
     }
@@ -207,23 +219,18 @@
       })
       .catch(err => {
         headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
-        briefBox.textContent = "";
+        readMoreBtn.style.display = 'none';
       });
+
     function showTime() {
       var date = new Date();
-      var h = date.getHours(); // 0 - 23
-      var m = date.getMinutes(); // 0 - 59
-      var s = date.getSeconds(); // 0 - 59
+      var h = date.getHours();
+      var m = date.getMinutes();
+      var s = date.getSeconds();
       var session = "AM";
 
-      if (h == 0) {
-        h = 12;
-      }
-
-      if (h > 12) {
-        h = h - 12;
-        session = "PM";
-      }
+      if (h == 0) { h = 12; }
+      if (h > 12) { h -= 12; session = "PM"; }
 
       h = (h < 10) ? "0" + h : h;
       m = (m < 10) ? "0" + m : m;
@@ -231,13 +238,10 @@
 
       var time = h + ":" + m + ":" + s + " " + session;
       document.getElementById("MyClockDisplay").innerText = time;
-      document.getElementById("MyClockDisplay").textContent = time;
-
       setTimeout(showTime, 1000);
     }
 
     showTime();
-
   </script>
 </body>
 </html>
