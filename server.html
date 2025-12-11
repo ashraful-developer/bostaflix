@@ -48,12 +48,6 @@ html, body {
     line-height: 1.2;
 }
 
-/* Brief text */
-#brief-box {
-    font-size: 4.5vh;
-    line-height: 1.4;
-}
-
 /* Read more button */
 #read-more {
     margin-top: 2vh;
@@ -78,11 +72,27 @@ html, body {
     border: 2px solid red;
 }
 
+/* BOSTAFLIX overlay */
+#bostaflix-logo {
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    font-size: 6vh;
+    font-weight: bold;
+    color: red;
+    text-shadow: 
+        -1px -1px 0 white,  
+        1px -1px 0 white,  
+        -1px 1px 0 white,  
+        1px 1px 0 white;
+    z-index: 5;
+}
+
 /* Clock */
 .clock {
     position: absolute;
     top: 2vh;
-    right: 2vw;
+    right: 15vw;
     color: #17D4FE;
     font-size: 5vh;
     font-family: 'Orbitron', sans-serif;
@@ -149,10 +159,10 @@ html, body {
 <div id="top-section">
     <div id="headline-container">
         <div id="headline-box">লোড হচ্ছে...</div>
-        <div id="brief-box"></div>
         <a id="read-more" href="#" target="_blank">Read More</a>
     </div>
     <div id="image-box"></div>
+    <div id="bostaflix-logo">BOSTAFLIX</div>
 </div>
 
 <div id="ticker">
@@ -184,7 +194,7 @@ fetch("https://ekhon.tv/api/news/ticker.json")
 .then(res => res.json())
 .then(data => {
     const container = document.getElementById('ticker-content');
-    const headlines = data.data.map(item => `<span class="headline">${item.content}</span>`);
+    const headlines = data.data.map(item => `<span class="headline bn-text">${item.content}</span>`);
     const separator = `<span class="separator">BOSTAFLIX</span>`;
     container.innerHTML = headlines.join(separator);
     const charactersPerSecond = 12;
@@ -195,7 +205,6 @@ fetch("https://ekhon.tv/api/news/ticker.json")
 
 // Top Headline
 const headlineBox = document.getElementById("headline-box");
-const briefBox = document.getElementById("brief-box");
 const imageBox = document.getElementById("image-box");
 const readMoreBtn = document.getElementById("read-more");
 
@@ -207,7 +216,6 @@ function updateHeadline() {
     const item = newsData[index];
     imageBox.style.backgroundImage = `url(https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath})`;
     headlineBox.innerHTML = `<span class="bn-text">${item.ContentHeading.trim()}</span>`;
-    briefBox.innerHTML = `<span class="bn-text">${item.ContentBrief.trim()}</span>`;
     readMoreBtn.href = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
     index = (index + 1) % newsData.length;
 }
@@ -222,7 +230,6 @@ fetch("https://backoffice.channel24bd.tv/api/json/file/generateLatest.json")
 })
 .catch(err => {
     headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
-    briefBox.textContent = "";
 });
 </script>
 
