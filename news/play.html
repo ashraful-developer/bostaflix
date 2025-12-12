@@ -69,7 +69,6 @@
         width: 100%;
         height: 100%;
         border: none;
-        border-radius: 0;
         background-color: black;
     }
 
@@ -214,35 +213,35 @@
 <!-- Channel Logos -->
 <div class="logos-container">
 
-<img src="logos/somoy.png" alt="Somoy TV" data-category="News"
-onclick="loadServers(['akash.html?id=1702','ayna.html?id=Somoy News TV'], 'Somoy TV')">
+<img src="https://bostaflix.vercel.app/logos/somoy.png" alt="Somoy TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1702','https://bostaflix.vercel.app/ayna.html?id=Somoy News TV', 'https://bostaflix.vercel.app/jago.html?id=somoyt000011226615544544.stream', 'https://bostaflix.vercel.app/rongo.html?id=Somoy'], 'Somoy TV')">
 
-<img src="logos/dbc-news.png" alt="DBC News" data-category="News"
-onclick="loadServers(['ayna.html?id=DBC News','jago.html?id=dbcnews.stream'], 'DBC News')">
+<img src="https://bostaflix.vercel.app/logos/dbc-news.png" alt="DBC News" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/ayna.html?id=DBC News','https://bostaflix.vercel.app/jago.html?id=dbcnews.stream'], 'DBC News')">
 
-<img src="logos/channel24.jpg" alt="Channel 24" data-category="News"
-onclick="loadServers(['akash.html?id=1703'], 'Channel 24')">
+<img src="https://bostaflix.vercel.app/logos/channel24.jpg" alt="Channel 24" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1703'], 'Channel 24')">
 
-<img src="logos/desh.png" alt="Desh TV" data-category="News"
-onclick="loadServers(['ayna.html?id=Desh TV'], 'Desh TV')">
+<img src="https://bostaflix.vercel.app/logos/desh.png" alt="Desh TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/ayna.html?id=Desh TV'], 'Desh TV')">
 
-<img src="logos/ekattor_tv.png" alt="Ekattor TV" data-category="News"
-onclick="loadServers(['akash.html?id=1705'], 'Ekattor TV')">
+<img src="https://bostaflix.vercel.app/logos/ekattor_tv.png" alt="Ekattor TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1705'], 'Ekattor TV')">
 
-<img src="logos/ekhon.jpg" alt="Ekhon TV" data-category="News"
-onclick="loadServers(['ayna.html?id=Ekhon TV','jago.html?id=globaltv.stream'], 'Ekhon TV')">
+<img src="https://bostaflix.vercel.app/logos/ekhon.jpg" alt="Ekhon TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/ayna.html?id=Ekhon TV','https://bostaflix.vercel.app/jago.html?id=globaltv.stream'], 'Ekhon TV')">
 
-<img src="logos/independent.png" alt="Independent TV" data-category="News"
-onclick="loadServers(['akash.html?id=1704'], 'Independent TV')">
+<img src="https://bostaflix.vercel.app/logos/independent.png" alt="Independent TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1704'], 'Independent TV')">
 
-<img src="logos/jamuna.png" alt="Jamuna TV" data-category="News"
-onclick="loadServers(['akash.html?id=1701','ayna.html?id=Jamuna TV'], 'Jamuna TV')">
+<img src="https://bostaflix.vercel.app/logos/jamuna.png" alt="Jamuna TV" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1701','https://bostaflix.vercel.app/ayna.html?id=Jamuna TV'], 'Jamuna TV')">
 
-<img src="logos/news24.jpg" alt="News 24" data-category="News"
-onclick="loadServers(['ayna.html?id=News 24 BD','jago.html?id=news24local.stream'], 'News 24')">
+<img src="https://bostaflix.vercel.app/logos/news24.jpg" alt="News 24" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/ayna.html?id=News 24 BD','https://bostaflix.vercel.app/jago.html?id=news24local.stream'], 'News 24')">
 
-<img src="logos/atnnews.png" alt="ATN News" data-category="News"
-onclick="loadServers(['akash.html?id=1706'], 'ATN News')">
+<img src="https://bostaflix.vercel.app/logos/atnnews.png" alt="ATN News" data-category="News"
+onclick="loadServers(['https://bostaflix.vercel.app/akash.html?id=1706'], 'ATN News')">
 
 </div>
 
@@ -255,7 +254,7 @@ function loadServers(servers, channelName) {
     const serverButtons = document.getElementById('serverButtons');
     serverButtons.innerHTML = '';
 
-    loadIframe(servers[0]); // first server auto-load
+    loadIframe(servers[0]); // auto-load first
 
     servers.forEach((server, index) => {
         const button = document.createElement('button');
@@ -284,10 +283,10 @@ function getQueryParam(param) {
 }
 
 //
-// ✅ AUTO-LOAD CHANNEL FROM ?id=CHANNEL NAME
+// FIXED AUTO-LOADER
 //
 window.onload = () => {
-    const target = decodeURIComponent(getQueryParam("id") || "");
+    const target = decodeURIComponent(getQueryParam("id") || "").trim();
     if (!target) return;
 
     const images = document.querySelectorAll(".logos-container img");
@@ -296,14 +295,15 @@ window.onload = () => {
         const onclick = img.getAttribute("onclick");
         if (!onclick) return;
 
-        // extract channel name
-        const match = onclick.match(/,\s*['"](.*?)['"]\)/);
-        if (!match) return;
+        // Extract last argument safely
+        const args = onclick.substring(onclick.indexOf("(") + 1, onclick.lastIndexOf(")"))
+            .split(",");
 
-        const channelName = match[1];
+        const channelNameRaw = args[args.length - 1].trim();
+        const channelName = channelNameRaw.replace(/['"]/g, "");
 
-        if (channelName === target) {
-            img.click(); // load it!
+        if (channelName.toLowerCase() === target.toLowerCase()) {
+            img.click();
         }
     });
 };
