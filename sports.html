@@ -1,10 +1,290 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <meta http-equiv="refresh" content="0; url=https://bostaflix.vercel.app/channels/tsports.html">
-    <title>Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433"
+     crossorigin="anonymous"></script>
+<style>
+    body {
+        background-color: #F2F2F2;
+        margin: 0;
+        padding: 0;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        scroll-behavior: smooth;
+    }
+
+    /* Header styling */
+    header {
+        background-color: #ff3c3c;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #ff3c3c;
+    }
+
+    .logo {
+        color: white;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: red;
+        color: #fff;
+    }
+
+    /* Iframe container */
+    .iframe-container {
+        padding-bottom: auto;
+        aspect-ratio: 16 / 9;
+        position: relative;
+        margin: 20px auto;
+        max-width: 100%;
+        color: black;
+    }
+
+    iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 0; /* No round edges */
+        background-color: black;
+    }
+
+    /* Server buttons */
+    .server-buttons-container {
+        width: 100%;
+        padding: 15px 0;
+        text-align: center;
+        display: none;
+        transition: all 0.3s ease;
+        color: #ffffff;
+    }
+
+    .server-buttons-container.show {
+        display: block;
+    }
+
+    .server-buttons-container button {
+        background-color: white;
+        border: 1px solid #ff3c3c;
+        padding: 10px 18px;
+        margin: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        color: #ff3c3c;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .server-buttons-container button:hover {
+        background-color: #ff3c3c;
+        transform: scale(1.05);
+		color: white;
+    }
+
+    /* Logo container */
+    .logos-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+.logos-container img {
+    width: 100px;
+    height: 75px;              /* 4:3 container */
+    object-fit: contain;
+    aspect-ratio: 4 / 3;
+    padding: 6px;
+    border: 1px solid #ff3c3c; /* red border */
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s;	
+	background-color: white;
+}
+
+    .logos-container img:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 12px rgba(255, 60, 60, 0.5);
+    }
+
+    /* Category filter */
+    .category-filter {
+        margin: 25px auto;
+        text-align: center;
+        color: #ff3c3c;
+    }
+
+    .category-filter select {
+        padding: 10px 14px;
+        font-size: 16px;
+        border-radius: 6px;
+        background-color: white;
+        color: #ff3c3c;
+        border: 1px solid #555;
+        outline: none;
+    }
+
+    @media (min-width: 720px) {
+        .iframe-container {
+            max-height: 70vh;
+            max-width: 80%;
+	border: 3px solid red;            
+        }
+            .logos-container {
+                max-width: 80vw;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .iframe-container {
+            width: 100%;
+	        margin: 0px auto;
+		    border-bottom: 2px solid red;
+        }
+
+        .nav-links {
+            display: none;
+        }
+    }
+    @media (max-width: 400px) {
+        .logos-container img {
+        width: 80px;
+        height: 60px;
+        }
+</style>
 </head>
 <body>
-    Redirecting to <a href="https://bostaflix.vercel.app/channels/tsports.html">https://bostaflix.vercel.app/channels/tsports.html</a>...
+    <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+    <!-- Iframe container for the player -->
+    <div class="iframe-container">
+        <iframe id="videoFrame" allowfullscreen></iframe>
+    </div>
+
+    <!-- Server buttons section -->
+    <div id="serverButtons" class="server-buttons-container"></div>
+
+    <!-- Category filter dropdown -->
+    <div class="category-filter">
+        <label for="categorySelect">Sort by Category: </label>
+        <select id="categorySelect" onchange="filterChannels()">
+            <option value="all">All</option>
+            <option value="News">News</option>
+            <option value="Featured">Featured</option>
+            <option value="Kids">Kids</option>
+            <option value="Sports">Sports</option>
+            <option value="Religious">Religious</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Documentary">Documentary</option>
+        </select>
+    </div>
+
+<div class="logos-container">
+<img src="logos/tencricket.png" alt="TSports" data-category="Sports, Featured" onclick="loadServers(['toffee2.html?id=SONY%20TEN%20Cricket'], 'TSports')">
+
+<img src="logos/gazi_tv.png" alt="TSports" data-category="Sports, Featured" onclick="loadServers(['ayna.html?id=Gazi TV'], 'TSports')">
+
+<img src="logos/t_sports.png" alt="TSports" data-category="Sports, Featured" onclick="loadServers(['ayna.html?id=T Sports HD'], 'TSports')">
+
+<img src="logos/sonysports1.png" alt="GTV" data-category="Sports, Featured" onclick="loadServers(['toffee2.html?id=Sony Ten Sports 1 HD'], 'GTV')">
+
+<img src="logos/sonysports2.png" alt="GTV" data-category="Sports, Featured" onclick="loadServers(['toffee2.html?id=Sony Ten Sports 2 HD'], 'GTV')">
+
+<img src="logos/sonysports5.png" alt="GTV" data-category="Sports, Featured" onclick="loadServers(['toffee2.html?id=Sony Ten Sports 5 HD'], 'GTV')">
+        <!-- Add more logos with appropriate data-category attributes -->
+    </div>
+
+
+    <script>
+        // Load iframe with server link
+        function loadIframe(serverLink) {
+            document.getElementById('videoFrame').src = serverLink;
+        }
+
+        // Load server buttons dynamically
+        function loadServers(servers, channelName) {
+            const serverButtons = document.getElementById('serverButtons');
+            serverButtons.innerHTML = '';
+
+            // Load first server by default
+            loadIframe(servers[0]);
+
+            // Create server buttons
+            servers.forEach((server, index) => {
+                const button = document.createElement('button');
+                button.innerText = `Server ${index + 1}`;
+                button.onclick = () => loadIframe(server);
+                serverButtons.appendChild(button);
+            });
+
+            serverButtons.classList.add('show');
+            document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Filter channels by category
+        function filterChannels() {
+            const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
+            const images = document.querySelectorAll('img[data-category]');
+
+            images.forEach(img => {
+                const categories = img.getAttribute('data-category').toLowerCase().split(',').map(c => c.trim());
+                img.style.display = (selectedCategory === 'all' || categories.includes(selectedCategory)) ? '' : 'none';
+            });
+        }
+
+        // Get query parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Load default channel from query
+        window.onload = function () {
+            const defaultId = getQueryParam('id') || 'id';
+            const defaultServer = getQueryParam('server') || 'server';
+            loadIframe(`${defaultServer}.html?id=${defaultId}`);
+        };
+    </script>
+
+    <!-- Footer -->
+    <div style="color: white; background-color: #ff3c3c; padding: 10px; text-align: center;">
+        &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
+        internet and Bostafull Live is not connected with them. Wait up to 1 min to load, if not, change server.
+    </div>
 </body>
 </html>
