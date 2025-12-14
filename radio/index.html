@@ -63,6 +63,41 @@
       padding: 2rem;
       text-align: center;
     }
+    @media (max-width: 768px) {
+
+  /* Hide nav links on mobile (same as Quran page) */
+  .nav-links {
+    display: none;
+  }
+
+  header {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .logo {
+    font-size: 1.4em;
+  }
+
+  h1 {
+    font-size: 1.3em;
+    margin-top: 1.2rem;
+  }
+
+  #stream-container {
+    max-width: 100%;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  /* Make embedded player fit mobile */
+  .cstrEmbed {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
   </style>
 </head>
 <body>
