@@ -1,108 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jadoo | Buddy✘TV</title>
-
-<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
-}
-#player {
-  width: 100%;
-  height: 100%;
-}
-</style>
-</head>
-<body>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
 
-<div id="player"></div>
+  #player {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
-<script>
-const M3U_URL =
-  "https://raw.githubusercontent.com/mahabubur016823/roarzone.m3u/refs/heads/main/playlist.m3u";
-
-function getQueryParam(name) {
-  return new URLSearchParams(window.location.search).get(name);
-}
-
-// --- Parse M3U ---
-function parseM3U(text) {
-  const lines = text.split("\n");
-  const channels = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith("#EXTINF")) {
-      const info = lines[i];
-      const url = lines[i + 1]?.trim();
-      if (!url) continue;
-
-      const tvgId = (info.match(/tvg-id="([^"]+)"/i) || [])[1];
-      const name = info.split(",").pop().trim();
-
-      channels.push({
-        tvgId: tvgId?.toLowerCase(),
-        name: name.toLowerCase(),
-        url
-      });
+  /* When screen width is below 400px, scale down entire page */
+  @media (max-width: 400px) {
+    body {
+      transform: scale(0.8);
+      transform-origin: top left;
+      width: 125%;   /* compensate for scaling shrink */
+      height: 125%;
     }
   }
-  return channels;
-}
-
-// --- Create Player ---
-function createPlayer(sourceUrl) {
-  new Clappr.Player({
-    parentId: "#player",
-    source: sourceUrl,
-    autoPlay: true,
-    width: "100%",
-    height: "100%",
-    mimeType: "application/x-mpegURL",
-    playback: {
-      hlsjsConfig: {
-        xhrSetup: function (xhr) {
-          xhr.withCredentials = true; // ✅ credentials enabled
+</style>
+<script>
+    let blockEmbed = false;
+    try {
+        if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
+            blockEmbed = true;
         }
-      }
-    },
-    plugins: [HlsjsPlayback]
-  });
-}
+    } catch (e) {
+        blockEmbed = true;
+    }
 
-// --- Main ---
-const channelId = getQueryParam("id")?.toLowerCase();
-
-if (!channelId) {
-  console.error("No ?id provided");
-} else {
-  fetch(M3U_URL)
-    .then(r => r.text())
-    .then(text => {
-      const channels = parseM3U(text);
-      const channel = channels.find(
-        c => c.tvgId === channelId || c.name === channelId
-      );
-
-      if (!channel) {
-        console.error("Channel not found:", channelId);
-        return;
-      }
-
-      createPlayer(channel.url);
-    })
-    .catch(err => console.error("M3U load error:", err));
-}
+    if (blockEmbed) {
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.innerHTML = `
+                <div style="color:white;text-align:center;margin-top:20%;">
+                    <h1>403 Forbidden</h1>
+                    <p>You cannot embed this page in a cross-origin iframe.</p>
+                </div>
+            `;
+        });
+    }
 </script>
+</head>
+<body>
+    <div id="player"></div>
 
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+        });
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `api/roarzone.m3u8?stream={$channelId}`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
