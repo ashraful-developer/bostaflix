@@ -5,8 +5,8 @@
   <title>Jadoo | Buddy✘TV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  
-  <!-- Clappr Player -->
+
+  <!-- Clappr -->
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
@@ -40,174 +40,132 @@
   </style>
 </head>
 <body>
-  <div id="player"></div>
+
+<div id="player"></div>
+
 <script>
 (function () {
 
   /* ---------------------------------------------
-     FULL-PAGE LOADING SCREEN (no timer)
+     FULLSCREEN LOADER
   --------------------------------------------- */
-  const overlay = document.createElement('div');
-  overlay.id = 'fullpage-loader';
+  const overlay = document.createElement("div");
   overlay.style.cssText = `
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      background:#000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:99999;
-      transition:opacity 0.4s ease;
+    position:fixed; inset:0;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
   `;
   overlay.innerHTML = `
-      <div style="
-        width:60px;
-        height:60px;
-        border:6px solid #fff;
-        border-top:6px solid #888;
-        border-radius:50%;
-        animation:spin 1s linear infinite;">
-      </div>
-      <style>
-        @keyframes spin { 
-          0% { transform:rotate(0deg); } 
-          100% { transform:rotate(360deg); } 
-        }
-      </style>
+    <div style="
+      width:60px;height:60px;
+      border:6px solid #fff;
+      border-top-color:#777;
+      border-radius:50%;
+      animation:spin 1s linear infinite">
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
   `;
   document.body.appendChild(overlay);
 
-  function hideLoader() {
+  const hideLoader = () => {
     overlay.style.opacity = "0";
     setTimeout(() => overlay.remove(), 400);
-  }
-
-
-  /* ---------------------------------------------
-     PARSE M3U
-  --------------------------------------------- */
-  const M3U_URL =
-    "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/main/ayna-playlist.m3u";
-
-  function parseM3U(text) {
-    const lines = text.split("\n").map(l => l.trim());
-    const out = [];
-    let name = null;
-
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith("#EXTINF")) {
-        name = lines[i].substring(lines[i].indexOf(",") + 1).trim();
-      } else if (name && lines[i] && !lines[i].startsWith("#")) {
-        out.push({ title: name, url: lines[i] });
-        name = null;
-      }
-    }
-    return out;
-  }
-
+  };
 
   /* ---------------------------------------------
-     TRY NEW PLAYLIST FIRST
+     JSON SOURCE
   --------------------------------------------- */
-  async function loadFromM3U(title) {
+  const JSON_URL =
+    "https://raw.githubusercontent.com/devmujahidul/Auto_Fetch/1d92c29c4bd17399bd546ba4fed289e445cf33c8/output.json";
+
+  async function loadFromJSON(title) {
     try {
-      const res = await fetch(M3U_URL);
-      if (!res.ok) throw "M3U fetch failed";
+      const res = await fetch(JSON_URL);
+      if (!res.ok) throw "JSON fetch failed";
 
-      const text = await res.text();
-      const list = parseM3U(text);
-      const match = list.find(c => c.title.toLowerCase() === title.toLowerCase());
+      const data = await res.json();
+      const list = data.channels || [];
 
-      if (!match) throw "Not in M3U";
+      const match = list.find(
+        c => c.title.toLowerCase() === title.toLowerCase()
+      );
+
+      if (!match || !match.url) throw "Channel not found in JSON";
 
       return match.url;
 
     } catch (e) {
-      console.warn("M3U failed → fallback", e);
+      console.warn("JSON failed → fallback", e);
       return null;
     }
   }
 
-
   /* ---------------------------------------------
-     FALLBACK → OLD SYSTEM
+     FALLBACK (OLD SYSTEM)
   --------------------------------------------- */
-  async function loadFallbackStream(title) {
-
+  async function loadFallback(title) {
     try {
       const res = await fetch("api/auth.js?id=cookie");
       const html = await res.text();
-
       const div = document.createElement("div");
       div.innerHTML = html;
 
-      const scripts = div.querySelectorAll("script");
-      for (const sc of scripts) {
+      for (const sc of div.querySelectorAll("script")) {
         if (sc.src) {
-          await new Promise((resolve, reject) => {
+          await new Promise((r, j) => {
             const s = document.createElement("script");
             s.src = sc.src;
-            s.onload = resolve;
-            s.onerror = reject;
+            s.onload = r;
+            s.onerror = j;
             document.head.appendChild(s);
           });
-        } else {
-          eval(sc.textContent);
-        }
+        } else eval(sc.textContent);
       }
-
-    } catch (err) {
-      console.error("auth.js failed", err);
-    }
+    } catch {}
 
     const json = await fetch("ayna-proxy.json").then(r => r.json());
-    const list = json.data?.list || [];
-    const match = list.find(x => x.title.toLowerCase() === title.toLowerCase());
+    const match = json.data?.list?.find(
+      x => x.title.toLowerCase() === title.toLowerCase()
+    );
 
     if (!match) alert(`Channel "${title}" not found`);
-
     return `api/ayna.m3u8?id=${match.id}`;
   }
 
-
   /* ---------------------------------------------
-     PLAYER INIT
+     PLAYER
   --------------------------------------------- */
   function startPlayer(url) {
     hideLoader();
-
     document.addEventListener("contextmenu", e => e.preventDefault());
 
     new Clappr.Player({
-      source: url,
       parentId: "#player",
+      source: url,
+      autoPlay: true,
       width: "100%",
       height: "100%",
-      autoPlay: true,
       mimeType: "application/x-mpegURL",
       plugins: [HlsjsPlayback, LevelSelector],
       mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
     });
   }
 
-
   /* ---------------------------------------------
-     MAIN FLOW
+     INIT
   --------------------------------------------- */
-  async function init() {
+  (async () => {
     const id = new URLSearchParams(location.search).get("id");
     if (!id) return alert("Missing ?id");
 
-    let url = await loadFromM3U(id);
-
-    if (!url) {
-      url = await loadFallbackStream(id);
-    }
+    let url = await loadFromJSON(id);
+    if (!url) url = await loadFallback(id);
 
     startPlayer(url);
-  }
-
-  init();
+  })();
 
 })();
 </script>
