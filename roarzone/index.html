@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      background-color: #F2F2F2;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    header {
+      background-color: #ff3c3c;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .iframe-container {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      margin: 20px auto;
+      max-width: 80%;
+      border: 3px solid red;
+      background: black;
+    }
+
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .logos-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+      max-width: 90%;
+      margin: auto;
+    }
+
+    .logos-container img {
+      width: 100px;
+      height: 75px;
+      object-fit: contain;
+      border: 1px solid #ff3c3c;
+      padding: 6px;
+      cursor: pointer;
+      background: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .logos-container img:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
+    }
+
+    footer {
+      margin-top: 30px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links {
+        display: none;
+      }
+      .iframe-container {
+        max-width: 100%;
+        border-left: none;
+        border-right: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+  <nav class="nav-links">
+    <a href="/sports.html">Sports</a>
+    <a href="/news.html">News</a>
+    <a href="/entertainment.html">Entertainment</a>
+    <a href="/movies.html">Movies</a>
+    <a href="/kids.html">Kids</a>
+  </nav>
+</header>
+
+<div class="iframe-container">
+  <iframe id="videoFrame" allowfullscreen></iframe>
+</div>
+
+<div class="logos-container" id="logosContainer"></div>
+
+<script>
+  const container = document.getElementById("logosContainer");
+  const iframe = document.getElementById("videoFrame");
+
+  const TOTAL_CHANNELS = 102;
+
+  function loadIframe(num) {
+    iframe.src = `https://bostaflix.vercel.app/roarzone.html?id=bk/${num}`;
+    document.querySelector("header").scrollIntoView({ behavior: "smooth" });
+  }
+
+  // generate logos 1 → 102
+  for (let i = 1; i <= TOTAL_CHANNELS; i++) {
+    const img = document.createElement("img");
+    img.src = `https://tvassets.roarzone.info/images/${i}.png`;
+    img.alt = `Channel ${i}`;
+    img.title = `Channel ${i}`;
+    img.loading = "lazy";
+
+    img.onclick = () => loadIframe(i);
+
+    // fallback if logo missing
+    img.onerror = () => {
+      img.src = "https://bostaflix.vercel.app/fallback.png";
+    };
+
+    container.appendChild(img);
+  }
+
+  // auto load bk/1 on first open
+  loadIframe(1);
+</script>
+
+<footer>
+  &copy; Bostafull Live by Syed Ashraful Islam Mahbeer<br />
+  Embedded content collected from the internet.  
+  Wait up to 1 minute to load — if not, try another channel.
+</footer>
+
+</body>
+</html>
