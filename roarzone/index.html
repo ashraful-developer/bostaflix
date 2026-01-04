@@ -1,108 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bostafull Live BDIX TV Server 24/7 BD IPTV</title>
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1321980978077433" crossorigin="anonymous"></script>
 
-  <style>
-    body {
-      background-color: #F2F2F2;
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<style>
+body {
+    background-color: #F2F2F2;
+    margin: 0;
+    padding: 0;
+    color: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    scroll-behavior: smooth;
+}
 
-    header {
-      background-color: #ff3c3c;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+/* Header styling */
+header {
+    background-color: #ff3c3c;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ff3c3c;
+}
 
-    .logo {
-      color: white;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
 
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
 
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-    }
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
 
+.nav-links a:hover {
+    background-color: red;
+    color: #fff;
+}
+
+/* Iframe container */
+.iframe-container {
+    padding-bottom: auto;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    margin: 20px auto;
+    max-width: 100%;
+    color: black;
+}
+
+iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+    background-color: black;
+}
+
+/* Logo container */
+.logos-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px;
+    margin: 20px auto;
+}
+
+.logos-container img {
+    width: 100px;
+    height: 75px;
+    object-fit: contain;
+    aspect-ratio: 4 / 3;
+    padding: 6px;
+    border: 1px solid #ff3c3c;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s;
+    background-color: white;
+}
+
+.logos-container img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(255, 60, 60, 0.5);
+}
+
+@media (min-width: 720px) {
     .iframe-container {
-      aspect-ratio: 16 / 9;
-      position: relative;
-      margin: 20px auto;
-      max-width: 80%;
-      border: 3px solid red;
-      background: black;
+        max-height: 70vh;
+        max-width: 80%;
+        border: 3px solid red;
     }
-
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
     .logos-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      padding: 20px;
-      max-width: 90%;
-      margin: auto;
+        max-width: 80vw;
     }
+}
 
-    .logos-container img {
-      width: 100px;
-      height: 75px;
-      object-fit: contain;
-      border: 1px solid #ff3c3c;
-      padding: 6px;
-      cursor: pointer;
-      background: white;
-      transition: transform 0.2s, box-shadow 0.2s;
+@media (max-width: 720px) {
+    .iframe-container {
+        width: 100%;
+        border-top: 2px solid red;
+        border-bottom: 2px solid red;
     }
-
-    .logos-container img:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
-    }
-
-    footer {
-      margin-top: 30px;
-      color: white;
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    @media (max-width: 720px) {
-      .nav-links {
+    .nav-links {
         display: none;
-      }
-      .iframe-container {
-        max-width: 100%;
-        border-left: none;
-        border-right: none;
-      }
     }
-  </style>
+}
+
+@media (max-width: 400px) {
+    .logos-container img {
+        width: 80px;
+        height: 60px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -125,42 +153,41 @@
 <div class="logos-container" id="logosContainer"></div>
 
 <script>
-  const container = document.getElementById("logosContainer");
-  const iframe = document.getElementById("videoFrame");
+const container = document.getElementById("logosContainer");
+const iframe = document.getElementById("videoFrame");
 
-  const TOTAL_CHANNELS = 102;
+const TOTAL_CHANNELS = 102;
 
-  function loadIframe(num) {
-    iframe.src = `https://bostaflix.vercel.app/roarzone.html?id=bk/${num}`;
-    document.querySelector("header").scrollIntoView({ behavior: "smooth" });
-  }
+function loadIframe(num) {
+  iframe.src = `https://bostaflix.vercel.app/roarzone.html?id=bk/${num}`;
+  document.querySelector("header").scrollIntoView({ behavior: "smooth" });
+}
 
-  // generate logos 1 → 102
-  for (let i = 1; i <= TOTAL_CHANNELS; i++) {
-    const img = document.createElement("img");
-    img.src = `https://tvassets.roarzone.info/images/${i}.png`;
-    img.alt = `Channel ${i}`;
-    img.title = `Channel ${i}`;
-    img.loading = "lazy";
+// Generate logos but SKIP missing ones
+for (let i = 1; i <= TOTAL_CHANNELS; i++) {
+  const img = new Image();
+  img.src = `https://tvassets.roarzone.info/images/${i}.png`;
+  img.loading = "lazy";
+  img.alt = `Channel ${i}`;
+  img.title = `Channel ${i}`;
 
+  img.onload = () => {
     img.onclick = () => loadIframe(i);
-
-    // fallback if logo missing
-    img.onerror = () => {
-      img.src = "https://bostaflix.vercel.app/fallback.png";
-    };
-
     container.appendChild(img);
-  }
+  };
 
-  // auto load bk/1 on first open
-  loadIframe(1);
+  // ❌ if logo doesn't exist → do nothing (skip)
+  img.onerror = () => {};
+}
+
+// auto-load first working channel (bk/1)
+loadIframe(1);
 </script>
 
-<footer>
-  &copy; Bostafull Live by Syed Ashraful Islam Mahbeer<br />
-  Embedded content collected from the internet.  
-  Wait up to 1 minute to load — if not, try another channel.
+<footer style="color:white; background-color:rgba(0,0,0,0.5); padding:10px; text-align:center;">
+  &copy; Bostafull Live by Syed Ashraful Islam Mahbeer.<br>
+  Embedded content collected from the internet.<br>
+  Wait up to 1 minute to load; if not, change channel.
 </footer>
 
 </body>
