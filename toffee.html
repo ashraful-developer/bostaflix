@@ -82,7 +82,7 @@
     const requestedTitle = getQueryParam('id');
 
     if (requestedTitle) {
-      fetch('https://aynaxbosta.global.ssl.fastly.net/test/kaya_app.php?route=getChannels')
+      fetch('https://livecdn-bostaflix.global.ssl.fastly.net/mxonlive_app.php?route=getChannels')
         .then(res => res.json())
         .then(json => {
           const channels = json?.data?.list || [];
@@ -94,7 +94,7 @@
           );
 
           if (match) {
-            const streamUrl = `api/toffee.m3u8?id=${match.id}`;
+            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/live.php?id=${match.id}&e=.m3u8`;
             createPlayer(streamUrl);
           } else {
             document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
