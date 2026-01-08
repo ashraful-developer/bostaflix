@@ -175,7 +175,7 @@
   </div>
 
   <script>
-    const jsonURL = "https://bostacdn.global.ssl.fastly.net/fuck/candy-live.php?route=getChannels"; 
+    const jsonURL = "https://livecdn-bostaflix.global.ssl.fastly.net/mxonlive_app.php?route=getChannels"; 
     // 👆 Replace this with your real JSON endpoint
 
     async function loadChannels() {
@@ -192,7 +192,7 @@
           img.alt = ch.title;
           img.title = ch.title;
           img.setAttribute("data-category", ch.category);
-          img.onclick = () => loadIframe(`https://bostaflix.vercel.app/toffee2.html?id=${encodeURIComponent(ch.title)}`);
+          img.onclick = () => loadIframe(`https://bostaflix.vercel.app/toffee.html?id=${encodeURIComponent(ch.title)}`);
           container.appendChild(img);
         });
       } catch (err) {
@@ -213,7 +213,7 @@
     window.onload = async function() {
       await loadChannels();
       const qid = getQueryParam("id");
-      if (qid) loadIframe(`toffee2.html?id=${encodeURIComponent(qid)}`);
+      if (qid) loadIframe(`toffee.html?id=${encodeURIComponent(qid)}`);
     };
   </script>
 
