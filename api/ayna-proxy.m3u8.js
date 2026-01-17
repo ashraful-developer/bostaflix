@@ -1,4 +1,4 @@
-e// /api/m3u8.js
+// /api/m3u8.js
 export default async function handler(req, res) {
   try {
     const { id } = req.query;
