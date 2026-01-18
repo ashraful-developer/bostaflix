@@ -1,171 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Jadoo | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="referrer" content="no-referrer">
+<meta charset="UTF-8">
+<title>Jadoo | Buddy✘TV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 
-  <!-- Clappr -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+<!-- Clappr -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    @media (max-width: 400px) {
-      body {
-        transform: scale(0.8);
-        transform-origin: top left;
-        width: 125%;
-        height: 125%;
-      }
-    }
-  </style>
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
+#player{
+  width:100%;
+  height:100%;
+  position:absolute;
+  inset:0;
+}
+@media(max-width:400px){
+  body{
+    transform:scale(.8);
+    transform-origin:top left;
+    width:125%;
+    height:125%;
+  }
+}
+</style>
 </head>
-<body>
 
+<body>
 <div id="player"></div>
 
 <script>
-(function () {
+(() => {
 
-  /* ---------------------------------------------
-     FULLSCREEN LOADER
-  --------------------------------------------- */
-  const overlay = document.createElement("div");
-  overlay.style.cssText = `
-    position:fixed; inset:0;
+  /* ---------------- LOADER ---------------- */
+  const overlay=document.createElement("div");
+  overlay.style.cssText=`
+    position:fixed;inset:0;
     background:#000;
     display:flex;
     align-items:center;
     justify-content:center;
-    z-index:99999;
-  `;
-  overlay.innerHTML = `
-    <div style="
-      width:60px;height:60px;
-      border:6px solid #fff;
-      border-top-color:#777;
-      border-radius:50%;
-      animation:spin 1s linear infinite">
-    </div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-  `;
+    z-index:99999`;
+  overlay.innerHTML=`
+    <div style="width:60px;height:60px;border:6px solid #fff;
+    border-top-color:#777;border-radius:50%;
+    animation:spin 1s linear infinite"></div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
   document.body.appendChild(overlay);
+  const hideLoader=()=>{overlay.style.opacity=0;setTimeout(()=>overlay.remove(),400);};
 
-  const hideLoader = () => {
-    overlay.style.opacity = "0";
-    setTimeout(() => overlay.remove(), 400);
-  };
+  /* ---------------- JSON SOURCE ---------------- */
+  const JSON_URL="https://raw.githubusercontent.com/devmujahidul/Auto_Fetch/main/output.json";
 
-  /* ---------------------------------------------
-     JSON SOURCE
-  --------------------------------------------- */
-  const JSON_URL =
-    "https://raw.githubusercontent.com/devmujahidul/Auto_Fetch/main/output.json";
-
-  async function loadFromJSON(title) {
-    try {
-      const res = await fetch(JSON_URL);
-      if (!res.ok) throw "JSON fetch failed";
-
-      const data = await res.json();
-      const list = data.channels || [];
-
-      const match = list.find(
-        c => c.title.toLowerCase() === title.toLowerCase()
-      );
-
-      if (!match || !match.url) throw "Channel not found in JSON";
-
-      return match.url;
-
-    } catch (e) {
-      console.warn("JSON failed → fallback", e);
+  async function loadFromJSON(title){
+    try{
+      const r=await fetch(JSON_URL,{cache:"no-store"});
+      if(!r.ok) throw 0;
+      const j=await r.json();
+      const m=j.channels?.find(c=>c.title.toLowerCase()===title.toLowerCase());
+      if(!m?.url) throw 0;
+      return m.url;
+    }catch{
       return null;
     }
   }
 
-  /* ---------------------------------------------
-     FALLBACK (OLD SYSTEM)
-  --------------------------------------------- */
-  async function loadFallback(title) {
-    try {
-      const res = await fetch("api/auth.js?id=cookie");
-      const html = await res.text();
-      const div = document.createElement("div");
-      div.innerHTML = html;
-
-      for (const sc of div.querySelectorAll("script")) {
-        if (sc.src) {
-          await new Promise((r, j) => {
-            const s = document.createElement("script");
-            s.src = sc.src;
-            s.onload = r;
-            s.onerror = j;
-            document.head.appendChild(s);
+  /* ---------------- FALLBACK ---------------- */
+  async function loadFallback(title){
+    try{
+      const r=await fetch("api/auth.js?id=cookie");
+      const h=await r.text();
+      const d=document.createElement("div");
+      d.innerHTML=h;
+      for(const s of d.querySelectorAll("script")){
+        if(s.src){
+          await new Promise((res,rej)=>{
+            const x=document.createElement("script");
+            x.src=s.src;
+            x.onload=res;
+            x.onerror=rej;
+            document.head.appendChild(x);
           });
-        } else eval(sc.textContent);
+        }else eval(s.textContent);
       }
-    } catch {}
+    }catch{}
 
-    const json = await fetch("ayna-proxy.json").then(r => r.json());
-    const match = json.data?.list?.find(
-      x => x.title.toLowerCase() === title.toLowerCase()
-    );
-
-    if (!match) alert(`Channel "${title}" not found`);
-    return `api/ayna.m3u8?id=${match.id}`;
+    const j=await fetch("ayna-proxy.json",{cache:"no-store"}).then(r=>r.json());
+    const m=j.data?.list?.find(x=>x.title.toLowerCase()===title.toLowerCase());
+    if(!m) throw "Fallback channel missing";
+    return `api/ayna-proxy.m3u8?id=${m.id}`;
   }
 
-  /* ---------------------------------------------
-     PLAYER
-  --------------------------------------------- */
-  function startPlayer(url) {
-    hideLoader();
-    document.addEventListener("contextmenu", e => e.preventDefault());
+  /* ---------------- PLAYER ---------------- */
+  let triedFallback=false;
 
-    new Clappr.Player({
-      parentId: "#player",
-      source: url,
-      autoPlay: true,
-      width: "100%",
-      height: "100%",
-      mimeType: "application/x-mpegURL",
-      plugins: [HlsjsPlayback, LevelSelector],
-      mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+  async function startPlayer(url,title){
+    hideLoader();
+    document.oncontextmenu=e=>e.preventDefault();
+
+    const player=new Clappr.Player({
+      parentId:"#player",
+      source:url,
+      autoPlay:true,
+      width:"100%",
+      height:"100%",
+      mimeType:"application/x-mpegURL",
+      plugins:[HlsjsPlayback,LevelSelector],
+      mediacontrol:{seekbar:"#ff0000",buttons:"#eee"}
+    });
+
+    player.on(Clappr.Events.PLAYER_ERROR, async () => {
+      if(triedFallback) return;
+      triedFallback=true;
+
+      console.warn("Primary stream failed → using fallback");
+
+      player.destroy();
+
+      try{
+        const fb=await loadFallback(title);
+        startPlayer(fb,title);
+      }catch(e){
+        alert("Stream unavailable");
+      }
     });
   }
 
-  /* ---------------------------------------------
-     INIT
-  --------------------------------------------- */
-  (async () => {
-    const id = new URLSearchParams(location.search).get("id");
-    if (!id) return alert("Missing ?id");
+  /* ---------------- INIT ---------------- */
+  (async()=>{
+    const id=new URLSearchParams(location.search).get("id");
+    if(!id) return alert("Missing ?id");
 
-    let url = await loadFromJSON(id);
-    if (!url) url = await loadFallback(id);
+    let url=await loadFromJSON(id);
+    if(!url){
+      url=await loadFallback(id);
+      triedFallback=true;
+    }
 
-    startPlayer(url);
+    startPlayer(url,id);
   })();
+
+})();
+</script>
+</body>
+</html>
 
 })();
 </script>
