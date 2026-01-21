@@ -1,4 +1,14 @@
 export default async function handler(req, res) {
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
   try {
     const { stream } = req.query;
 
@@ -21,7 +31,6 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // Extract m3u8 URL
     const match = html.match(/https?:\/\/[^"' ]+\.m3u8[^"' ]*/i);
 
     if (!match) {
@@ -29,7 +38,6 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 302 redirect to real stream
     res.writeHead(302, {
       Location: match[0],
       "Cache-Control": "no-store"
@@ -40,3 +48,4 @@ export default async function handler(req, res) {
     res.status(500).send("Upstream error");
   }
 }
+
