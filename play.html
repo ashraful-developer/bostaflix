@@ -372,6 +372,9 @@
     </div>
 
 <script>
+const DEFAULT_ICON = "https://bostaflix.vercel.app/favicon.ico";
+const DEFAULT_PAGE = "https://bostaflix.vercel.app/server.html";
+
 /* Load iframe */
 function loadIframe(serverLink) {
     document.getElementById('videoFrame').src = serverLink;
@@ -401,11 +404,13 @@ function updateNowPlaying(logoSrc, channelName) {
     nowPlaying.innerHTML = `
         <img src="${logoSrc}" style="width:40px;height:40px;border-radius:50%;background:#fff;padding:3px">
         <strong>${channelName}</strong>
-        <span class="live-dot"></span>
-        <span style="color:red;font-weight:bold">LIVE</span>
+        ${channelName !== 'No Channel Selected' ? `
+            <span class="live-dot"></span>
+            <span style="color:red;font-weight:bold">LIVE</span>
+        ` : ``}
     `;
 
-    // add LIVE dot style once
+    // LIVE dot style once
     if (!document.getElementById('liveDotStyle')) {
         const style = document.createElement('style');
         style.id = 'liveDotStyle';
@@ -432,16 +437,13 @@ function loadServers(servers, channelName) {
     const serverButtons = document.getElementById('serverButtons');
     serverButtons.innerHTML = '';
 
-    // detect which logo was clicked (reliable)
     const clickedImg = document.activeElement;
     const logoSrc = clickedImg.src;
 
     updateNowPlaying(logoSrc, channelName);
 
-    // load first server
     loadIframe(servers[0]);
 
-    // server buttons
     servers.forEach((server, index) => {
         const button = document.createElement('button');
         button.innerText = `Server ${index + 1}`;
@@ -463,29 +465,6 @@ function filterChannels() {
     });
 }
 
-/* Placeholder when nothing selected */
-function showPlaceholder() {
-    const frame = document.getElementById('videoFrame');
-    frame.srcdoc = `
-        <style>
-            body{
-                margin:0;
-                background:#000;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                height:100vh;
-                flex-direction:column;
-                color:#fff;
-                font-family:Segoe UI;
-            }
-            img{width:120px;opacity:.8;margin-bottom:15px}
-        </style>
-        <img src="favicon.ico">
-        <div>Select a channel to start watching</div>
-    `;
-}
-
 /* Query params */
 function getQueryParam(param) {
     return new URLSearchParams(window.location.search).get(param);
@@ -499,12 +478,12 @@ window.onload = function () {
     if (id && server) {
         loadIframe(`${server}.html?id=${id}`);
     } else {
-        // default page OR placeholder
-        // loadIframe('server.html');
-        showPlaceholder();
+        loadIframe(DEFAULT_PAGE);
+        updateNowPlaying(DEFAULT_ICON, 'No Channel Selected');
     }
 };
 </script>
+
 
 
     <!-- Footer -->
