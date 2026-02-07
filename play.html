@@ -376,64 +376,63 @@ function loadIframe(serverLink) {
     document.getElementById('videoFrame').src = serverLink;
 }
 
-/* Create / update Now Playing bar */
-function updateNowPlaying(logoSrc, channelName, isLive = true) {
-    let nowPlaying = document.getElementById('nowPlaying');
+/* Load servers + NOW PLAYING */
+function loadServers(servers, channelName) {
+    const serverButtons = document.getElementById('serverButtons');
+    serverButtons.innerHTML = '';
 
+    // get clicked logo (works with your current HTML)
+    const logoSrc = event.currentTarget.src;
+
+    /* ---------- NOW PLAYING BAR ---------- */
+    let nowPlaying = document.getElementById('nowPlaying');
     if (!nowPlaying) {
         nowPlaying = document.createElement('div');
         nowPlaying.id = 'nowPlaying';
         nowPlaying.style.cssText = `
             display:flex;
             align-items:center;
-            gap:10px;
+            gap:12px;
             padding:10px 15px;
-            margin:10px auto;
+            margin:12px auto;
             max-width:80%;
-            background:#111;
+            background:#0d0d0d;
             border-left:4px solid red;
             font-size:18px;
             color:#fff;
+            border-radius:6px;
         `;
         document.querySelector('.iframe-container').after(nowPlaying);
     }
 
     nowPlaying.innerHTML = `
-        <img src="${logoSrc}" style="width:40px;height:40px;border-radius:50%;background:#fff;padding:3px">
+        <img src="${logoSrc}" style="width:42px;height:42px;border-radius:50%;background:#fff;padding:4px">
         <strong>${channelName}</strong>
-        ${isLive ? `<span class="live-dot"></span><span style="color:red;font-weight:bold">LIVE</span>` : ``}
+        <span class="live-dot"></span>
+        <span style="color:red;font-weight:bold">LIVE</span>
     `;
-}
 
-/* LIVE dot style (once) */
-if (!document.getElementById('liveDotStyle')) {
-    const style = document.createElement('style');
-    style.id = 'liveDotStyle';
-    style.innerHTML = `
-        .live-dot{
-            width:10px;
-            height:10px;
-            background:red;
-            border-radius:50%;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse{
-            0%{box-shadow:0 0 0 0 rgba(255,0,0,.8)}
-            70%{box-shadow:0 0 0 10px rgba(255,0,0,0)}
-            100%{box-shadow:0 0 0 0 rgba(255,0,0,0)}
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-/* Load servers + auto logo detect */
-function loadServers(servers, channelName, el) {
-    const serverButtons = document.getElementById('serverButtons');
-    serverButtons.innerHTML = '';
-
-    const logoSrc = el.src;
-
-    updateNowPlaying(logoSrc, channelName, true);
+    // Add animated LIVE dot once
+    if (!document.getElementById('liveDotStyle')) {
+        const style = document.createElement('style');
+        style.id = 'liveDotStyle';
+        style.innerHTML = `
+            .live-dot{
+                width:10px;
+                height:10px;
+                background:red;
+                border-radius:50%;
+                animation:pulse 1s infinite;
+            }
+            @keyframes pulse{
+                0%{box-shadow:0 0 0 0 rgba(255,0,0,.8)}
+                70%{box-shadow:0 0 0 12px rgba(255,0,0,0)}
+                100%{box-shadow:0 0 0 0 rgba(255,0,0,0)}
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    /* ---------- END NOW PLAYING ---------- */
 
     // load first server
     loadIframe(servers[0]);
@@ -469,19 +468,8 @@ function getQueryParam(param) {
 window.onload = function () {
     const id = getQueryParam('id');
     const server = getQueryParam('server');
-
     if (id && server) {
         loadIframe(`${server}.html?id=${id}`);
-    } else {
-        // Default page
-        loadIframe('https://bostaflix.vercel.app/server.html');
-
-        // Default Now Playing
-        updateNowPlaying(
-            'https://bostaflix.vercel.app/favicon.ico',
-            'No Channel Selected',
-            false
-        );
     }
 };
 </script>
