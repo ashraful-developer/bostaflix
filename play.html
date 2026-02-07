@@ -112,20 +112,15 @@
     }
 
     .logos-container img {
-        width: 100px;
-        height: 75px;
+        width: 90px;
+        height: 90px;
         object-fit: contain;
         aspect-ratio: 4 / 3;
         padding: 6px;
-        border: 1px solid #fff;
+        border-radius: 50%;           /* 🔥 makes it round */
         cursor: pointer;
-        background-color: #141414;
+        background-color: #fff;
         transition: transform 0.3s ease, box-shadow 0.3s;
-    /* White 16:9 centered "screen" */
-    background-image: linear-gradient(white, white);
-    background-size: 100% 70%; /* 16:9 = 9/16 = 56.25% of height */
-    background-position: center;
-    background-repeat: no-repeat;
     }
 
     .logos-container img:hover {
