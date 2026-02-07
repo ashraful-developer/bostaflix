@@ -8,51 +8,49 @@
 * {
   box-sizing: border-box;
 }
-
+/* --- Global --- */
 body {
-  font-family: 'SolaimanLipi', sans-serif;
-  line-height: 1.6;
-  margin: 0;
-  padding: 0;
-  background-color: #F2F2F2; /* light theme */
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0f0f0f;
+    color: #eaeaea;
 }
 
-/* Header styling (adapted to red theme) */
+/* --- Header --- */
 header {
-  width: 100%;
-  background-color: #ff3c3c;  /* red header */
-  color: #fff;
-  display: flex;
-  padding: 10px 20px;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0;
+    background-color: #0f0f0f;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #fff;
 }
 
 .logo {
-  color: #fff;   /* white text for logo */
-  text-decoration: none;
-  font-size: 1.5em;
-  font-weight: bold;
-  letter-spacing: 0.5px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
 }
 
 .nav-links {
-  display: flex;
-  gap: 20px;
+    display: flex;
+    gap: 20px;
 }
 
 .nav-links a {
-  color: white;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: background 0.3s ease;
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
 }
 
 .nav-links a:hover {
-  background-color: white;  /* white hover */
-  color: #ff3c3c;           /* red text */
+    background-color: #b80000;
+    color: #fff;
 }
 
 @media (max-width: 720px) {
@@ -65,7 +63,7 @@ header {
 .headline {
   font-size: 24px;
   font-weight: bold;
-  color: #ff3c3c;       /* red theme */
+  color: #fff;       /* red theme */
   margin: 20px auto 10px;
   width: 90%;
   max-width: 120vh;
@@ -85,7 +83,7 @@ header {
 /* Content */
 .content {
   font-size: 16px;
-  color: #333;
+  color: #fff;
   margin: 10px auto 40px;
   width: 90%;
   max-width: 120vh;
