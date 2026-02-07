@@ -5,52 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOSTAFLIX News</title>
   <style>
-    /* Global */
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #F2F2F2;
-      color: #333;
-      padding-bottom: 100px; /* space for bottom bar */
-    }
+/* --- Global --- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0f0f0f;
+    color: #eaeaea;
+}
 
-    /* Header */
-    header {
-      width: 100%;
-      background-color: #ff3c3c;
-      color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
+/* --- Header --- */
+header {
+    background-color: #0f0f0f;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #fff;
+}
 
-    .logo {
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
+.logo {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
 
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
 
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: background 0.3s ease;
-    }
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
 
-    .nav-links a:hover {
-      background-color: white;
-      color: #ff3c3c;
-    }
+.nav-links a:hover {
+    background-color: #b80000;
+    color: #fff;
+}
 
     @media (max-width: 720px) {
       .nav-links { display: none; }
@@ -67,9 +65,9 @@
 
     /* News Card */
     .news-card {
-      background: white;
+      background: black;
       border-radius: 8px;
-      border: 2px solid #ff3c3c;
+      border: 2px solid #fff;
       box-shadow: 0 2px 8px rgba(255, 60, 60, 0.15);
       width: 320px;
       overflow: hidden;
@@ -80,14 +78,14 @@
 
     .news-card:hover {
       transform: scale(1.01);
-      background: #ffeaea;
+      background: #303030;
     }
 
     .news-image {
       width: 100%;
       height: 180px;
       object-fit: cover;
-      border-bottom: 2px solid #ff3c3c;
+      border-bottom: 2px solid #fff;
     }
 
     .news-content {
@@ -98,7 +96,7 @@
       font-size: 1.1em;
       font-weight: bold;
       margin: 0 0 8px;
-      color: #000;
+      color: #fff;
     }
 
     /* Manual Scroll Logo Bar */
