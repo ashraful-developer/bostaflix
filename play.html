@@ -468,10 +468,15 @@ function getQueryParam(param) {
 window.onload = function () {
     const id = getQueryParam('id');
     const server = getQueryParam('server');
+
     if (id && server) {
         loadIframe(`${server}.html?id=${id}`);
+    } else {
+        // DEFAULT PAGE when nothing selected
+        loadIframe('https://bostaflix.vercel.app/server.html');
     }
 };
+
 </script>
 
     <!-- Footer -->
