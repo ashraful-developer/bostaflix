@@ -370,7 +370,6 @@
 
         <!-- Add more logos with appropriate data-category attributes -->
     </div>
-
 <script>
 const DEFAULT_ICON = "https://bostaflix.vercel.app/favicon.ico";
 const DEFAULT_PAGE = "https://bostaflix.vercel.app/server.html";
@@ -380,7 +379,7 @@ function loadIframe(serverLink) {
     document.getElementById('videoFrame').src = serverLink;
 }
 
-/* Create / update NOW PLAYING bar */
+/* Now Playing bar */
 function updateNowPlaying(logoSrc, channelName) {
     let nowPlaying = document.getElementById('nowPlaying');
 
@@ -410,16 +409,12 @@ function updateNowPlaying(logoSrc, channelName) {
         ` : ``}
     `;
 
-    // LIVE dot style once
     if (!document.getElementById('liveDotStyle')) {
         const style = document.createElement('style');
         style.id = 'liveDotStyle';
         style.innerHTML = `
             .live-dot{
-                width:10px;
-                height:10px;
-                background:red;
-                border-radius:50%;
+                width:10px;height:10px;background:red;border-radius:50%;
                 animation:pulse 1s infinite;
             }
             @keyframes pulse{
@@ -432,16 +427,12 @@ function updateNowPlaying(logoSrc, channelName) {
     }
 }
 
-/* Load servers + channel info */
-function loadServers(servers, channelName) {
+/* Load servers */
+function loadServers(imgEl, servers, channelName) {
     const serverButtons = document.getElementById('serverButtons');
     serverButtons.innerHTML = '';
 
-    const clickedImg = document.activeElement;
-    const logoSrc = clickedImg.src;
-
-    updateNowPlaying(logoSrc, channelName);
-
+    updateNowPlaying(imgEl.src, channelName);
     loadIframe(servers[0]);
 
     servers.forEach((server, index) => {
@@ -465,26 +456,12 @@ function filterChannels() {
     });
 }
 
-/* Query params */
-function getQueryParam(param) {
-    return new URLSearchParams(window.location.search).get(param);
-}
-
 /* Default load */
 window.onload = function () {
-    const id = getQueryParam('id');
-    const server = getQueryParam('server');
-
-    if (id && server) {
-        loadIframe(`${server}.html?id=${id}`);
-    } else {
-        loadIframe(DEFAULT_PAGE);
-        updateNowPlaying(DEFAULT_ICON, 'No Channel Selected');
-    }
+    loadIframe(DEFAULT_PAGE);
+    updateNowPlaying(DEFAULT_ICON, 'No Channel Selected');
 };
 </script>
-
-
 
     <!-- Footer -->
 <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
