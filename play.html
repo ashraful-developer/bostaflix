@@ -377,16 +377,10 @@ function loadIframe(serverLink) {
     document.getElementById('videoFrame').src = serverLink;
 }
 
-/* Load servers + show channel info */
-function loadServers(servers, channelName) {
-    const serverButtons = document.getElementById('serverButtons');
-    serverButtons.innerHTML = '';
-
-    // get clicked logo automatically
-    const logoSrc = event.currentTarget.src;
-
-    // create / update now-playing bar
+/* Create / update NOW PLAYING bar */
+function updateNowPlaying(logoSrc, channelName) {
     let nowPlaying = document.getElementById('nowPlaying');
+
     if (!nowPlaying) {
         nowPlaying = document.createElement('div');
         nowPlaying.id = 'nowPlaying';
@@ -411,7 +405,7 @@ function loadServers(servers, channelName) {
         <span style="color:red;font-weight:bold">LIVE</span>
     `;
 
-    // add animated LIVE dot once
+    // add LIVE dot style once
     if (!document.getElementById('liveDotStyle')) {
         const style = document.createElement('style');
         style.id = 'liveDotStyle';
@@ -421,7 +415,7 @@ function loadServers(servers, channelName) {
                 height:10px;
                 background:red;
                 border-radius:50%;
-                animation: pulse 1s infinite;
+                animation:pulse 1s infinite;
             }
             @keyframes pulse{
                 0%{box-shadow:0 0 0 0 rgba(255,0,0,.8)}
@@ -431,6 +425,18 @@ function loadServers(servers, channelName) {
         `;
         document.head.appendChild(style);
     }
+}
+
+/* Load servers + channel info */
+function loadServers(servers, channelName) {
+    const serverButtons = document.getElementById('serverButtons');
+    serverButtons.innerHTML = '';
+
+    // detect which logo was clicked (reliable)
+    const clickedImg = document.activeElement;
+    const logoSrc = clickedImg.src;
+
+    updateNowPlaying(logoSrc, channelName);
 
     // load first server
     loadIframe(servers[0]);
@@ -457,6 +463,29 @@ function filterChannels() {
     });
 }
 
+/* Placeholder when nothing selected */
+function showPlaceholder() {
+    const frame = document.getElementById('videoFrame');
+    frame.srcdoc = `
+        <style>
+            body{
+                margin:0;
+                background:#000;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                height:100vh;
+                flex-direction:column;
+                color:#fff;
+                font-family:Segoe UI;
+            }
+            img{width:120px;opacity:.8;margin-bottom:15px}
+        </style>
+        <img src="favicon.ico">
+        <div>Select a channel to start watching</div>
+    `;
+}
+
 /* Query params */
 function getQueryParam(param) {
     return new URLSearchParams(window.location.search).get(param);
@@ -466,11 +495,17 @@ function getQueryParam(param) {
 window.onload = function () {
     const id = getQueryParam('id');
     const server = getQueryParam('server');
+
     if (id && server) {
         loadIframe(`${server}.html?id=${id}`);
+    } else {
+        // default page OR placeholder
+        // loadIframe('server.html');
+        showPlaceholder();
     }
 };
 </script>
+
 
     <!-- Footer -->
 <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
