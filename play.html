@@ -371,16 +371,13 @@
         <!-- Add more logos with appropriate data-category attributes -->
     </div>
 <script>
-const DEFAULT_ICON = "https://bostaflix.vercel.app/favicon.ico";
-const DEFAULT_PAGE = "https://bostaflix.vercel.app/server.html";
-
 /* Load iframe */
 function loadIframe(serverLink) {
     document.getElementById('videoFrame').src = serverLink;
 }
 
-/* Now Playing bar */
-function updateNowPlaying(logoSrc, channelName) {
+/* Create / update Now Playing bar */
+function updateNowPlaying(logoSrc, channelName, isLive = true) {
     let nowPlaying = document.getElementById('nowPlaying');
 
     if (!nowPlaying) {
@@ -396,6 +393,7 @@ function updateNowPlaying(logoSrc, channelName) {
             background:#111;
             border-left:4px solid red;
             font-size:18px;
+            color:#fff;
         `;
         document.querySelector('.iframe-container').after(nowPlaying);
     }
@@ -403,38 +401,44 @@ function updateNowPlaying(logoSrc, channelName) {
     nowPlaying.innerHTML = `
         <img src="${logoSrc}" style="width:40px;height:40px;border-radius:50%;background:#fff;padding:3px">
         <strong>${channelName}</strong>
-        ${channelName !== 'No Channel Selected' ? `
-            <span class="live-dot"></span>
-            <span style="color:red;font-weight:bold">LIVE</span>
-        ` : ``}
+        ${isLive ? `<span class="live-dot"></span><span style="color:red;font-weight:bold">LIVE</span>` : ``}
     `;
-
-    if (!document.getElementById('liveDotStyle')) {
-        const style = document.createElement('style');
-        style.id = 'liveDotStyle';
-        style.innerHTML = `
-            .live-dot{
-                width:10px;height:10px;background:red;border-radius:50%;
-                animation:pulse 1s infinite;
-            }
-            @keyframes pulse{
-                0%{box-shadow:0 0 0 0 rgba(255,0,0,.8)}
-                70%{box-shadow:0 0 0 10px rgba(255,0,0,0)}
-                100%{box-shadow:0 0 0 0 rgba(255,0,0,0)}
-            }
-        `;
-        document.head.appendChild(style);
-    }
 }
 
-/* Load servers */
-function loadServers(imgEl, servers, channelName) {
+/* LIVE dot style (once) */
+if (!document.getElementById('liveDotStyle')) {
+    const style = document.createElement('style');
+    style.id = 'liveDotStyle';
+    style.innerHTML = `
+        .live-dot{
+            width:10px;
+            height:10px;
+            background:red;
+            border-radius:50%;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse{
+            0%{box-shadow:0 0 0 0 rgba(255,0,0,.8)}
+            70%{box-shadow:0 0 0 10px rgba(255,0,0,0)}
+            100%{box-shadow:0 0 0 0 rgba(255,0,0,0)}
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+/* Load servers + auto logo detect */
+function loadServers(servers, channelName, el) {
     const serverButtons = document.getElementById('serverButtons');
     serverButtons.innerHTML = '';
 
-    updateNowPlaying(imgEl.src, channelName);
+    const logoSrc = el.src;
+
+    updateNowPlaying(logoSrc, channelName, true);
+
+    // load first server
     loadIframe(servers[0]);
 
+    // server buttons
     servers.forEach((server, index) => {
         const button = document.createElement('button');
         button.innerText = `Server ${index + 1}`;
@@ -456,10 +460,29 @@ function filterChannels() {
     });
 }
 
+/* Query params */
+function getQueryParam(param) {
+    return new URLSearchParams(window.location.search).get(param);
+}
+
 /* Default load */
 window.onload = function () {
-    loadIframe(DEFAULT_PAGE);
-    updateNowPlaying(DEFAULT_ICON, 'No Channel Selected');
+    const id = getQueryParam('id');
+    const server = getQueryParam('server');
+
+    if (id && server) {
+        loadIframe(`${server}.html?id=${id}`);
+    } else {
+        // Default page
+        loadIframe('https://bostaflix.vercel.app/server.html');
+
+        // Default Now Playing
+        updateNowPlaying(
+            'https://bostaflix.vercel.app/favicon.ico',
+            'No Channel Selected',
+            false
+        );
+    }
 };
 </script>
 
