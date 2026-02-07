@@ -1,6 +1,5 @@
-{{
+{
   "location": "Dhaka, Bangladesh",
-  "year": 2026,
   "ramadan_2026": [
     {"day": 1, "sehri_end": "05:05", "iftar": "18:03"},
     {"day": 2, "sehri_end": "05:05", "iftar": "18:03"},
@@ -34,3 +33,4 @@
     {"day": 30, "sehri_end": "04:47", "iftar": "18:11"}
   ]
 }
+
