@@ -12,27 +12,24 @@
             align-items: center; overflow: hidden; background: #000;
         }
 
-        /* ব্লার ব্যাকগ্রাউন্ড */
         .bg-blur {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: url('b.png') no-repeat center center;
+            background: url('https://bostaflix.vercel.app/banner_01.webp') no-repeat center center;
             background-size: cover; filter: blur(2.5vh); transform: scale(1.1); z-index: -1;
         }
 
-        /* মেইন কন্টেইনার যা বাটন ধারণ করবে */
         .outer-container {
             display: flex;
             align-items: center;
-            width: 95vw;
-            gap: 1.5vw;
+            width: 98vw;
+            gap: 1vw;
             justify-content: center;
         }
 
         .slider-box {
-            width: 75vw; height: 50vh; background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(1.5vh); border: 0.1vw solid rgba(255, 255, 255, 0.15);
+            width: 82vw; height: 45vh; background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(2vh); border: 0.1vw solid rgba(255, 255, 255, 0.2);
             border-radius: 3vh; overflow: hidden; position: relative;
-            touch-action: pan-y; /* সোয়াইপ স্মুথ করার জন্য */
         }
 
         .wrapper {
@@ -41,55 +38,60 @@
 
         .card {
             min-width: 100%; height: 100%; display: flex; align-items: center;
-            padding: 4vh 4vw; gap: 3.5vw; cursor: pointer; text-decoration: none; color: white;
+            padding: 3vh 3vw; gap: 3vw; cursor: pointer; text-decoration: none; color: white;
         }
 
+        /* ছবির অংশ কিছুটা ছোট করা হয়েছে টেক্সটের জায়গা বাড়ানোর জন্য */
         .image-side {
-            width: 28vw; height: 35vh; border-radius: 2vh; overflow: hidden;
-            box-shadow: 0 1.5vh 3vh rgba(0,0,0,0.7); flex-shrink: 0;
+            width: 25vw; height: 32vh; border-radius: 2vh; overflow: hidden;
+            box-shadow: 0 1.5vh 3vh rgba(0,0,0,0.8); flex-shrink: 0;
         }
 
         .image-side img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
+        /* টেক্সট সাইড এখন অনেক বড় */
         .text-side {
-            flex: 1; padding: 2.5vh; background: rgba(255, 255, 255, 0.05); border-radius: 2vh;
+            flex: 1; padding: 1vh;
+            display: flex; flex-direction: column; justify-content: center;
         }
 
         .category {
-            font-size: 1vw; color: #ff4757; font-weight: bold; margin-bottom: 1.5vh;
-            display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 0.5vh 1vw; border-radius: 0.5vh;
+            font-size: 1.1vw; color: #ff4757; font-weight: bold; margin-bottom: 2vh;
+            display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 0.6vh 1.2vw; border-radius: 0.5vh;
+            align-self: flex-start;
         }
 
+        /* শিরোনাম বড় এবং ৪ লাইন পর্যন্ত এলাউড */
         .heading {
-            font-size: 2.2vw; line-height: 1.3; font-weight: 700; margin-bottom: 1.5vh;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            font-size: 3.2vw; /* ফন্ট সাইজ বাড়ানো হয়েছে */
+            line-height: 1.25; font-weight: 800;
+            text-shadow: 3px 3px 6px rgba(0,0,0,1);
+            display: -webkit-box; 
+            -webkit-line-clamp: 4; /* ৪ লাইন পর্যন্ত দেখাবে */
+            -webkit-box-orient: vertical; 
+            overflow: hidden;
+            color: #fff;
         }
 
-        .brief {
-            font-size: 1.1vw; color: #dcdcdc; line-height: 1.6;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-        }
-
-        /* বাটন এখন কার্ডের বাইরে */
         .nav-btn {
-            background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-            width: 4.5vw; height: 4.5vw; border-radius: 50%; cursor: pointer;
-            font-size: 1.8vw; transition: all 0.3s; flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255,255,255,0.3);
+            width: 5vw; height: 5vw; border-radius: 50%; cursor: pointer;
+            font-size: 2vw; transition: all 0.3s; flex-shrink: 0;
             display: flex; justify-content: center; align-items: center;
         }
 
-        .nav-btn:hover { background: #ff4757; border-color: transparent; transform: scale(1.1); }
+        .nav-btn:hover { background: #ff4757; border-color: transparent; transform: scale(1.15); }
 
+        /* মোবাইল রেসপন্সিভনেস */
         @media (max-aspect-ratio: 1/1) {
-            .outer-container { flex-direction: column-reverse; gap: 3vh; }
-            .slider-box { height: 65vh; width: 90vw; }
-            .card { flex-direction: column; text-align: center; padding: 3vh; }
-            .image-side { width: 100%; height: 30vh; }
-            .heading { font-size: 4.5vw; }
-            .brief { font-size: 3.2vw; }
-            .nav-btn { width: 12vw; height: 12vw; font-size: 6vw; }
-            .category { font-size: 3vw; }
-            .btn-group { display: flex; gap: 5vw; }
+            .outer-container { flex-direction: column-reverse; gap: 2vh; }
+            .slider-box { height: 65vh; width: 92vw; }
+            .card { flex-direction: column; text-align: center; padding: 4vh 5vw; }
+            .image-side { width: 100%; height: 28vh; }
+            .text-side { align-items: center; width: 100%; }
+            .category { align-self: center; font-size: 3.5vw; }
+            .heading { font-size: 6vw; -webkit-line-clamp: 3; }
+            .nav-btn { width: 14vw; height: 14vw; font-size: 8vw; }
         }
     </style>
 </head>
@@ -102,7 +104,7 @@
 
     <div class="slider-box" id="sliderBox">
         <div id="card-wrapper" class="wrapper">
-            <p style="color:white; text-align:center; width:100%; padding-top:20vh;">লোড হচ্ছে...</p>
+            <p style="color:white; text-align:center; width:100%; padding-top:15vh;">খবর লোড হচ্ছে...</p>
         </div>
     </div>
 
@@ -133,7 +135,7 @@
             renderUI();
             startAutoSlide();
         } catch (e) {
-            wrapper.innerHTML = `<p style="color:white; text-align:center; width:100%;">তথ্য লোড করা সম্ভব হয়নি।</p>`;
+            wrapper.innerHTML = `<p style="color:white; text-align:center; width:100%;">তথ্য লোড করা সম্ভব হয়নি।</p>`;
         }
     }
 
@@ -141,12 +143,11 @@
         wrapper.innerHTML = items.map(item => {
             const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
             return `
-<a href="${link}" target="_top" class="card">
+            <a href="${link}" target="_top" class="card">
                 <div class="image-side"><img src="https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}"></div>
                 <div class="text-side">
                     <span class="category">${item.CategoryName || 'সংবাদ'}</span>
                     <h2 class="heading">${item.ContentHeading}</h2>
-                    <p class="brief">${item.ContentBrief || ''}</p>
                 </div>
             </a>`;
         }).join('');
@@ -160,11 +161,9 @@
         setInterval(() => { if (!isPaused) moveNext(); }, 8000);
     }
 
-    // হোভার করলে পজ
     sliderBox.addEventListener('mouseenter', () => isPaused = true);
     sliderBox.addEventListener('mouseleave', () => isPaused = false);
 
-    // সোয়াইপ লজিক (Swipe Logic)
     sliderBox.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         isPaused = true;
@@ -173,7 +172,7 @@
     sliderBox.addEventListener('touchend', (e) => {
         let endX = e.changedTouches[0].clientX;
         let diff = startX - endX;
-        if (Math.abs(diff) > 50) { // অন্তত ৫০ পিক্সেল মুভ করলে কাজ করবে
+        if (Math.abs(diff) > 50) {
             if (diff > 0) moveNext(); else movePrev();
         }
         isPaused = false;
