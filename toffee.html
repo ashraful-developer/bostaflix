@@ -41,72 +41,98 @@
 <body>
   <div id="player"></div>
 
-  <script>
-    // Disable right-click
-    document.addEventListener("contextmenu", e => e.preventDefault());
+<script>
+  // Disable right-click
+  document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Get query parameter
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+  // Get query parameter
+  function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
 
-    // Create Clappr player
-    function createPlayer(sourceUrl) {
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mute: false,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-      });
+  // Create Clappr player
+  function createPlayer(sourceUrl) {
+    const player = new Clappr.Player({
+      source: sourceUrl,
+      parentId: "#player",
+      width: "100%",
+      height: "100%",
+      autoPlay: true,
+      mute: false,
+      mimeType: "application/x-mpegURL",
+      plugins: [HlsjsPlayback, LevelSelector],
+      mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
+    });
 
-      // Auto-retry on errors
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 1500);
-      });
-
-      // Prevent accidental stops
-      player.on(Clappr.Events.PLAYER_STOP, () => {
+    // Auto-retry on errors
+    player.on(Clappr.Events.PLAYER_ERROR, () => {
+      setTimeout(() => {
+        player.load(player.options.source);
         player.play();
+      }, 1500);
+    });
+
+    // Prevent accidental stops
+    player.on(Clappr.Events.PLAYER_STOP, () => {
+      player.play();
+    });
+  }
+
+  const requestedTitle = getQueryParam('id');
+
+  if (!requestedTitle) {
+    document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
+  } else {
+
+    // 🔴 CHANGE THIS to the external HTML page you want to read
+    const SOURCE_HTML_URL = "https://example.com/page.html";
+
+    fetch(SOURCE_HTML_URL)
+      .then(res => res.text())
+      .then(html => {
+
+        // Parse HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Find the script containing "allChannels"
+        const scripts = [...doc.querySelectorAll('script')];
+        const targetScript = scripts.find(s => s.textContent.includes('allChannels'));
+
+        if (!targetScript) throw new Error('Channel script not found');
+
+        // Extract JS array from script
+        const jsText = targetScript.textContent;
+        const match = jsText.match(/const allChannels\s*=\s*(\[[\s\S]*?\]);/);
+
+        if (!match) throw new Error('allChannels array not found');
+
+        // Convert JS text array into real object
+        const channels = eval(match[1]);
+
+        // Find requested channel
+        const found = channels.find(c =>
+          c.name.toLowerCase().includes(requestedTitle.toLowerCase()) ||
+          c.id.toLowerCase() === requestedTitle.toLowerCase()
+        );
+
+        if (!found) {
+          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
+          return;
+        }
+
+        // Build your m3u8 URL from ID
+        const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/stream.php/${found.id}.m3u8`;
+
+        createPlayer(streamUrl);
+      })
+      .catch(err => {
+        console.error(err);
+        document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Failed to load channel source</h2>`;
       });
-    }
+  }
+</script>
 
-    const requestedTitle = getQueryParam('id');
-
-    if (requestedTitle) {
-      fetch('toffee.json')
-        .then(res => res.json())
-        .then(json => {
-          const channels = json?.data?.list || [];
-
-          // Find channel by title or ID (case insensitive)
-          const match = channels.find(item =>
-            item.title.trim().toLowerCase() === requestedTitle.trim().toLowerCase() ||
-            item.id.trim().toLowerCase() === requestedTitle.trim().toLowerCase()
-          );
-
-          if (match) {
-            const streamUrl = `https://livecdn-bostaflix.global.ssl.fastly.net/stream.php/${match.id}.m3u8]`;
-            createPlayer(streamUrl);
-          } else {
-            document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Channel "${requestedTitle}" not found</h2>`;
-          }
-        })
-        .catch(err => {
-          console.error('Failed to load channel list:', err);
-          document.body.innerHTML = `<h2 style="color:white;text-align:center;margin-top:20%">Error loading channel list</h2>`;
-        });
-    } else {
-      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
-    }
-  </script>
 </body>
 </html>
