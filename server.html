@@ -1,243 +1,254 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <title>News Display</title>
-  <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
-  <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    color: white;
-    font-family: 'Kalpurush', sans-serif;
-    height: 100%;
-    overflow: hidden;
-  }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOSTAFLIX - Smart Ramadan TV</title>
+<link href="https://banglawebfonts.pages.dev/css/siyam-rupali.css" rel="stylesheet">
 
-  #top-section {
-    position: relative;
-    height: 90vh;
-    overflow: hidden;
-  }
-    
-    #news-overlay {
-  position: absolute;
-  top: 2vh;
-  left: 2vw;
-  font-family: Calibri, sans-serif;
-  font-size: 6vh;
-  color: red;
-  text-shadow: 
-    -1px -1px 0 white,  
-    1px -1px 0 white,  
-    -1px 1px 0 white,  
-    1px 1px 0 white;
-  z-index: 5;
-  pointer-events: none;
-}
-
-  #image-box {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-        .clock {
-      position: absolute;
-      top: 2vh;
-      right: 2vw;
-      color: #17D4FE;
-      font-size: 5vh;
-      font-family: Orbitron, sans-serif;
-      letter-spacing: 2px;
-        text-shadow: 
-    -1px -1px 0 black,  
-    1px -1px 0 black,  
-    -1px 1px 0 black,  
-    1px 1px 0 black;
+<style>
+    body {
+        margin: 0;
+        font-family: 'Siyam Rupali', sans-serif;
+        background: #000;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
     }
 
-  }
-
-  #details-block {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    max-height: 50vh;
-    padding: 2vh 2vw;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.3));
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 1vh;
-    box-sizing: border-box;
-  }
-
-  #headline-box {
-    font-size: 6.5vh;
-    font-weight: bold;
-    color: yellow;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-  }
-
-  #brief-box {
-    font-size: 4.5vh;
-    line-height: 1.4;
-    overflow: hidden;
-    word-break: break-word;
-  }
-
-  #ticker {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 10vh;
-    background: black;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    z-index: 4;
-  }
-
-  #ticker-content {
-    display: inline-block;
-    white-space: nowrap;
-    font-size: 5vh;
-    padding-left: 100%;
-  }
-
-  .headline {
-    margin: 0 2vw;
-  }
-.separator {
-  color: red;
-  font-weight: bold;
-  margin: 0 2vw;
-  font-family: 'Calibri', sans-serif;
-}
-  @keyframes scroll {
-    from {
-      transform: translateX(0);
+    .ramadan-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: 1;
     }
-    to {
-      transform: translateX(-100%);
+
+    .ui-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
     }
-  }
+
+    .topbar {
+        width: 100vw;
+        height: 9vh;
+        background: #ff2d2d;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 4vh;
+        white-space: nowrap;
+        pointer-events: auto;
+    }
+
+    .topbar span { margin: 0 1.5vw; }
+
+    .bottom-container {
+        margin-top: auto;
+        pointer-events: auto;
+    }
+
+    .bottombar {
+        width: 100vw;
+        height: 9vh;
+        background: #0b57d0;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4vh;
+        font-weight: 600;
+    }
+
+    .scrollbar {
+        width: 100vw;
+        height: 9vh;
+        background: #000;
+        color: #ffd700;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        font-size: 4vh;
+        border-top: 1px solid #333;
+    }
+
+    .scroll-text {
+        white-space: nowrap;
+        display: inline-block;
+        padding-left: 100%;
+        animation: scroll-left linear infinite;
+    }
+
+    @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
 </style>
-
 </head>
+
 <body>
-  <div id="top-section">
-    <div id="image-box">
-  <div id="news-overlay">BOSTAFLIX</div>
-      <div id="MyClockDisplay" class="clock"></div>
-  <div id="details-block">
-    <div id="headline-box">লোড হচ্ছে...</div>
-    <div id="brief-box"></div>
-  </div>
+
+<iframe src="Data.html" class="ramadan-bg"></iframe>
+
+<div class="ui-overlay">
+    <div class="topbar">
+        <span style="font-weight: 900;">BOSTAFLIX</span>
+        <span>|</span>
+        <span id="engDate"></span>
+        <span>|</span>
+        <span id="hijriDate"></span>
+        <span>|</span>
+        <span id="liveTime"></span>
+    </div>
+
+    <div class="bottom-container">
+        <div class="bottombar" id="countdownText">লোড হচ্ছে...</div>
+        <div class="scrollbar">
+            <div class="scroll-text" id="divisionalScroll">তথ্যাদি লোড হচ্ছে...</div>
+        </div>
+    </div>
 </div>
-  </div>
 
-  <div id="ticker">
-    <div id="ticker-content"></div>
-  </div>
+<script>
+// ১. কনফিগ ও সেটিংস
+const config = {
+    city: 'Dhaka',
+    country: 'Bangladesh',
+    method: 1, 
+    school: 1, 
+    adjustment: 0 // API এর সময়ের সাথে ৪ মিনিট যোগ (ঢাকার ইফতার ৫:৫৩ অনুযায়ী)
+};
 
-  <script>
-    // Ticker Scroll
-    fetch("https://ekhon.tv/api/news/ticker.json")
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById('ticker-content');
-        const headlines = data.data.map(item => `<span class="headline">${item.content}</span>`);
-        const separator = `<span class="separator">BOSTAFLIX</span>`;
-        const finalText = headlines.join(separator);
+const offsets = { 
+    "ঢাকা": 0, "মানিকগঞ্জ": 1, "নরসিংদী": -1,
+    "চট্টগ্রাম": -5, "সিলেট": -6, "খুলনা": 3, "রাজশাহী": 7, "বরিশাল": 1, "রংপুর": 6, "কুমিল্লা": -3, "ময়মনসিংহ": 0 
+};
 
-        container.innerHTML = finalText;
+const hijriMonths = ["মুহাররম","সফর","রবিউল আউয়াল","রবিউস সানি","জুমাদাল উলা","জুমাদাস সানি","রজব","শা‘বান","রমযান","শাওয়াল","যিলকদ","যিলহজ"];
 
-        // Scrolling speed based on characters per second
-        const charactersPerSecond = 12;
-        const totalCharacters = container.textContent.length;
-        const durationSeconds = totalCharacters / charactersPerSecond;
+// লেবেলগুলো আপনার চাহিদা অনুযায়ী পরিবর্তন করা হয়েছে
+const prayerLabels = { 
+    "Fajr": "সেহরির শেষ সময়/ফজর", 
+    "Dhuhr": "যোহর", 
+    "Asr": "আসর", 
+    "Maghrib": "মাগরিব/ইফতার", 
+    "Isha": "এশা" 
+};
 
-        container.style.animation = `scroll ${durationSeconds}s linear infinite`;
-      })
-      .catch(err => {
-        document.getElementById('ticker-content').textContent = "খবর লোড করা যায়নি...";
-      });
+let apiTimings = null;
 
-    // Top Headline Section
-    const imageBox = document.getElementById("image-box");
-    const headlineBox = document.getElementById("headline-box");
-    const briefBox = document.getElementById("brief-box");
+function toBanglaNumber(num){
+    return num.toString().replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+}
 
-    let newsData = [];
-    let index = 0;
+function addMinutes(timeStr, mins) {
+    let [hh, mm] = timeStr.split(':').map(Number);
+    let d = new Date();
+    d.setHours(hh, mm + mins, 0);
+    return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
 
-    function updateHeadline() {
-      if (!newsData.length) return;
+// ২. সময় অনুযায়ী লেবেল (দুপুর/রাত) যুক্ত করা
+function format12Hour(timeStr, prayerName = "") {
+    if(!timeStr) return "--:--";
+    let [hh, mm] = timeStr.split(':').map(Number);
+    let period = "";
 
-      const item = newsData[index];
+    // সময়ের ওপর ভিত্তি করে লেবেল নির্ধারণ
+    if (hh >= 4 && hh < 12) period = " ভোর ";
+    else if (hh >= 12 && hh < 16) period = " দুপুর ";
+    else if (hh >= 16 && hh < 18) period = " বিকাল ";
+    else if (hh >= 18 && hh < 20) period = " সন্ধ্যা ";
+    else period = " রাত ";
 
-      // Image
-      const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
-      imageBox.style.backgroundImage = `url(${imageUrl})`;
+    let displayHH = hh % 12 || 12;
+    return period + toBanglaNumber(displayHH) + ":" + toBanglaNumber(mm.toString().padStart(2, '0'));
+}
 
-      // Headline
-      headlineBox.textContent = item.ContentHeading.trim();
+async function fetchTimings() {
+    try {
+        const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${config.city}&country=${config.country}&method=${config.method}&school=${config.school}`);
+        const result = await response.json();
+        if (result.code === 200) {
+            let t = result.data.timings;
+            apiTimings = {
+                Fajr: addMinutes(t.Fajr, config.adjustment),
+                Dhuhr: addMinutes(t.Dhuhr, config.adjustment),
+                Asr: addMinutes(t.Asr, config.adjustment),
+                Maghrib: addMinutes(t.Maghrib, config.adjustment),
+                Isha: addMinutes(t.Isha, config.adjustment)
+            };
+        }
+    } catch (e) { console.error("API Error"); }
+}
 
-      // Brief
-      briefBox.textContent = item.ContentBrief.trim();
+function updateUI() {
+    const now = new Date();
+    document.getElementById('engDate').innerText = now.toLocaleDateString('bn-BD', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('liveTime').innerText = toBanglaNumber(now.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true }));
+    
+    try {
+        const p = new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(now);
+        let d,m,y; p.forEach(x=>{if(x.type==='day')d=x.value;if(x.type==='month')m=x.value;if(x.type==='year')y=x.value;});
+        document.getElementById('hijriDate').innerText = `${toBanglaNumber(d)} ${hijriMonths[m-1]}, ${toBanglaNumber(y)}`;
+    } catch(e) { document.getElementById('hijriDate').innerText = "রমজান ২০২৬"; }
 
-      index = (index + 1) % newsData.length;
+    if (!apiTimings) return;
+
+    const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+    let nextP = null, targetT = null;
+
+    for (let p of prayers) {
+        let pt = new Date(); pt.setHours(...apiTimings[p].split(':'), 0);
+        if (now < pt) { nextP = p; targetT = pt; break; }
     }
 
-    fetch("https://backoffice.channel24bd.tv/api/json/file/generateLatest.json")
-      .then(response => response.json())
-      .then(data => {
-        newsData = data.data || [];
-        if (newsData.length === 0) return;
-
-        updateHeadline();
-        setInterval(updateHeadline, 15000); // every 15 seconds
-      })
-      .catch(err => {
-        headlineBox.textContent = "শিরোনাম লোড করা যায়নি";
-        briefBox.textContent = "";
-      });
-    function showTime() {
-      var date = new Date();
-      var h = date.getHours(); // 0 - 23
-      var m = date.getMinutes(); // 0 - 59
-      var s = date.getSeconds(); // 0 - 59
-      var session = "AM";
-
-      if (h == 0) {
-        h = 12;
-      }
-
-      if (h > 12) {
-        h = h - 12;
-        session = "PM";
-      }
-
-      h = (h < 10) ? "0" + h : h;
-      m = (m < 10) ? "0" + m : m;
-      s = (s < 10) ? "0" + s : s;
-
-      var time = h + ":" + m + ":" + s + " " + session;
-      document.getElementById("MyClockDisplay").innerText = time;
-      document.getElementById("MyClockDisplay").textContent = time;
-
-      setTimeout(showTime, 1000);
+    if (!nextP) {
+        nextP = "Fajr"; targetT = new Date(now.getTime() + 86400000);
+        targetT.setHours(...apiTimings["Fajr"].split(':'), 0);
     }
 
-    showTime();
+    const diff = targetT - now;
+    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+    document.getElementById('countdownText').innerText = `ঢাকার ${prayerLabels[nextP]} শুরু হতে আর ${toBanglaNumber(h)} ঘণ্টা ${toBanglaNumber(m)} মিনিট ${toBanglaNumber(s)} সেকেন্ড বাকি`;
 
-  </script>
+    // স্ক্রলবার আপডেট
+    let dhakaFull = `ঢাকা ও আশেপাশের আজকের নামাজের সময়সূচী: ফজর ${format12Hour(apiTimings.Fajr)}, যোহর ${format12Hour(apiTimings.Dhuhr)}, আসর ${format12Hour(apiTimings.Asr)}, মাগরিব ${format12Hour(apiTimings.Maghrib)}, এশা ${format12Hour(apiTimings.Isha)} || `;
+    
+    let areaMsg = `আজকের ইফতার ও সেহরি — `;
+    for (let area in offsets) {
+        let sc = format12Hour(addMinutes(apiTimings.Fajr, offsets[area]));
+        let ift = format12Hour(addMinutes(apiTimings.Maghrib, offsets[area]));
+        areaMsg += `${area}: সেহরি ${sc}, ইফতার ${ift} | `;
+    }
+
+    const finalMsg = dhakaFull + areaMsg;
+    const el = document.getElementById('divisionalScroll');
+    if(el.innerText !== finalMsg) {
+        el.innerText = finalMsg;
+        el.style.animationDuration = `${finalMsg.length / 7}s`;
+    }
+}
+
+async function init() {
+    await fetchTimings();
+    setInterval(updateUI, 1000);
+    setInterval(fetchTimings, 3600000);
+    updateUI();
+}
+
+init();
+</script>
 </body>
 </html>
