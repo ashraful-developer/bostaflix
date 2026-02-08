@@ -12,15 +12,15 @@ export default async function handler(req, res) {
     const formBody = new URLSearchParams();
     formBody.append("ch_name", id);
 
-    const response = await fetch("https://example.com/submit", {
+    const response = await fetch("https://plusbox.tv/token.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
         "Accept": "*/*",
-        "Origin": "https://example.com",
-        "Referer": "https://example.com/",
+        "Origin": "https://plusbox.tv",
+        "Referer": "https://plusbox.tv/",
       },
       body: formBody.toString(),
     });
