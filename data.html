@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://banglawebfonts.pages.dev/css/siyam-rupali.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Siyam Rupali', sans-serif; }
+
+        body {
+            width: 100vw; height: 100vh; display: flex; justify-content: center;
+            align-items: center; overflow: hidden; background: #000;
+        }
+
+        /* ব্লার ব্যাকগ্রাউন্ড */
+        .bg-blur {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('b.png') no-repeat center center;
+            background-size: cover; filter: blur(2.5vh); transform: scale(1.1); z-index: -1;
+        }
+
+        /* মেইন কন্টেইনার যা বাটন ধারণ করবে */
+        .outer-container {
+            display: flex;
+            align-items: center;
+            width: 95vw;
+            gap: 1.5vw;
+            justify-content: center;
+        }
+
+        .slider-box {
+            width: 75vw; height: 50vh; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(1.5vh); border: 0.1vw solid rgba(255, 255, 255, 0.15);
+            border-radius: 3vh; overflow: hidden; position: relative;
+            touch-action: pan-y; /* সোয়াইপ স্মুথ করার জন্য */
+        }
+
+        .wrapper {
+            display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .card {
+            min-width: 100%; height: 100%; display: flex; align-items: center;
+            padding: 4vh 4vw; gap: 3.5vw; cursor: pointer; text-decoration: none; color: white;
+        }
+
+        .image-side {
+            width: 28vw; height: 35vh; border-radius: 2vh; overflow: hidden;
+            box-shadow: 0 1.5vh 3vh rgba(0,0,0,0.7); flex-shrink: 0;
+        }
+
+        .image-side img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+        .text-side {
+            flex: 1; padding: 2.5vh; background: rgba(255, 255, 255, 0.05); border-radius: 2vh;
+        }
+
+        .category {
+            font-size: 1vw; color: #ff4757; font-weight: bold; margin-bottom: 1.5vh;
+            display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 0.5vh 1vw; border-radius: 0.5vh;
+        }
+
+        .heading {
+            font-size: 2.2vw; line-height: 1.3; font-weight: 700; margin-bottom: 1.5vh;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .brief {
+            font-size: 1.1vw; color: #dcdcdc; line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        /* বাটন এখন কার্ডের বাইরে */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+            width: 4.5vw; height: 4.5vw; border-radius: 50%; cursor: pointer;
+            font-size: 1.8vw; transition: all 0.3s; flex-shrink: 0;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .nav-btn:hover { background: #ff4757; border-color: transparent; transform: scale(1.1); }
+
+        @media (max-aspect-ratio: 1/1) {
+            .outer-container { flex-direction: column-reverse; gap: 3vh; }
+            .slider-box { height: 65vh; width: 90vw; }
+            .card { flex-direction: column; text-align: center; padding: 3vh; }
+            .image-side { width: 100%; height: 30vh; }
+            .heading { font-size: 4.5vw; }
+            .brief { font-size: 3.2vw; }
+            .nav-btn { width: 12vw; height: 12vw; font-size: 6vw; }
+            .category { font-size: 3vw; }
+            .btn-group { display: flex; gap: 5vw; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blur"></div>
+
+<div class="outer-container">
+    <button class="nav-btn" onclick="movePrev()">&#10094;</button>
+
+    <div class="slider-box" id="sliderBox">
+        <div id="card-wrapper" class="wrapper">
+            <p style="color:white; text-align:center; width:100%; padding-top:20vh;">লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <button class="nav-btn" onclick="moveNext()">&#10095;</button>
+</div>
+
+<script>
+    const apiEndpoints = [
+        'https://backoffice.channel24bd.tv/api/json/file/generateLatest.json',
+        'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
+        'https://backoffice.channel24bd.tv/api/json/file/generateSpecial2.json'
+    ];
+
+    const wrapper = document.getElementById('card-wrapper');
+    const sliderBox = document.getElementById('sliderBox');
+    let currentIndex = 0;
+    let items = [];
+    let isPaused = false;
+    let startX = 0;
+
+    async function loadNews() {
+        try {
+            const res = await Promise.all(apiEndpoints.map(url => fetch(url).then(r => r.json())));
+            let combined = res.flatMap(r => r.data);
+            items = Array.from(new Set(combined.map(a => a.ContentID)))
+                        .map(id => combined.find(a => a.ContentID === id))
+                        .slice(0, 15);
+            renderUI();
+            startAutoSlide();
+        } catch (e) {
+            wrapper.innerHTML = `<p style="color:white; text-align:center; width:100%;">তথ্য লোড করা সম্ভব হয়নি।</p>`;
+        }
+    }
+
+    function renderUI() {
+        wrapper.innerHTML = items.map(item => {
+            const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
+            return `
+<a href="${link}" target="_top" class="card">
+                <div class="image-side"><img src="https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}"></div>
+                <div class="text-side">
+                    <span class="category">${item.CategoryName || 'সংবাদ'}</span>
+                    <h2 class="heading">${item.ContentHeading}</h2>
+                    <p class="brief">${item.ContentBrief || ''}</p>
+                </div>
+            </a>`;
+        }).join('');
+    }
+
+    function moveNext() { currentIndex = (currentIndex + 1) % items.length; updateSlide(); }
+    function movePrev() { currentIndex = (currentIndex - 1 + items.length) % items.length; updateSlide(); }
+    function updateSlide() { wrapper.style.transform = `translateX(-${currentIndex * 100}%)`; }
+
+    function startAutoSlide() {
+        setInterval(() => { if (!isPaused) moveNext(); }, 8000);
+    }
+
+    // হোভার করলে পজ
+    sliderBox.addEventListener('mouseenter', () => isPaused = true);
+    sliderBox.addEventListener('mouseleave', () => isPaused = false);
+
+    // সোয়াইপ লজিক (Swipe Logic)
+    sliderBox.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isPaused = true;
+    });
+
+    sliderBox.addEventListener('touchend', (e) => {
+        let endX = e.changedTouches[0].clientX;
+        let diff = startX - endX;
+        if (Math.abs(diff) > 50) { // অন্তত ৫০ পিক্সেল মুভ করলে কাজ করবে
+            if (diff > 0) moveNext(); else movePrev();
+        }
+        isPaused = false;
+    });
+
+    loadNews();
+</script>
+
+</body>
+</html>
