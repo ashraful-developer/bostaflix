@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOSTAFLIX | Election Result Live</title>
+
+    <style>
+    body {
+        background-color: #0f0f0f;
+        margin: 0;
+        padding: 0;
+        color: #eaeaea;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ================= HEADER ================= */
+    header {
+        background-color: #570303;
+        color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #fff;
+    }
+
+    .logo {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        color: #fff;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        background-color: #b80000;
+    }
+
+    /* ================= ELECTION BOARD ================= */
+
+    .container{
+        max-width:1200px;
+        margin:20px auto;
+        padding:10px;
+    }
+
+    .banner{
+        width:100%;
+        aspect-ratio: 8 / 1;
+        background:url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg') center/cover no-repeat;
+        border:2px solid #fff;
+    }
+
+    .topGrid{
+        display:grid;
+        grid-template-columns:160px repeat(7,1fr);
+        border:2px solid #fff;
+        margin-top:10px;
+        text-align:center;
+        font-weight:bold;
+    }
+
+    .leftCol{
+        background:#1a0000;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    }
+
+    .leftCol div{
+        padding:12px;
+        border-bottom:1px solid #fff;
+    }
+
+    .partyBox{
+        border-left:1px solid #fff;
+    }
+
+    .partyTitle{
+        padding:8px;
+        background:#111;
+        border-bottom:1px solid #fff;
+    }
+
+    .partyValue{
+        padding:14px 0;
+        font-size:28px;
+        background:linear-gradient(to bottom,#ff7a00,#ff3c00);
+        color:#fff;
+    }
+
+    .referendum{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        border:2px solid #fff;
+        margin-top:10px;
+        text-align:center;
+        font-weight:bold;
+    }
+
+    .refBox{
+        border-right:1px solid #fff;
+    }
+
+    .refTitle{
+        padding:10px;
+        background:#111;
+    }
+
+    .refValue{
+        padding:16px 0;
+        font-size:30px;
+        background:linear-gradient(to bottom,#ff7a00,#ff3c00);
+    }
+
+    .update{
+        text-align:center;
+        margin-top:8px;
+        font-size:14px;
+    }
+
+    @media(max-width:900px){
+        .topGrid{
+            grid-template-columns:1fr 1fr;
+        }
+    }
+@media (max-width: 720px) {
+    .nav-links {
+        display: none;
+    }
+
+    header {
+        border-bottom: 0;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+    <nav class="nav-links">
+        <a href="#">Sports</a>
+        <a href="#">News</a>
+        <a href="#">Entertainment</a>
+        <a href="#">Movies</a>
+        <a href="#">Kids</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <div class="banner"></div>
+
+    <div class="topGrid">
+        <div class="leftCol">
+            <div>মোট আসন<br><span id="total_seats">০</span></div>
+            <div>প্রাপ্ত ফলাফল<br><span id="published_results">০</span></div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">বিএনপি</div>
+            <div class="partyValue" id="bnp">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">বিএনপি জোট</div>
+            <div class="partyValue" id="bnp_alliance">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">জামায়াত</div>
+            <div class="partyValue" id="jamaat">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">জামায়াত জোট</div>
+            <div class="partyValue" id="jamaat_alliance">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">এনসিপি</div>
+            <div class="partyValue" id="ncp">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">স্বতন্ত্র</div>
+            <div class="partyValue" id="independent">০</div>
+        </div>
+
+        <div class="partyBox">
+            <div class="partyTitle">অন্যান্য</div>
+            <div class="partyValue" id="others">০</div>
+        </div>
+    </div>
+
+    <div class="referendum">
+        <div class="refBox">
+            <div class="refTitle">হ্যাঁ</div>
+            <div class="refValue" id="referendum_yes">০</div>
+        </div>
+        <div>
+            <div class="refTitle">না</div>
+            <div class="refValue" id="referendum_no">০</div>
+        </div>
+    </div>
+
+    <div class="update">
+        সর্বশেষ আপডেট: <span id="updated_at">--</span>
+    </div>
+
+</div>
+
+<script>
+const API_URL = "https://backoffice.bangladeshguardian.com/api/json/file/generatedElectionResult.json";
+
+function toBangla(num){
+    return num.toString().replace(/\d/g, d=>"০১২৩৪৫৬৭৮৯"[d]);
+}
+
+function loadElection(){
+    fetch(API_URL)
+    .then(r=>r.json())
+    .then(j=>{
+        const d = j.data;
+        for(let k in d){
+            if(document.getElementById(k)){
+                document.getElementById(k).innerText = toBangla(d[k]);
+            }
+        }
+    });
+}
+
+loadElection();
+setInterval(loadElection,30000);
+</script>
+
+</body>
+</html>
