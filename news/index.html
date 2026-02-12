@@ -23,6 +23,12 @@ header {
     align-items: center;
     border-bottom: 2px solid #fff;
 }
+    .banner{
+        width:100%;
+        aspect-ratio: 15 / 1;
+        background:url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg') center/cover no-repeat;
+        border:2px solid #fff;
+    }
 
 .logo {
     color: #fff;
@@ -52,6 +58,9 @@ header {
 
     @media (max-width: 720px) {
       .nav-links { display: none; }
+      .banner{
+        aspect-ratio: 9 / 1;
+    }
     }
 
     /* News Container */
@@ -165,7 +174,11 @@ header {
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
   </header>
-
+<div class="banner" onclick="window.location.href='https://bostaflix.vercel.app/election.html'"></div>  <!-- Top Banner -->
+  <a href="https://bostaflix.vercel.app/election.html" target="_blank" style="text-decoration: none;">
+  <div style="color: white; background-color: Blue; padding: 10px; text-align: center; cursor: pointer;">
+    সর্বশেষ আপডেট দেখতে ক্লিক করুন
+  </div>
   <!-- News Container -->
   <div class="news-container" id="news-container"></div>
 
