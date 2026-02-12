@@ -51,7 +51,12 @@ header {
 .nav-links a:hover {
     background-color: #b80000;
 }
-
+.banner{
+        width:100%;
+        aspect-ratio: 12 / 1;
+        background:url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg') center/cover no-repeat;
+        border:2px solid #fff;
+    }
 /* ================= PLAYER ================= */
 .iframe-container {
     aspect-ratio: 16 / 9;
@@ -228,6 +233,9 @@ iframe {
     .nav-links {
         display: none;
     }
+    .banner{
+        aspect-ratio: 9 / 1;
+    }
 
     header {
         border-bottom: 0;
@@ -299,6 +307,11 @@ iframe {
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
   </header>
+    <div class="banner" onclick="window.location.href='https://bostaflix.vercel.app/election.html'"></div>  <!-- Top Banner -->
+  <a href="https://bostaflix.vercel.app/election.html" target="_blank" style="text-decoration: none;">
+  <div style="color: white; background-color: Red; padding: 10px; text-align: center; cursor: pointer;">
+    সর্বশেষ আপডেট দেখতে ক্লিক করুন
+  </div>
     <!-- Iframe container for the player -->
     <div class="iframe-container">
         <iframe id="videoFrame" allowfullscreen></iframe>
