@@ -51,15 +51,9 @@ header {
 .nav-links a:hover {
     background-color: #b80000;
 }
-.banner{
-        width:100%;
-        aspect-ratio: 15 / 1;
-        background:url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg') center/cover no-repeat;
-        border:2px solid #fff;
-    }
 /* ================= PLAYER ================= */
 .iframe-container {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3;
     position: relative;
     margin: 20px auto;
     max-width: 100%;
@@ -233,9 +227,6 @@ iframe {
     .nav-links {
         display: none;
     }
-    .banner{
-        aspect-ratio: 9 / 1;
-    }
 
     header {
         border-bottom: 0;
@@ -320,21 +311,6 @@ iframe {
 
     <div id="serverButtons" class="server-buttons-container"></div>
 </div>
-
-    <!-- Category filter dropdown -->
-    <div class="category-filter">
-        <label for="categorySelect">Sort by Category: </label>
-        <select id="categorySelect" onchange="filterChannels()">
-            <option value="all">All</option>
-            <option value="News">News</option>
-            <option value="Featured">Featured</option>
-            <option value="Kids">Kids</option>
-            <option value="Sports">Sports</option>
-            <option value="Religious">Religious</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Documentary">Documentary</option>
-        </select>
-    </div>
 
 <div class="logos-container">
     <img src="bb.png" alt="Somoy TV" data-category="News" onclick="loadServers(['https://bostaflix.vercel.app/stream.html?id=https://bosta-live.vercel.app/api/stream.m3u8'], 'BOSTAFLIX NEWS')">
