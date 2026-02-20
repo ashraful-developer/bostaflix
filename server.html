@@ -199,7 +199,7 @@ function updateUI() {
     document.getElementById('liveTime').innerText = toBanglaNumber(now.toLocaleTimeString('en-US',{ hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true }));
     
     try {
-        const p = new Intl.DateTimeFormat('en-TN-u-ca-islamic',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(now);
+        const p = new Intl.DateTimeFormat('en-TN-u-ca-islamic-civil',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(now);
         let d,m,y; p.forEach(x=>{if(x.type==='day')d=x.value;if(x.type==='month')m=x.value;if(x.type==='year')y=x.value;});
         document.getElementById('hijriDate').innerText = `${toBanglaNumber(d)} ${hijriMonths[m-1]}, ${toBanglaNumber(y)}`;
     } catch(e) { document.getElementById('hijriDate').innerText = "রমজান ২০২৬"; }
