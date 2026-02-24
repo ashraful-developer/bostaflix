@@ -21,39 +21,56 @@
     border-radius: 3vw;
     display: flex;
     align-items: center;
-    gap: 3vw;
-    box-shadow: 0 2vh 4vh rgba(0,0,0,0.3);
+    gap: 4vw;
+    box-shadow: 0 2vh 4vh rgba(0,0,0,0.4);
   }
 
   .play-btn {
     width: 15vh;
     height: 15vh;
-    border-radius: 50%;
     border: none;
+    background: transparent;
     cursor: pointer;
-    font-size: 10vh;
-    background: #22c55e;
-    color: white;
-    transition: 0.3s ease;
   }
 
-  .play-btn:hover {
-    background: #16a34a;
+  .play-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .station-name {
     color: white;
-    font-size: 10vh;
+    font-size: 6vh;
     font-weight: bold;
     letter-spacing: 0.2vw;
+  }
+
+  .volume-slider {
+    width: 20vw;
+    height: 2vh;
   }
 </style>
 </head>
 <body>
 
 <div class="radio-player">
-  <button id="playButton" class="play-btn">▶</button>
+  
+  <button id="playButton" class="play-btn">
+    <img id="playIcon"
+         src="https://img.icons8.com/ios-filled/500/ffffff/play.png"
+         alt="Play">
+  </button>
+
   <div class="station-name">Radio Ashraful</div>
+
+  <input type="range"
+         id="volumeControl"
+         class="volume-slider"
+         min="0" max="1"
+         step="0.01"
+         value="1">
+
 </div>
 
 <audio id="audio"></audio>
@@ -62,14 +79,18 @@
 <script>
   const audio = document.getElementById('audio');
   const button = document.getElementById('playButton');
+  const icon = document.getElementById('playIcon');
+  const volumeControl = document.getElementById('volumeControl');
+
   const streamURL = "https://radio-ashraful.vercel.app/api/live/playlist.m3u8";
+
+  const PLAY_ICON  = "https://img.icons8.com/ios-filled/500/ffffff/play.png";
+  const PAUSE_ICON = "https://img.icons8.com/ios-filled/500/ffffff/pause.png";
 
   let isPlaying = false;
 
   if (Hls.isSupported()) {
-    const hls = new Hls({
-      liveSyncDurationCount: 3
-    });
+    const hls = new Hls({ liveSyncDurationCount: 3 });
     hls.loadSource(streamURL);
     hls.attachMedia(audio);
   } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
@@ -79,13 +100,17 @@
   button.addEventListener('click', () => {
     if (!isPlaying) {
       audio.play();
-      button.textContent = "⏸";
+      icon.src = PAUSE_ICON;
       isPlaying = true;
     } else {
       audio.pause();
-      button.textContent = "▶";
+      icon.src = PLAY_ICON;
       isPlaying = false;
     }
+  });
+
+  volumeControl.addEventListener('input', () => {
+    audio.volume = volumeControl.value;
   });
 </script>
 
