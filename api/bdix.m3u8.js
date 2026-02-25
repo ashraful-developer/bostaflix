@@ -36,8 +36,15 @@ export default async function handler(req, res) {
       return;
     }
 
+    // Replace host
+    const originalUrl = match[0];
+    const modifiedUrl = originalUrl.replace(
+      "http://103.144.89.251:8082",
+      "http://livecdn-bostaflix.global.ssl.fastly.net"
+    );
+
     res.writeHead(302, {
-      Location: match[0],
+      Location: modifiedUrl,
       "Cache-Control": "no-store"
     });
     res.end();
