@@ -1,34 +1,48 @@
 export default async function handler(req, res) {
-  try {
-    // Example: /api/fetch?id=DBC News
-    const { id } = req.query;
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    if (!id) {
-      res.status(400).send("Missing id parameter");
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    const { stream } = req.query;
+
+    if (!stream) {
+      res.status(400).send("Missing stream id");
       return;
     }
 
-    // Form data: ch_name = id
-    const formBody = new URLSearchParams();
-    formBody.append("ch_name", id);
+    const pageUrl = `http://103.144.89.251/player.php?stream=${encodeURIComponent(stream)}`;
 
-    const response = await fetch("https://plusbox.tv/token.php", {
-      method: "POST",
+    const response = await fetch(pageUrl, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-        "Accept": "*/*",
-        "Origin": "https://plusbox.tv",
-        "Referer": "https://plusbox.tv/",
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "text/html",
       },
-      body: formBody.toString(),
+      redirect: "follow"
     });
 
-    const data = await response.text();
+    const html = await response.text();
 
-    res.status(response.status).send(data);
+    const match = html.match(/https?:\/\/[^"' ]+\.m3u8[^"' ]*/i);
+
+    if (!match) {
+      res.status(404).send("Stream not found");
+      return;
+    }
+
+    res.writeHead(302, {
+      Location: match[0],
+      "Cache-Control": "no-store"
+    });
+    res.end();
+
   } catch (err) {
-    res.status(500).send("Fetch failed: " + err.message);
+    res.status(500).send("Upstream error");
   }
 }
