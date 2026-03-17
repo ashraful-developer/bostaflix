@@ -38,14 +38,17 @@ export default async function handler(req, res) {
       return;
     }
 
+    // Add CORS proxy prefix
+    const proxiedUrl = `https://satoshi-cors.herokuapp.com/${match[0]}`;
+
     res.writeHead(302, {
-      Location: match[0],
+      Location: proxiedUrl,
       "Cache-Control": "no-store"
     });
+
     res.end();
 
   } catch (err) {
     res.status(500).send("Upstream error");
   }
 }
-
