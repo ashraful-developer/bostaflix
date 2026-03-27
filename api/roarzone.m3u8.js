@@ -1,5 +1,7 @@
 export default async function handler(req, res) {
-  // CORS
+  const ALLOWED_ORIGIN = "https://bostaflix.vercel.app";
+
+  // CORS (you can keep open or restrict)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -16,6 +18,13 @@ export default async function handler(req, res) {
       res.status(400).send("Missing stream id");
       return;
     }
+
+    const origin = req.headers.origin || "";
+    const referer = req.headers.referer || "";
+
+    const isFromBostaflix =
+      origin.includes(ALLOWED_ORIGIN) ||
+      referer.startsWith(ALLOWED_ORIGIN);
 
     const pageUrl = `https://tv.roarzone.info/player.php?stream=${encodeURIComponent(stream)}`;
 
@@ -38,11 +47,15 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Add CORS proxy prefix
-    const proxiedUrl = `https://bosta-live.vercel.app/api/hls?url=${match[0]}`;
+    const directUrl = match[0];
+
+    // 🔥 Use proxy ONLY for bostaflix
+    const finalUrl = isFromBostaflix
+      ? `https://bosta-live.vercel.app/api/hls?url=${encodeURIComponent(directUrl)}`
+      : directUrl;
 
     res.writeHead(302, {
-      Location: proxiedUrl,
+      Location: finalUrl,
       "Cache-Control": "no-store"
     });
 
