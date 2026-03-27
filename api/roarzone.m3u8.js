@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const ALLOWED_ORIGIN = "https://bostaflix.vercel.app";
 
-  // CORS (you can keep open or restrict)
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -22,9 +22,12 @@ export default async function handler(req, res) {
     const origin = req.headers.origin || "";
     const referer = req.headers.referer || "";
 
+    // 🧠 Detect source
     const isFromBostaflix =
       origin.includes(ALLOWED_ORIGIN) ||
       referer.startsWith(ALLOWED_ORIGIN);
+
+    const isDirectBrowser = !origin && !referer;
 
     const pageUrl = `https://tv.roarzone.info/player.php?stream=${encodeURIComponent(stream)}`;
 
@@ -49,10 +52,14 @@ export default async function handler(req, res) {
 
     const directUrl = match[0];
 
-    // 🔥 Use proxy ONLY for bostaflix
-    const finalUrl = isFromBostaflix
-      ? `https://bosta-live.vercel.app/api/hls?url=${encodeURIComponent(directUrl)}`
-      : directUrl;
+    // 🔥 Decide routing
+    let finalUrl;
+
+    if (isFromBostaflix || isDirectBrowser) {
+      finalUrl = `https://bosta-live.vercel.app/api/hls?url=${encodeURIComponent(directUrl)}`;
+    } else {
+      finalUrl = directUrl;
+    }
 
     res.writeHead(302, {
       Location: finalUrl,
