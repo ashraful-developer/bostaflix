@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     // Add CORS proxy prefix
-    const proxiedUrl = `https://satoshi-cors.herokuapp.com/${match[0]}`;
+    const proxiedUrl = `${match[0]}`;
 
     res.writeHead(302, {
       Location: proxiedUrl,
