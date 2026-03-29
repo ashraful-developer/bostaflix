@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     let finalUrl;
 
     if (isFromBostaflix || isDirectBrowser) {
-      finalUrl = `https://bosta-live.vercel.app/api/hls?url=${encodeURIComponent(directUrl)}`;
+      finalUrl = `https://bosta-live.vercel.app/api/live?url=${encodeURIComponent(directUrl)}`;
     } else {
       finalUrl = directUrl;
     }
