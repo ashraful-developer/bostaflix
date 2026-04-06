@@ -1,115 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bostafull Player | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadoo | Buddy✘TV</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- Clappr Player Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
 
-  <!-- Clappr Player Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+  #player {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
+  /* When screen width is below 400px, scale down entire page */
+  @media (max-width: 400px) {
+    body {
+      transform: scale(0.8);
+      transform-origin: top left;
+      width: 125%;   /* compensate for scaling shrink */
+      height: 125%;
     }
-    #player {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    h2 {
-      color: white;
-      text-align: center;
-      margin-top: 20%;
-      font-family: sans-serif;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <div id="player"></div>
+    <div id="player"></div>
 
-  <script>
-    // Disable right-click
-    document.addEventListener("contextmenu", e => e.preventDefault());
-
-    // Get query parameter (?id=)
-    function getQueryParam(name) {
-      return new URLSearchParams(window.location.search).get(name);
-    }
-
-    // Create Clappr player
-    function createPlayer(sourceUrl) {
-      if (!sourceUrl) {
-        document.body.innerHTML = "<h2>NO STREAM URL AVAILABLE</h2>";
-        return;
-      }
-
-      console.log("Playing:", sourceUrl);
-
-      const player = new Clappr.Player({
-        source: sourceUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mute: false,
-        mimeType: "application/x-mpegURL",
-        plugins: [HlsjsPlayback, LevelSelector],
-        mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },
-      });
-
-      // Auto-recover on error
-      player.on(Clappr.Events.PLAYER_ERROR, () => {
-        console.warn("Error detected, reloading stream...");
-        setTimeout(() => {
-          player.load(player.options.source);
-          player.play();
-        }, 1000);
-      });
-
-      // Restart if stopped
-      player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-    }
-
-    const requestedId = getQueryParam('id');
-
-    if (!requestedId) {
-      document.body.innerHTML = "<h2>NO CHANNEL SELECTED</h2>";
-    } else {
-      fetch('https://bostacdn.global.ssl.fastly.net/sliv1/api.php')
-        .then(res => res.json())
-        .then(data => {
-          const list = data?.data?.list || data?.list || [];
-          const upperId = requestedId.toUpperCase();
-
-          // Match by uppercase ID or TITLE
-          const match = list.find(item =>
-            (item.id && String(item.id).toUpperCase() === upperId) ||
-            (item.title && item.title.toUpperCase() === upperId)
-          );
-
-          if (match) {
-            // Ignore JSON url (fake), use real backend
-            const streamUrl = `https://bostacdn.global.ssl.fastly.net/sliv1/live.php?id=${match.id}&e=.m3u8`;
-            createPlayer(streamUrl);
-          } else {
-            document.body.innerHTML = `<h2>CHANNEL WITH ID/TITLE "${requestedId}" NOT FOUND</h2>`;
-          }
-        })
-        .catch(err => {
-          console.error("Failed to load channel list:", err);
-          document.body.innerHTML = "<h2>ERROR LOADING CHANNEL LIST</h2>";
+    <script>
+        // Prevent right-click
+        document.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
         });
-    }
-  </script>
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function createPlayer(sourceUrl) {
+            var player = new Clappr.Player({ 
+                source: sourceUrl,
+                width: '100%', 
+                height: '100%', 
+                autoPlay: true, 
+                plugins: [HlsjsPlayback, LevelSelector],
+                mimeType: "application/x-mpegURL", 
+                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
+                parentId: "#player"
+            }); 
+
+            player.on(Clappr.Events.PLAYER_ERROR, function() {
+                setTimeout(function() {
+                    player.load(player.options.source);
+                    player.play();
+                }, 100); // Retry after 100ms
+            });
+
+            player.on(Clappr.Events.PLAYER_STOP, function() {
+                player.play();
+            });
+
+            return player;
+        }
+
+        // Get channel ID from query parameter
+        var channelId = getQueryParam('id');
+        
+        if (channelId) {
+            // Use the jadoo.php API URL structure
+            const sourceUrl = `https://tvsky-bostaflix.global.ssl.fastly.net/sliv/stream.m3u8?id=${channelId}&e=.m3u8`;
+            createPlayer(sourceUrl);
+        } else {
+            console.error("No channel ID provided");
+        }
+    </script>
 </body>
 </html>
