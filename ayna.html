@@ -68,7 +68,10 @@ html,body{
       const r=await fetch(JSON_URL,{cache:"no-store"});
       if(!r.ok) throw 0;
       const j=await r.json();
-      const m=j.channels?.find(c=>c.title.toLowerCase()===title.toLowerCase());
+
+      // ✅ FIXED HERE (channels → response)
+      const m=j.response?.find(c=>c.title.toLowerCase()===title.toLowerCase());
+
       if(!m?.url) throw 0;
       return m.url;
     }catch{
@@ -143,6 +146,7 @@ html,body{
     if(!id) return alert("Missing ?id");
 
     let url=await loadFromJSON(id);
+
     if(!url){
       url=await loadFallback(id);
       triedFallback=true;
@@ -150,11 +154,6 @@ html,body{
 
     startPlayer(url,id);
   })();
-
-})();
-</script>
-</body>
-</html>
 
 })();
 </script>
