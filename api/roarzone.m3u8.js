@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
     const isDirectBrowser = !origin && !referer;
 
-    const pageUrl = `https://tv.roarzone.info/player.php?stream=${encodeURIComponent(stream)}`;
+    const pageUrl = `https://tv.roarzone.net/player.php?stream=${encodeURIComponent(stream)}`;
 
     const response = await fetch(pageUrl, {
       headers: {
