@@ -1,120 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadoo | Buddy✘TV</title>
-    
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <!-- Clappr Player Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3U Player</title>
+
+<!-- Clappr -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
 <style>
-  html, body {
+html, body {
     margin: 0;
     padding: 0;
-    width: 100%;
+    background: black;
     height: 100%;
-    background: #000;
-    overflow: hidden;
-  }
-
-  #player {
     width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  /* When screen width is below 400px, scale down entire page */
-  @media (max-width: 400px) {
-    body {
-      transform: scale(0.8);
-      transform-origin: top left;
-      width: 125%;   /* compensate for scaling shrink */
-      height: 125%;
-    }
-  }
-</style>
-<script>
-    let blockEmbed = false;
-    try {
-        if (window !== window.top && window.top.location.hostname !== window.location.hostname) {
-            blockEmbed = true;
-        }
-    } catch (e) {
-        blockEmbed = true;
-    }
-
-    if (blockEmbed) {
-        document.addEventListener("DOMContentLoaded", function () {
-            document.body.innerHTML = `
-                <div style="color:white;text-align:center;margin-top:20%;">
-                    <h1>403 Forbidden</h1>
-                    <p>You cannot embed this page in a cross-origin iframe.</p>
-                </div>
-            `;
-        });
-    }
-</script>
-</head>
-<body>
-    <div id="player"></div>
-<script>
-function getQueryParam(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
 }
 
-async function loadM3UAndPlay(channelId) {
-    const m3uUrl = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
+#player {
+    width: 100%;
+    height: 100%;
+}
 
+/* mobile scaling */
+@media (max-width: 400px) {
+    body {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+        height: 125%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="player"></div>
+
+<script>
+// ====== SETTINGS ======
+const M3U_URL = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
+
+// ====== HELPERS ======
+function getQueryParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+// ====== PLAYER ======
+function createPlayer(sourceUrl) {
+    var player = new Clappr.Player({
+        source: sourceUrl,
+        width: '100%',
+        height: '100%',
+        autoPlay: true,
+        plugins: [HlsjsPlayback, LevelSelector],
+        mimeType: "application/x-mpegURL",
+        parentId: "#player",
+        mediacontrol: {
+            seekbar: "#ff0000",
+            buttons: "#eee"
+        }
+    });
+
+    // retry on error
+    player.on(Clappr.Events.PLAYER_ERROR, function() {
+        console.log("Retrying...");
+        setTimeout(() => {
+            player.load(sourceUrl);
+            player.play();
+        }, 2000);
+    });
+
+    player.on(Clappr.Events.PLAYER_STOP, function() {
+        player.play();
+    });
+
+    return player;
+}
+
+// ====== M3U PARSER ======
+async function loadM3U(channelId) {
+
+    let url = M3U_URL;
+
+    // CORS fallback
     try {
-        const res = await fetch(m3uUrl);
-        const text = await res.text();
+        let res = await fetch(url);
+        if (!res.ok) throw "fail";
+        var text = await res.text();
+    } catch {
+        console.log("Using CORS proxy...");
+        const proxy = "https://api.allorigins.win/raw?url=";
+        let res = await fetch(proxy + encodeURIComponent(M3U_URL));
+        var text = await res.text();
+    }
 
-        const lines = text.split("\n");
+    const lines = text.split("\n");
 
-        let foundUrl = null;
+    let streamUrl = null;
 
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].toLowerCase();
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].toLowerCase();
 
-            // match by keyword (tsports)
-            if (line.includes(channelId.toLowerCase())) {
-                // next non-comment line is the stream URL
-                for (let j = i + 1; j < lines.length; j++) {
-                    if (lines[j].startsWith("http")) {
-                        foundUrl = lines[j].trim();
-                        break;
-                    }
+        // match channel name OR id keyword
+        if (line.includes(channelId.toLowerCase())) {
+
+            // find next URL
+            for (let j = i + 1; j < lines.length; j++) {
+                if (lines[j].startsWith("http")) {
+                    streamUrl = lines[j].trim();
+                    break;
                 }
             }
-
-            if (foundUrl) break;
         }
 
-        if (foundUrl) {
-            createPlayer(foundUrl);
-        } else {
-            console.error("Channel not found");
-        }
+        if (streamUrl) break;
+    }
 
-    } catch (err) {
-        console.error("Failed to load M3U:", err);
+    if (streamUrl) {
+        console.log("Playing:", streamUrl);
+        createPlayer(streamUrl);
+    } else {
+        document.body.innerHTML = `
+            <div style="color:white;text-align:center;margin-top:20%;">
+                <h2>Channel not found</h2>
+                <p>${channelId}</p>
+            </div>
+        `;
     }
 }
 
-// INIT
-var channelId = getQueryParam('id');
+// ====== INIT ======
+const channelId = getQueryParam("id");
 
 if (channelId) {
-    loadM3UAndPlay(channelId);
+    loadM3U(channelId);
 } else {
-    console.error("No channel ID provided");
+    document.body.innerHTML = `
+        <div style="color:white;text-align:center;margin-top:20%;">
+            <h2>No Channel ID</h2>
+            <p>?id=tsports</p>
+        </div>
+    `;
 }
 </script>
+
 </body>
 </html>
