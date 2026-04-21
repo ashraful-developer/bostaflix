@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3U Player</title>
+<title>M3U Player (Proxy)</title>
 
 <!-- Clappr -->
 <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
@@ -18,13 +18,10 @@ html, body {
     height: 100%;
     width: 100%;
 }
-
 #player {
     width: 100%;
     height: 100%;
 }
-
-/* mobile scaling */
 @media (max-width: 400px) {
     body {
         transform: scale(0.8);
@@ -41,17 +38,24 @@ html, body {
 <div id="player"></div>
 
 <script>
-// ====== SETTINGS ======
+// ===== SETTINGS =====
 const M3U_URL = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
+const PROXY   = "https://bosta-live.vercel.app/api/live?url=";
 
-// ====== HELPERS ======
+// ===== HELPERS =====
 function getQueryParam(name) {
     return new URLSearchParams(window.location.search).get(name);
 }
 
-// ====== PLAYER ======
+// ===== PLAYER =====
+let player;
+
 function createPlayer(sourceUrl) {
-    var player = new Clappr.Player({
+    if (player) {
+        player.destroy();
+    }
+
+    player = new Clappr.Player({
         source: sourceUrl,
         width: '100%',
         height: '100%',
@@ -65,11 +69,12 @@ function createPlayer(sourceUrl) {
         }
     });
 
-    // retry on error
+    // Retry logic
     player.on(Clappr.Events.PLAYER_ERROR, function() {
-        console.log("Retrying...");
+        console.log("Error → retry via proxy...");
         setTimeout(() => {
-            player.load(sourceUrl);
+            const proxied = PROXY + encodeURIComponent(sourceUrl);
+            player.load(proxied);
             player.play();
         }, 2000);
     });
@@ -77,25 +82,23 @@ function createPlayer(sourceUrl) {
     player.on(Clappr.Events.PLAYER_STOP, function() {
         player.play();
     });
-
-    return player;
 }
 
-// ====== M3U PARSER ======
+// ===== LOAD M3U =====
 async function loadM3U(channelId) {
 
-    let url = M3U_URL;
+    let text;
 
-    // CORS fallback
+    // Try direct
     try {
-        let res = await fetch(url);
+        const res = await fetch(M3U_URL);
         if (!res.ok) throw "fail";
-        var text = await res.text();
+        text = await res.text();
     } catch {
-        console.log("Using CORS proxy...");
-        const proxy = "https://api.allorigins.win/raw?url=";
-        let res = await fetch(proxy + encodeURIComponent(M3U_URL));
-        var text = await res.text();
+        console.log("M3U CORS → using proxy");
+        const proxyM3U = PROXY + encodeURIComponent(M3U_URL);
+        const res = await fetch(proxyM3U);
+        text = await res.text();
     }
 
     const lines = text.split("\n");
@@ -105,10 +108,7 @@ async function loadM3U(channelId) {
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].toLowerCase();
 
-        // match channel name OR id keyword
         if (line.includes(channelId.toLowerCase())) {
-
-            // find next URL
             for (let j = i + 1; j < lines.length; j++) {
                 if (lines[j].startsWith("http")) {
                     streamUrl = lines[j].trim();
@@ -120,20 +120,30 @@ async function loadM3U(channelId) {
         if (streamUrl) break;
     }
 
-    if (streamUrl) {
-        console.log("Playing:", streamUrl);
-        createPlayer(streamUrl);
-    } else {
+    if (!streamUrl) {
         document.body.innerHTML = `
             <div style="color:white;text-align:center;margin-top:20%;">
                 <h2>Channel not found</h2>
                 <p>${channelId}</p>
             </div>
         `;
+        return;
     }
+
+    console.log("Found stream:", streamUrl);
+
+    // Try DIRECT first (faster)
+    createPlayer(streamUrl);
+
+    // Fallback to proxy if needed (after 5s)
+    setTimeout(() => {
+        console.log("Fallback → proxy");
+        const proxied = PROXY + encodeURIComponent(streamUrl);
+        createPlayer(proxied);
+    }, 5000);
 }
 
-// ====== INIT ======
+// ===== INIT =====
 const channelId = getQueryParam("id");
 
 if (channelId) {
@@ -142,7 +152,7 @@ if (channelId) {
     document.body.innerHTML = `
         <div style="color:white;text-align:center;margin-top:20%;">
             <h2>No Channel ID</h2>
-            <p>?id=tsports</p>
+            <p>Use: ?id=tsports</p>
         </div>
     `;
 }
