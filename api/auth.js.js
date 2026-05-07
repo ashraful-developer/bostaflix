@@ -21,8 +21,8 @@ export default async function handler(req, res) {
 
     // --- 2) Determine URL to fetch ---
     const playUrl = id
-      ? `https://xfireflix.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`
-      : `https://xfireflix.ct.ws/ayna/play.php`;
+      ? `https://shopnojaal.ct.ws/ayna/play.php?id=${encodeURIComponent(id)}`
+      : `https://shopnojaal.ct.ws/ayna/play.php`;
 
     const headers = {
       "cache-control": "no-cache, max-age=0",
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
     // --- 4) Fix scripts / links for fallback proxy ---
     // Replace aes.js references
-    html = html.replace(/(src\s*=\s*["'])\/?aes\.js(["'])/gi, '$1https://xfireflix.ct.ws/aes.js$2');
+    html = html.replace(/(src\s*=\s*["'])\/?aes\.js(["'])/gi, '$1https://shopnojaal.ct.ws/aes.js$2');
 
     // Remove <a href="...">...</a>
     html = html.replace(/<a\s+[^>]*href=["'][^"']*["'][^>]*>.*?<\/a>/gi, '');
