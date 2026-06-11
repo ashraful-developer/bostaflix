@@ -1,46 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3U Player (Proxy)</title>
-
-<!-- Clappr -->
-<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
-
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    height: 100%;
-    width: 100%;
-}
-#player {
-    width: 100%;
-    height: 100%;
-}
-@media (max-width: 400px) {
-    body {
-        transform: scale(0.8);
-        transform-origin: top left;
-        width: 125%;
-        height: 125%;
-    }
-}
-</style>
-</head>
-
-<body>
-
-<div id="player"></div>
-
 <script>
 // ===== SETTINGS =====
 const M3U_URL = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
-const PROXY   = "https://bosta-live.vercel.app/api/live?url=";
 
 // ===== HELPERS =====
 function getQueryParam(name) {
@@ -69,16 +29,6 @@ function createPlayer(sourceUrl) {
         }
     });
 
-    // Retry logic
-    player.on(Clappr.Events.PLAYER_ERROR, function() {
-        console.log("Error → retry via proxy...");
-        setTimeout(() => {
-            const proxied = PROXY + encodeURIComponent(sourceUrl);
-            player.load(proxied);
-            player.play();
-        }, 2000);
-    });
-
     player.on(Clappr.Events.PLAYER_STOP, function() {
         player.play();
     });
@@ -87,60 +37,55 @@ function createPlayer(sourceUrl) {
 // ===== LOAD M3U =====
 async function loadM3U(channelId) {
 
-    let text;
-
-    // Try direct
     try {
         const res = await fetch(M3U_URL);
-        if (!res.ok) throw "fail";
-        text = await res.text();
-    } catch {
-        console.log("M3U CORS → using proxy");
-        const proxyM3U = PROXY + encodeURIComponent(M3U_URL);
-        const res = await fetch(proxyM3U);
-        text = await res.text();
-    }
 
-    const lines = text.split("\n");
-
-    let streamUrl = null;
-
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].toLowerCase();
-
-        if (line.includes(channelId.toLowerCase())) {
-            for (let j = i + 1; j < lines.length; j++) {
-                if (lines[j].startsWith("http")) {
-                    streamUrl = lines[j].trim();
-                    break;
-                }
-            }
+        if (!res.ok) {
+            throw new Error("Failed to load playlist");
         }
 
-        if (streamUrl) break;
-    }
+        const text = await res.text();
+        const lines = text.split("\n");
 
-    if (!streamUrl) {
+        let streamUrl = null;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].toLowerCase();
+
+            if (line.includes(channelId.toLowerCase())) {
+                for (let j = i + 1; j < lines.length; j++) {
+                    if (lines[j].trim().startsWith("http")) {
+                        streamUrl = lines[j].trim();
+                        break;
+                    }
+                }
+            }
+
+            if (streamUrl) break;
+        }
+
+        if (!streamUrl) {
+            document.body.innerHTML = `
+                <div style="color:white;text-align:center;margin-top:20%;">
+                    <h2>Channel not found</h2>
+                    <p>${channelId}</p>
+                </div>
+            `;
+            return;
+        }
+
+        console.log("Found stream:", streamUrl);
+        createPlayer(streamUrl);
+
+    } catch (err) {
+        console.error(err);
+
         document.body.innerHTML = `
             <div style="color:white;text-align:center;margin-top:20%;">
-                <h2>Channel not found</h2>
-                <p>${channelId}</p>
+                <h2>Failed to load playlist</h2>
             </div>
         `;
-        return;
     }
-
-    console.log("Found stream:", streamUrl);
-
-    // Try DIRECT first (faster)
-    createPlayer(streamUrl);
-
-    // Fallback to proxy if needed (after 5s)
-    setTimeout(() => {
-        console.log("Fallback → proxy");
-        const proxied = PROXY + encodeURIComponent(streamUrl);
-        createPlayer(proxied);
-    }, 5000);
 }
 
 // ===== INIT =====
@@ -157,6 +102,3 @@ if (channelId) {
     `;
 }
 </script>
-
-</body>
-</html>
