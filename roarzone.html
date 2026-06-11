@@ -1,3 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3U Player (Proxy)</title>
+
+<!-- Clappr -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    height: 100%;
+    width: 100%;
+}
+#player {
+    width: 100%;
+    height: 100%;
+}
+@media (max-width: 400px) {
+    body {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+        height: 125%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="player"></div>
+
 <script>
 // ===== SETTINGS =====
 const M3U_URL = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
@@ -102,3 +141,5 @@ if (channelId) {
     `;
 }
 </script>
+</body>
+</html>
