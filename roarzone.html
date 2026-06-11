@@ -36,7 +36,6 @@ html, body {
 <body>
 
 <div id="player"></div>
-
 <script>
 // ===== SETTINGS =====
 const M3U_URL = "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u";
@@ -56,8 +55,8 @@ function createPlayer(sourceUrl) {
 
     player = new Clappr.Player({
         source: sourceUrl,
-        width: '100%',
-        height: '100%',
+        width: "100%",
+        height: "100%",
         autoPlay: true,
         plugins: [HlsjsPlayback, LevelSelector],
         mimeType: "application/x-mpegURL",
@@ -68,14 +67,13 @@ function createPlayer(sourceUrl) {
         }
     });
 
-    player.on(Clappr.Events.PLAYER_STOP, function() {
+    player.on(Clappr.Events.PLAYER_STOP, function () {
         player.play();
     });
 }
 
 // ===== LOAD M3U =====
 async function loadM3U(channelId) {
-
     try {
         const res = await fetch(M3U_URL);
 
@@ -88,19 +86,17 @@ async function loadM3U(channelId) {
 
         let streamUrl = null;
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].toLowerCase();
+        // Match URL directly using the id parameter
+        for (const line of lines) {
+            const url = line.trim();
 
-            if (line.includes(channelId.toLowerCase())) {
-                for (let j = i + 1; j < lines.length; j++) {
-                    if (lines[j].trim().startsWith("http")) {
-                        streamUrl = lines[j].trim();
-                        break;
-                    }
-                }
+            if (
+                url.startsWith("http") &&
+                url.includes(channelId)
+            ) {
+                streamUrl = url;
+                break;
             }
-
-            if (streamUrl) break;
         }
 
         if (!streamUrl) {
@@ -114,6 +110,7 @@ async function loadM3U(channelId) {
         }
 
         console.log("Found stream:", streamUrl);
+
         createPlayer(streamUrl);
 
     } catch (err) {
@@ -122,6 +119,7 @@ async function loadM3U(channelId) {
         document.body.innerHTML = `
             <div style="color:white;text-align:center;margin-top:20%;">
                 <h2>Failed to load playlist</h2>
+                <p>${err.message}</p>
             </div>
         `;
     }
@@ -136,7 +134,7 @@ if (channelId) {
     document.body.innerHTML = `
         <div style="color:white;text-align:center;margin-top:20%;">
             <h2>No Channel ID</h2>
-            <p>Use: ?id=tsports</p>
+            <p>Use: ?id=edge1/1</p>
         </div>
     `;
 }
