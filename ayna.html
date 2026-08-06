@@ -58,61 +58,57 @@ html,body{
     animation:spin 1s linear infinite"></div>
     <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
   document.body.appendChild(overlay);
-  const hideLoader=()=>{overlay.style.opacity=0;setTimeout(()=>overlay.remove(),400);};
 
-  /* ---------------- JSON SOURCE ---------------- */
-  const JSON_URL="https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.json";
+  const hideLoader=()=>{
+    overlay.style.opacity=0;
+    setTimeout(()=>overlay.remove(),400);
+  };
 
-  async function loadFromJSON(title){
-    try{
-      const r=await fetch(JSON_URL,{cache:"no-store"});
-      if(!r.ok) throw 0;
-      const j=await r.json();
+  /* ---------------- M3U SOURCE ---------------- */
 
-      // ✅ FIXED HERE (channels → response)
-      const m=j.response?.find(c=>c.title.toLowerCase()===title.toLowerCase());
+  const M3U_URL="https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
 
-      if(!m?.url) throw 0;
-      return m.url;
-    }catch{
-      return null;
-    }
-  }
+  async function loadFromM3U(channel){
+    const txt=await fetch(M3U_URL,{cache:"no-store"}).then(r=>{
+      if(!r.ok) throw Error("Playlist not found");
+      return r.text();
+    });
 
-  /* ---------------- FALLBACK ---------------- */
-  async function loadFallback(title){
-    try{
-      const r=await fetch("api/auth.js?id=cookie");
-      const h=await r.text();
-      const d=document.createElement("div");
-      d.innerHTML=h;
-      for(const s of d.querySelectorAll("script")){
-        if(s.src){
-          await new Promise((res,rej)=>{
-            const x=document.createElement("script");
-            x.src=s.src;
-            x.onload=res;
-            x.onerror=rej;
-            document.head.appendChild(x);
-          });
-        }else eval(s.textContent);
+    const lines=txt.split(/\r?\n/);
+
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i];
+
+      if(!line.startsWith("#EXTINF")) continue;
+
+      const name=line.substring(line.lastIndexOf(",")+1).trim();
+
+      const tvg=(line.match(/tvg-name="([^"]+)"/i)||[])[1];
+
+      if(
+        name.toLowerCase()===channel.toLowerCase() ||
+        (tvg && tvg.toLowerCase()===channel.toLowerCase())
+      ){
+        for(let j=i+1;j<lines.length;j++){
+          const url=lines[j].trim();
+          if(url && !url.startsWith("#"))
+            return url;
+        }
       }
-    }catch{}
+    }
 
-    const j=await fetch("ayna-proxy.json",{cache:"no-store"}).then(r=>r.json());
-    const m=j.data?.list?.find(x=>x.title.toLowerCase()===title.toLowerCase());
-    if(!m) throw "Fallback channel missing";
-    return `api/ayna-proxy.m3u8?id=${m.id}`;
+    throw Error("Channel not found");
   }
 
   /* ---------------- PLAYER ---------------- */
-  let triedFallback=false;
 
-  async function startPlayer(url,title){
+  function startPlayer(url){
+
     hideLoader();
+
     document.oncontextmenu=e=>e.preventDefault();
 
-    const player=new Clappr.Player({
+    new Clappr.Player({
       parentId:"#player",
       source:url,
       autoPlay:true,
@@ -120,43 +116,36 @@ html,body{
       height:"100%",
       mimeType:"application/x-mpegURL",
       plugins:[HlsjsPlayback,LevelSelector],
-      mediacontrol:{seekbar:"#ff0000",buttons:"#eee"}
-    });
-
-    player.on(Clappr.Events.PLAYER_ERROR, async () => {
-      if(triedFallback) return;
-      triedFallback=true;
-
-      console.warn("Primary stream failed → using fallback");
-
-      player.destroy();
-
-      try{
-        const fb=await loadFallback(title);
-        startPlayer(fb,title);
-      }catch(e){
-        alert("Stream unavailable");
+      mediacontrol:{
+        seekbar:"#ff0000",
+        buttons:"#eee"
       }
     });
+
   }
 
   /* ---------------- INIT ---------------- */
+
   (async()=>{
+
     const id=new URLSearchParams(location.search).get("id");
-    if(!id) return alert("Missing ?id");
 
-    let url=await loadFromJSON(id);
-
-    if(!url){
-      url=await loadFallback(id);
-      triedFallback=true;
+    if(!id){
+      alert("Missing ?id");
+      return;
     }
 
-    startPlayer(url,id);
+    try{
+      const url=await loadFromM3U(id);
+      startPlayer(url);
+    }catch(err){
+      hideLoader();
+      alert(err.message);
+    }
+
   })();
 
 })();
 </script>
-
 </body>
 </html>
