@@ -204,6 +204,7 @@ iframe {
 (() => {
 
   /* ---------------- LOADER ---------------- */
+
   const overlay = document.createElement("div");
   overlay.style.cssText = `
     position:fixed;
@@ -214,6 +215,7 @@ iframe {
     justify-content:center;
     z-index:99999;
   `;
+
   overlay.innerHTML = `
     <div style="
       width:60px;
@@ -223,30 +225,29 @@ iframe {
       border-radius:50%;
       animation:spin 1s linear infinite">
     </div>
+
     <style>
       @keyframes spin{
         to{transform:rotate(360deg)}
       }
     </style>
   `;
+
   document.body.appendChild(overlay);
 
   function hideLoader(){
-    overlay.style.opacity = "0";
-    setTimeout(() => overlay.remove(), 400);
+    overlay.style.opacity="0";
+    setTimeout(()=>overlay.remove(),400);
   }
 
   /* ---------------- PLAYLIST ---------------- */
 
   const M3U_URL =
-    "https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
+  "https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
 
+  // Convert any HTTP URL to HTTPS
   function normalizeUrl(url){
-    // Convert only HTTP .m3u8 URLs to HTTPS
-    if(/^http:\/\/.*\.m3u8(\?.*)?$/i.test(url)){
-      return url.replace(/^http:\/\//i,"https://");
-    }
-    return url;
+    return url.replace(/^http:\/\//i,"https://");
   }
 
   async function loadFromM3U(channel){
@@ -256,7 +257,7 @@ iframe {
     });
 
     if(!res.ok){
-      throw new Error("Failed to load playlist");
+      throw new Error("Unable to load playlist");
     }
 
     const text = await res.text();
@@ -268,14 +269,15 @@ iframe {
 
       if(!line.startsWith("#EXTINF")) continue;
 
-      const displayName = line.substring(line.lastIndexOf(",")+1).trim();
+      const displayName =
+        line.substring(line.lastIndexOf(",")+1).trim();
 
       const tvgName =
         (line.match(/tvg-name="([^"]+)"/i)||[])[1] || "";
 
       if(
-        displayName.toLowerCase() === channel.toLowerCase() ||
-        tvgName.toLowerCase() === channel.toLowerCase()
+        displayName.toLowerCase()===channel.toLowerCase() ||
+        tvgName.toLowerCase()===channel.toLowerCase()
       ){
 
         for(let j=i+1;j<lines.length;j++){
@@ -293,6 +295,7 @@ iframe {
     }
 
     throw new Error("Channel not found");
+
   }
 
   /* ---------------- PLAYER ---------------- */
@@ -304,20 +307,24 @@ iframe {
     document.oncontextmenu = e => e.preventDefault();
 
     new Clappr.Player({
+
       parentId:"#player",
       source:url,
       autoPlay:true,
       width:"100%",
       height:"100%",
       mimeType:"application/x-mpegURL",
+
       plugins:[
         HlsjsPlayback,
         LevelSelector
       ],
+
       mediacontrol:{
         seekbar:"#ff0000",
         buttons:"#eee"
       }
+
     });
 
   }
@@ -326,7 +333,8 @@ iframe {
 
   (async()=>{
 
-    const id = new URLSearchParams(location.search).get("id");
+    const id =
+      new URLSearchParams(location.search).get("id");
 
     if(!id){
       hideLoader();
@@ -338,14 +346,16 @@ iframe {
 
       const url = await loadFromM3U(id);
 
-      console.log("Playing:", url);
+      console.log("Playing:",url);
 
       startPlayer(url);
 
     }catch(err){
 
       hideLoader();
+
       console.error(err);
+
       alert(err.message);
 
     }
