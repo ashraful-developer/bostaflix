@@ -200,50 +200,160 @@ iframe {
   <div class="logos-container" id="logosContainer">
     <!-- Dynamic JSON content goes here -->
   </div>
+<script>
+(() => {
 
-  <script>
-    const jsonURL = "https://bostaflix.vercel.app/ayna-proxy.json"; 
-    // 👆 Replace this with your real JSON endpoint
-
-    async function loadChannels() {
-      try {
-        const response = await fetch(jsonURL);
-        const data = await response.json();
-        const channels = data.data.list;
-        const container = document.getElementById("logosContainer");
-        container.innerHTML = "";
-
-        channels.forEach(ch => {
-          const img = document.createElement("img");
-          img.src = ch.logo;
-          img.alt = ch.title;
-          img.title = ch.title;
-          img.setAttribute("data-category", ch.category);
-          img.onclick = () => loadIframe(`https://bostaflix.vercel.app/ayna.html?id=${encodeURIComponent(ch.title)}`);
-          container.appendChild(img);
-        });
-      } catch (err) {
-        console.error("Error loading JSON:", err);
+  /* ---------------- LOADER ---------------- */
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      width:60px;
+      height:60px;
+      border:6px solid #fff;
+      border-top-color:#777;
+      border-radius:50%;
+      animation:spin 1s linear infinite">
+    </div>
+    <style>
+      @keyframes spin{
+        to{transform:rotate(360deg)}
       }
+    </style>
+  `;
+  document.body.appendChild(overlay);
+
+  function hideLoader(){
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 400);
+  }
+
+  /* ---------------- PLAYLIST ---------------- */
+
+  const M3U_URL =
+    "https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
+
+  function normalizeUrl(url){
+    // Convert only HTTP .m3u8 URLs to HTTPS
+    if(/^http:\/\/.*\.m3u8(\?.*)?$/i.test(url)){
+      return url.replace(/^http:\/\//i,"https://");
+    }
+    return url;
+  }
+
+  async function loadFromM3U(channel){
+
+    const res = await fetch(M3U_URL,{
+      cache:"no-store"
+    });
+
+    if(!res.ok){
+      throw new Error("Failed to load playlist");
     }
 
-    function loadIframe(url) {
-      document.getElementById("videoFrame").src = url;
-      document.querySelector("header").scrollIntoView({behavior:"smooth"});
+    const text = await res.text();
+    const lines = text.split(/\r?\n/);
+
+    for(let i=0;i<lines.length;i++){
+
+      const line = lines[i];
+
+      if(!line.startsWith("#EXTINF")) continue;
+
+      const displayName = line.substring(line.lastIndexOf(",")+1).trim();
+
+      const tvgName =
+        (line.match(/tvg-name="([^"]+)"/i)||[])[1] || "";
+
+      if(
+        displayName.toLowerCase() === channel.toLowerCase() ||
+        tvgName.toLowerCase() === channel.toLowerCase()
+      ){
+
+        for(let j=i+1;j<lines.length;j++){
+
+          const url = lines[j].trim();
+
+          if(url && !url.startsWith("#")){
+            return normalizeUrl(url);
+          }
+
+        }
+
+      }
+
     }
 
-    // load channel by ?id=Title
-    function getQueryParam(param) {
-      return new URLSearchParams(window.location.search).get(param);
+    throw new Error("Channel not found");
+  }
+
+  /* ---------------- PLAYER ---------------- */
+
+  function startPlayer(url){
+
+    hideLoader();
+
+    document.oncontextmenu = e => e.preventDefault();
+
+    new Clappr.Player({
+      parentId:"#player",
+      source:url,
+      autoPlay:true,
+      width:"100%",
+      height:"100%",
+      mimeType:"application/x-mpegURL",
+      plugins:[
+        HlsjsPlayback,
+        LevelSelector
+      ],
+      mediacontrol:{
+        seekbar:"#ff0000",
+        buttons:"#eee"
+      }
+    });
+
+  }
+
+  /* ---------------- INIT ---------------- */
+
+  (async()=>{
+
+    const id = new URLSearchParams(location.search).get("id");
+
+    if(!id){
+      hideLoader();
+      alert("Missing ?id");
+      return;
     }
 
-    window.onload = async function() {
-      await loadChannels();
-      const qid = getQueryParam("id");
-      if (qid) loadIframe(`ayna.html?id=${encodeURIComponent(qid)}`);
-    };
-  </script>
+    try{
 
+      const url = await loadFromM3U(id);
+
+      console.log("Playing:", url);
+
+      startPlayer(url);
+
+    }catch(err){
+
+      hideLoader();
+      console.error(err);
+      alert(err.message);
+
+    }
+
+  })();
+
+})();
+</script>
   <footer style="color:white; background-color:rgba(0,0,0,0.5); padding:10px; text-align:center;">
     &copy; Bostafull Live by Syed Ashraful Islam Mahbeer.  
     Embedded content collected from the internet.  
