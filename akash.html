@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadoo | Buddy✘TV</title>
+    <title>AkashGO | BOSTAFLIX</title>
     
     <link rel="stylesheet" type="text/css" href="style.css">
     <!-- Clappr Player Scripts -->
@@ -41,54 +41,314 @@
 </head>
 <body>
     <div id="player"></div>
+<script>
+    const M3U_URL = "https://biostartvworld.pages.dev/akashgo.m3u";
 
-    <script>
-        // Prevent right-click
-        document.addEventListener("contextmenu", (event) => {
-            event.preventDefault();
+    const encodeB64 = (str) =>
+        btoa(unescape(encodeURIComponent(str)))
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+
+    const decodeB64 = (str) => {
+        let t = str.replace(/-/g, "+").replace(/_/g, "/");
+        const pad = t.length % 4;
+        if (pad) t += "=".repeat(4 - pad);
+
+        try {
+            return atob(t);
+        } catch (e) {
+            return null;
+        }
+    };
+
+
+    function proxify(slug, url, isFallback = false, channelObj = null, customExt = null) {
+        if (!url) return "";
+
+        if (url.includes("/api/key/")) {
+            return url;
+        }
+
+        const ext =
+            customExt ||
+            (
+                url.toLowerCase().includes(".mpd")
+                    ? ".mpd"
+                    : url.toLowerCase().includes(".mp4")
+                        ? ".mp4"
+                        : url.toLowerCase().includes(".mp3")
+                            ? ".mp3"
+                            : ".m3u8"
+            );
+
+        let payload = url;
+
+        if (channelObj) {
+            payload =
+                url +
+                "|||" +
+                (channelObj.user_agent || "") +
+                "|||" +
+                JSON.stringify(channelObj.headers || {});
+        }
+
+        let filename = (slug || "channel") + ext;
+
+        try {
+            const urlObj = new URL(url.split("?")[0]);
+            const pathname = urlObj.pathname;
+            const fn = pathname.substring(pathname.lastIndexOf("/") + 1);
+
+            if (fn) filename = fn;
+        } catch (e) {}
+
+        return `https://biostartvworld.pages.dev/api/key/${encodeB64(payload)}/${filename}`;
+    }
+
+
+    /*
+     * Find a channel in akashgo.m3u
+     *
+     * Example:
+     *
+     * #EXTINF:...
+     * #EXTHTTP:{...}
+     * https://.../bpk-tv/1723/output/index.m3u8
+     */
+    function findChannelInM3U(m3u, channelId) {
+
+        const lines = m3u
+            .split(/\r?\n/)
+            .map(x => x.trim())
+            .filter(Boolean);
+
+        for (let i = 0; i < lines.length; i++) {
+
+            if (!lines[i].startsWith("#EXTINF:")) {
+                continue;
+            }
+
+            const infoLine = lines[i];
+
+            let httpHeaders = {};
+            let streamUrl = "";
+
+            // Find EXTHTTP after this EXTINF
+            for (let j = i + 1; j < lines.length; j++) {
+
+                const line = lines[j];
+
+                if (line.startsWith("#EXTINF:")) {
+                    break;
+                }
+
+                if (line.startsWith("#EXTHTTP:")) {
+
+                    try {
+                        const json = line.substring("#EXTHTTP:".length);
+                        httpHeaders = JSON.parse(json);
+                    } catch (e) {
+                        console.error("Invalid EXTHTTP JSON:", e);
+                    }
+
+                } else if (
+                    line.startsWith("http://") ||
+                    line.startsWith("https://")
+                ) {
+
+                    streamUrl = line;
+                    break;
+                }
+            }
+
+            if (!streamUrl) {
+                continue;
+            }
+
+            /*
+             * Match:
+             *
+             * /bpk-tv/1723/
+             * /bpk-tv/1715/
+             */
+            const match = streamUrl.match(/\/bpk-tv\/([^/]+)\//);
+
+            if (!match) {
+                continue;
+            }
+
+            const idFromUrl = match[1];
+
+            if (idFromUrl === String(channelId)) {
+
+                return {
+                    id: idFromUrl,
+                    name:
+                        infoLine.match(/tvg-name="([^"]*)"/)?.[1] ||
+                        infoLine.split(",").slice(1).join(",").trim(),
+
+                    url: streamUrl,
+
+                    headers: httpHeaders,
+
+                    user_agent: ""
+                };
+            }
+        }
+
+        return null;
+    }
+
+
+    async function loadChannel(channelId) {
+
+        try {
+
+            console.log("Loading playlist...");
+
+            const response = await fetch(M3U_URL, {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `M3U request failed: HTTP ${response.status}`
+                );
+            }
+
+            const m3u = await response.text();
+
+            const channel = findChannelInM3U(
+                m3u,
+                channelId
+            );
+
+            if (!channel) {
+                throw new Error(
+                    `Channel ${channelId} not found in akashgo.m3u`
+                );
+            }
+
+
+            console.log("Channel:", channel.name);
+            console.log("Stream:", channel.url);
+            console.log("Credentials:", channel.headers);
+
+
+            /*
+             * Send:
+             *
+             * URL
+             * |||
+             * User-Agent
+             * |||
+             * {"edge-policy":"...","edge-signature":"..."}
+             *
+             * to /api/key/
+             */
+            const sourceUrl = proxify(
+                `channel-${channelId}`,
+                channel.url,
+                false,
+                channel
+            );
+
+
+            console.log("Proxy:", sourceUrl);
+
+            createPlayer(sourceUrl);
+
+        } catch (error) {
+
+            console.error("Channel loading failed:", error);
+
+        }
+    }
+
+
+    function getQueryParam(name) {
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        return params.get(name);
+    }
+
+
+    function createPlayer(sourceUrl) {
+
+        const player = new Clappr.Player({
+
+            source: sourceUrl,
+
+            width: "100%",
+            height: "100%",
+
+            autoPlay: true,
+
+            plugins: [
+                HlsjsPlayback,
+                LevelSelector
+            ],
+
+            mimeType: "application/x-mpegURL",
+
+            mediacontrol: {
+                seekbar: "#ff0000",
+                buttons: "#eee"
+            },
+
+            parentId: "#player"
         });
 
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
 
-        function createPlayer(sourceUrl) {
-            var player = new Clappr.Player({ 
-                source: sourceUrl,
-                width: '100%', 
-                height: '100%', 
-                autoPlay: true, 
-                plugins: [HlsjsPlayback, LevelSelector],
-                mimeType: "application/x-mpegURL", 
-                mediacontrol: { seekbar: "#ff0000", buttons: "#eee" },  
-                parentId: "#player"
-            }); 
+        player.on(
+            Clappr.Events.PLAYER_ERROR,
+            function () {
 
-            player.on(Clappr.Events.PLAYER_ERROR, function() {
-                setTimeout(function() {
-                    player.load(player.options.source);
-                    player.play();
-                }, 100); // Retry after 100ms
-            });
+                console.log("Player error — retrying...");
 
-            player.on(Clappr.Events.PLAYER_STOP, function() {
+                setTimeout(function () {
+
+                    try {
+                        player.load(player.options.source);
+                        player.play();
+                    } catch (e) {
+                        console.error(e);
+                    }
+
+                }, 1000);
+            }
+        );
+
+
+        player.on(
+            Clappr.Events.PLAYER_STOP,
+            function () {
                 player.play();
-            });
+            }
+        );
 
-            return player;
-        }
+        return player;
+    }
 
-        // Get channel ID from query parameter
-        var channelId = getQueryParam('id');
-        
-        if (channelId) {
-            // Use the jadoo.php API URL structure
-            const sourceUrl = `https://owrcovcrpy.gpcdn.net/bpk-tv/${channelId}/output/index.m3u8`;
-            createPlayer(sourceUrl);
-        } else {
-            console.error("No channel ID provided");
-        }
-    </script>
+
+    // =========================
+    // START
+    // =========================
+
+    const channelId = getQueryParam("id");
+
+    if (channelId) {
+
+        loadChannel(channelId);
+
+    } else {
+
+        console.error("No channel ID provided");
+
+    }
+</script>
 </body>
 </html>
