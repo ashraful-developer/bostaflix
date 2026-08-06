@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AkashGO | BOSTAFLIX</title>
+    <title>Jadoo | Buddy✘TV</title>
     
     <link rel="stylesheet" type="text/css" href="style.css">
     <!-- Clappr Player Scripts -->
@@ -42,7 +42,7 @@
 <body>
     <div id="player"></div>
 <script>
-    const M3U_URL = "https://livetvcdn-bostaflix24.global.ssl.fastly.net/akashgo.m3u";
+    const M3U_URL = "https://biostartvworld.pages.dev/akashgo.m3u";
 
     const encodeB64 = (str) =>
         btoa(unescape(encodeURIComponent(str)))
@@ -103,7 +103,7 @@
             if (fn) filename = fn;
         } catch (e) {}
 
-        return `https://livetvcdn-bostaflix24.global.ssl.fastly.net/api/key/${encodeB64(payload)}/${filename}`;
+        return `https://biostartvworld.pages.dev/api/key/${encodeB64(payload)}/${filename}`;
     }
 
 
