@@ -39,65 +39,102 @@ html,body{
 
 <body>
 <div id="player"></div>
-
 <script>
 (() => {
 
   /* ---------------- LOADER ---------------- */
-  const overlay=document.createElement("div");
-  overlay.style.cssText=`
-    position:fixed;inset:0;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
     background:#000;
     display:flex;
     align-items:center;
     justify-content:center;
-    z-index:99999`;
-  overlay.innerHTML=`
-    <div style="width:60px;height:60px;border:6px solid #fff;
-    border-top-color:#777;border-radius:50%;
-    animation:spin 1s linear infinite"></div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    z-index:99999;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      width:60px;
+      height:60px;
+      border:6px solid #fff;
+      border-top-color:#777;
+      border-radius:50%;
+      animation:spin 1s linear infinite">
+    </div>
+
+    <style>
+      @keyframes spin{
+        to{transform:rotate(360deg)}
+      }
+    </style>
+  `;
+
   document.body.appendChild(overlay);
 
-  const hideLoader=()=>{
-    overlay.style.opacity=0;
+  function hideLoader(){
+    overlay.style.opacity="0";
     setTimeout(()=>overlay.remove(),400);
-  };
+  }
 
-  /* ---------------- M3U SOURCE ---------------- */
+  /* ---------------- PLAYLIST ---------------- */
 
-  const M3U_URL="https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
+  const M3U_URL =
+  "https://raw.githubusercontent.com/sm-monirulislam/AynaOTT-auto-update-playlist/refs/heads/main/AynaOTT.m3u";
+
+  // Convert any HTTP URL to HTTPS
+  function normalizeUrl(url){
+    return url.replace(/^http:\/\//i,"https://");
+  }
 
   async function loadFromM3U(channel){
-    const txt=await fetch(M3U_URL,{cache:"no-store"}).then(r=>{
-      if(!r.ok) throw Error("Playlist not found");
-      return r.text();
+
+    const res = await fetch(M3U_URL,{
+      cache:"no-store"
     });
 
-    const lines=txt.split(/\r?\n/);
+    if(!res.ok){
+      throw new Error("Unable to load playlist");
+    }
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/);
 
     for(let i=0;i<lines.length;i++){
-      const line=lines[i];
+
+      const line = lines[i];
 
       if(!line.startsWith("#EXTINF")) continue;
 
-      const name=line.substring(line.lastIndexOf(",")+1).trim();
+      const displayName =
+        line.substring(line.lastIndexOf(",")+1).trim();
 
-      const tvg=(line.match(/tvg-name="([^"]+)"/i)||[])[1];
+      const tvgName =
+        (line.match(/tvg-name="([^"]+)"/i)||[])[1] || "";
 
       if(
-        name.toLowerCase()===channel.toLowerCase() ||
-        (tvg && tvg.toLowerCase()===channel.toLowerCase())
+        displayName.toLowerCase()===channel.toLowerCase() ||
+        tvgName.toLowerCase()===channel.toLowerCase()
       ){
+
         for(let j=i+1;j<lines.length;j++){
-          const url=lines[j].trim();
-          if(url && !url.startsWith("#"))
-            return url;
+
+          const url = lines[j].trim();
+
+          if(url && !url.startsWith("#")){
+            return normalizeUrl(url);
+          }
+
         }
+
       }
+
     }
 
-    throw Error("Channel not found");
+    throw new Error("Channel not found");
+
   }
 
   /* ---------------- PLAYER ---------------- */
@@ -106,20 +143,27 @@ html,body{
 
     hideLoader();
 
-    document.oncontextmenu=e=>e.preventDefault();
+    document.oncontextmenu = e => e.preventDefault();
 
     new Clappr.Player({
+
       parentId:"#player",
       source:url,
       autoPlay:true,
       width:"100%",
       height:"100%",
       mimeType:"application/x-mpegURL",
-      plugins:[HlsjsPlayback,LevelSelector],
+
+      plugins:[
+        HlsjsPlayback,
+        LevelSelector
+      ],
+
       mediacontrol:{
         seekbar:"#ff0000",
         buttons:"#eee"
       }
+
     });
 
   }
@@ -128,19 +172,31 @@ html,body{
 
   (async()=>{
 
-    const id=new URLSearchParams(location.search).get("id");
+    const id =
+      new URLSearchParams(location.search).get("id");
 
     if(!id){
+      hideLoader();
       alert("Missing ?id");
       return;
     }
 
     try{
-      const url=await loadFromM3U(id);
+
+      const url = await loadFromM3U(id);
+
+      console.log("Playing:",url);
+
       startPlayer(url);
+
     }catch(err){
+
       hideLoader();
+
+      console.error(err);
+
       alert(err.message);
+
     }
 
   })();
