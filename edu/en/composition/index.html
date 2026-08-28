@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>BOSTAFLIX - English Composition</title>
+  <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    /* --- Global --- */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #eaeaea;
+    }
+
+    /* --- Header --- */
+    header {
+      background-color: #570303;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #fff;
+    }
+
+    .logo {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #b80000;
+      color: #fff;
+    }
+
+    /* --- Banner --- */
+    .banner {
+      width: 100%;
+      aspect-ratio: 15 / 1;
+      background: url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg')
+        center / cover no-repeat;
+      border: 2px solid #fff;
+      position: relative;
+    }
+
+    #banner-text {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #000;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: min(2.5vw, 2em);
+      font-weight: bold;
+      color: #fff;
+      border: 1px solid #fff;
+      white-space: nowrap;
+    }
+
+    /* --- Button Grid --- */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 15px;
+      padding: 20px;
+      max-width: 80vw;
+      margin: 0 auto;
+    }
+
+    /* --- Buttons --- */
+    .video-card {
+      background-color: #570303;
+      aspect-ratio: 16 / 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: bold;
+      font-size: min(1.3vw, 1.1em);
+      border: 2px solid #fff;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.3s ease, transform 0.3s ease;
+      padding: 10px;
+    }
+
+    .video-card:hover {
+      background-color: #ff3c3c;
+      color: #fff;
+      transform: translateY(-5px);
+    }
+
+    /* --- Footer --- */
+    footer {
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    /* --- Mobile --- */
+    @media (max-width: 768px) {
+
+      .nav-links {
+        display: none;
+      }
+
+      .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 100vw;
+        padding: 15px;
+        gap: 10px;
+      }
+
+      .video-card {
+        font-size: 1em;
+      }
+
+      .banner {
+        aspect-ratio: 9 / 1;
+      }
+
+      #banner-text {
+        font-size: 4vw;
+        bottom: 10px;
+        padding: 6px 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="https://bostaflix.vercel.app/index.html" class="logo">
+      BOSTAFLIX
+    </a>
+
+    <nav class="nav-links">
+      <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+      <a href="https://bostaflix.vercel.app/news.html">News</a>
+      <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+      <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+      <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+    </nav>
+  </header>
+
+  <!-- Banner -->
+  <div class="banner">
+    <div id="banner-text">
+      English Second Paper Composition
+    </div>
+  </div>
+
+  <!-- Automatically Generated Button Grid -->
+  <div class="video-grid" id="buttonGrid"></div>
+
+  <script>
+    /*
+      Just add titles here.
+      Buttons and links will be created automatically.
+    */
+
+    const titles = [
+      "Traffic Jam",
+      "Tree Plantation",
+      "Artificial Intelligence",
+      "The Importance of Learning English"
+    ];
+
+    const buttonGrid = document.getElementById("buttonGrid");
+
+    titles.forEach(title => {
+
+      const button = document.createElement("a");
+
+      // Button text
+      button.textContent = title;
+
+      // CSS class
+      button.className = "video-card";
+
+      // Automatically create .txt filename
+      const fileName = title + ".txt";
+
+      // Automatically create URL
+      button.href =
+        "https://bostaflix.vercel.app/edu/en/composition/read.html?id=" +
+        encodeURIComponent(fileName);
+
+      // Add button to grid
+      buttonGrid.appendChild(button);
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer>
+    &copy; Bostafull Live by Syed Ashraful Islam Mahbeer.
+    Any embedded content on this site are collected from the internet and
+    Bostafull Live is not connected with them.
+    Wait up to 1 min to load, if not, change server.
+  </footer>
+
+</body>
+</html>
