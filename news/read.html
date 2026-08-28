@@ -1,371 +1,278 @@
 <!DOCTYPE html>
 
 <html lang="bn">
+
 <head>
-  <meta charset="UTF-8">
-  <title>BOSTAFLIX News</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f0f0f;
-      color: #eaeaea;
-    }
+<title>BOSTAFLIX News</title>
 
-    /* Header */
-    header {
-      background-color: #570303;
-      color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #fff;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .logo {
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.5em;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
+<style>
 
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .nav-links a {
-      color: #fff;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: background 0.3s ease;
-    }
+/* --- Global --- */
 
-    .nav-links a:hover {
-      background-color: #b80000;
-      color: #fff;
-    }
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0f0f0f;
+  color: #eaeaea;
+}
 
-    @media (max-width: 720px) {
-      .nav-links {
-        display: none;
-      }
-    }
+/* --- Header --- */
 
-    /* Headline */
-    .headline {
-      font-size: 24px;
-      font-weight: bold;
-      color: #fff;
-      margin: 20px auto 10px;
-      width: 90%;
-      max-width: 120vh;
-      padding: 10px 0;
-      line-height: 1.5;
-    }
+header {
+  background-color: #570303;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
 
-    /* Brief */
-    .brief {
-      font-size: 18px;
-      color: #bbb;
-      margin: 0 auto 10px;
-      width: 90%;
-      max-width: 120vh;
-      padding: 0 0 10px;
-      line-height: 1.7;
-    }
+.logo {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.5em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
 
-    /* Content */
-    .content {
-      font-size: 16px;
-      color: #fff;
-      margin: 10px auto 40px;
-      width: 90%;
-      max-width: 120vh;
-      padding: 10px 0;
-      text-align: justify;
-      line-height: 1.8;
-    }
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
 
-    .content p {
-      margin-bottom: 15px;
-    }
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
 
-    /* Images */
-    #newsImageContainer {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
+.nav-links a:hover {
+  background-color: #b80000;
+  color: #fff;
+}
 
-    #newsImage {
-      max-width: 700px;
-      width: 100%;
-      height: auto;
-      display: none;
-    }
-  </style>
+@media (max-width: 720px) {
+  .nav-links {
+    display: none;
+  }
+}
+
+/* Headline */
+
+.headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  margin: 20px auto 10px;
+  width: 90%;
+  max-width: 120vh;
+  padding: 10px 0;
+}
+
+/* Content */
+
+.content {
+  font-size: 16px;
+  color: #fff;
+  margin: 10px auto 40px;
+  width: 90%;
+  max-width: 120vh;
+  padding: 10px 0;
+  text-align: justify;
+}
+
+</style>
 
 </head>
 
 <body>
 
-  <header>
-    <a
-      href="https://bostaflix.vercel.app/index.html"
-      class="logo"
-    >
-      BOSTAFLIX
-    </a>
+<header>
 
-```
+<a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+
 <nav class="nav-links">
-  <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
-  <a href="https://bostaflix.vercel.app/news.html">News</a>
-  <a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
-  <a href="https://bostaflix.vercel.app/movies.html">Movies</a>
-  <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+
+<a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+
+<a href="https://bostaflix.vercel.app/news.html">News</a>
+
+<a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+
+<a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+
+<a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+
 </nav>
-```
 
-  </header>
+</header>
 
-  <!-- News Image -->
+<div id="newsImageContainer" style="width: 100%; display: flex; justify-content: center; margin: 20px 0;">
 
-  <div id="newsImageContainer">
-    <img id="newsImage" alt="News Image">
-  </div>
+<img id="newsImage" style="max-width: 700px; width: 100%; height: auto; display: none;" alt="News Image">
 
-  <!-- News Content -->
+</div>
 
-  <div id="newsContainer">
+<div id="newsContainer">
 
-```
-<!-- ContentHeading from JSON -->
 <div class="headline" id="headline"></div>
 
-<!-- ContentBrief from JSON -->
-<div class="brief" id="brief"></div>
-
-<!-- ContentDetails from JSON -->
 <div class="content" id="content"></div>
-```
 
-  </div>
+</div>
 
-  <script>
-    async function fetchNews() {
+<script>
 
-      const urlParams =
-        new URLSearchParams(window.location.search);
+async function fetchNews() {
 
-      const type = urlParams.get('type');
-      const id = urlParams.get('id');
-      const imageParam = urlParams.get('image');
+  const urlParams = new URLSearchParams(window.location.search);
 
-      if (!type || !id) {
-        document.getElementById('headline').innerText =
-          'সংবাদের তথ্য পাওয়া যায়নি।';
-        return;
+  const type = urlParams.get('type');
+
+  const id = urlParams.get('id');
+
+  const apiUrl =
+    `https://backoffice.channel24bd.tv/api/v2/content-details/${type}/${id}`;
+
+  /* Handle image from query parameter */
+
+  const imageParam =
+    urlParams.get('image');
+
+  if (imageParam) {
+
+    const imageUrl =
+      `https://backoffice.channel24bd.tv/media/imgAll/${imageParam}`;
+
+    const imgElement =
+      document.getElementById('newsImage');
+
+    imgElement.src = imageUrl;
+
+    imgElement.style.display = 'block';
+
+  }
+
+  try {
+
+    const response = await fetch(apiUrl);
+
+    const data = await response.json();
+
+    const content =
+      data.contentDetails[0];
+
+    /*
+     * Use ContentHeading from JSON
+     */
+
+    document.getElementById('headline').innerText =
+      content.ContentHeading || '';
+
+    /*
+     * Also use the JSON title for browser tab
+     */
+
+    document.title =
+      content.ContentHeading || 'BOSTAFLIX News';
+
+    /*
+     * ContentDetails
+     */
+
+    let rawHtml =
+      content.ContentDetails || '';
+
+    /*
+     * Parse HTML into a document
+     */
+
+    const parser =
+      new DOMParser();
+
+    const doc =
+      parser.parseFromString(rawHtml, 'text/html');
+
+    /*
+     * Remove ALL iframe elements
+     */
+
+    doc.querySelectorAll('iframe').forEach(el => {
+      el.remove();
+    });
+
+    /*
+     * Remove all anchor tags
+     */
+
+    doc.querySelectorAll('a').forEach(el => {
+      el.remove();
+    });
+
+    /*
+     * Remove all image tags
+     */
+
+    doc.querySelectorAll('img').forEach(el => {
+      el.remove();
+    });
+
+    /*
+     * Remove "আরও পড়ুন:" and app download paragraphs
+     */
+
+    doc.querySelectorAll('p').forEach(p => {
+
+      const text =
+        p.textContent.trim();
+
+      if (
+        text.startsWith("আরও পড়ুন:") ||
+        text.includes(
+          "সারাদিনের সর্বশেষ খবর পেতে গুগল প্লে স্টোর এবং অ্যাপল অ্যাপ স্টোর থেকে ডাউনলোড করুন চ্যানেল 24 অ্যাপ-"
+        )
+      ) {
+
+        p.remove();
+
       }
 
-      const apiUrl =
-        `https://backoffice.channel24bd.tv/api/v2/content-details/${type}/${id}`;
+    });
 
-      try {
+    /*
+     * Display cleaned content
+     */
 
-        const response = await fetch(apiUrl);
+    document.getElementById('content').innerHTML =
+      doc.body.innerHTML;
 
-        if (!response.ok) {
-          throw new Error(
-            `HTTP Error: ${response.status}`
-          );
-        }
+  } catch (error) {
 
-        const data = await response.json();
+    console.error(
+      'Error fetching content:',
+      error
+    );
 
-        if (
-          !data.contentDetails ||
-          data.contentDetails.length === 0
-        ) {
-          throw new Error('No content found');
-        }
+  }
 
-        const news = data.contentDetails[0];
+}
 
-        /*
-         * =========================
-         * TITLE
-         * =========================
-         */
+fetchNews();
 
-        const title =
-          news.ContentHeading || '';
-
-        document.getElementById('headline').innerText =
-          title;
-
-        /*
-         * Browser tab title
-         */
-
-        document.title =
-          title || 'BOSTAFLIX News';
-
-        /*
-         * =========================
-         * BRIEF
-         * =========================
-         *
-         * Show ContentBrief only here.
-         * It will NOT be inserted into
-         * ContentDetails.
-         */
-
-        const brief =
-          news.ContentBrief || '';
-
-        document.getElementById('brief').innerText =
-          brief;
-
-        /*
-         * =========================
-         * IMAGE
-         * =========================
-         */
-
-        if (imageParam) {
-
-          const imageUrl =
-            `https://backoffice.channel24bd.tv/media/imgAll/${imageParam}`;
-
-          const imgElement =
-            document.getElementById('newsImage');
-
-          imgElement.src = imageUrl;
-
-          imgElement.style.display =
-            'block';
-        }
-
-        /*
-         * =========================
-         * ARTICLE CONTENT
-         * =========================
-         */
-
-        let rawHtml =
-          news.ContentDetails || '';
-
-        const parser =
-          new DOMParser();
-
-        const doc =
-          parser.parseFromString(
-            rawHtml,
-            'text/html'
-          );
-
-        /*
-         * Remove ALL iframes
-         */
-
-        doc.querySelectorAll('iframe').forEach(
-          iframe => iframe.remove()
-        );
-
-        /*
-         * Remove ALL anchor tags
-         */
-
-        doc.querySelectorAll('a').forEach(
-          anchor => anchor.remove()
-        );
-
-        /*
-         * Remove ALL images
-         */
-
-        doc.querySelectorAll('img').forEach(
-          img => img.remove()
-        );
-
-        /*
-         * Remove unnecessary paragraphs
-         */
-
-        doc.querySelectorAll('p').forEach(
-          p => {
-
-            const text =
-              p.textContent.trim();
-
-            if (
-              text.startsWith('আরও পড়ুন:') ||
-              text.includes(
-                'সারাদিনের সর্বশেষ খবর পেতে গুগল প্লে স্টোর এবং অ্যাপল অ্যাপ স্টোর থেকে ডাউনলোড করুন চ্যানেল 24 অ্যাপ-'
-              )
-            ) {
-              p.remove();
-            }
-
-          }
-        );
-
-        /*
-         * Remove empty paragraphs
-         */
-
-        doc.querySelectorAll('p').forEach(
-          p => {
-
-            if (
-              !p.textContent.trim() &&
-              !p.querySelector('br')
-            ) {
-              p.remove();
-            }
-
-          }
-        );
-
-        /*
-         * Display cleaned article
-         */
-
-        document.getElementById('content').innerHTML =
-          doc.body.innerHTML;
-
-      } catch (error) {
-
-        console.error(
-          'Error fetching news:',
-          error
-        );
-
-        document.getElementById('headline').innerText =
-          'সংবাদ লোড করতে সমস্যা হয়েছে।';
-
-        document.getElementById('brief').innerText =
-          '';
-
-        document.getElementById('content').innerText =
-          '';
-      }
-    }
-
-    fetchNews();
-  </script>
+</script>
 
 </body>
+
 </html>
