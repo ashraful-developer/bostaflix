@@ -1,0 +1,252 @@
+```html
+<!DOCTYPE html>
+
+<html lang="bn">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>BOSTAFLIX News</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0f0f0f;
+  color: #eaeaea;
+}
+
+header {
+  background-color: #570303;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #fff;
+}
+
+.logo {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.5em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.nav-links a:hover {
+  background-color: #b80000;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .nav-links {
+    display: none;
+  }
+}
+
+.headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  margin: 20px auto 10px;
+  width: 90%;
+  max-width: 120vh;
+  padding: 10px 0;
+}
+
+.content {
+  font-size: 16px;
+  color: #fff;
+  margin: 10px auto 40px;
+  width: 90%;
+  max-width: 120vh;
+  padding: 10px 0;
+  text-align: justify;
+  line-height: 1.8;
+}
+
+.content p {
+  margin: 0 0 15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<a href="https://bostaflix.vercel.app/index.html" class="logo">
+BOSTAFLIX
+</a>
+
+<nav class="nav-links">
+
+<a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+
+<a href="https://bostaflix.vercel.app/news.html">News</a>
+
+<a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+
+<a href="https://bostaflix.vercel.app/movies.html">Movies</a>
+
+<a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+
+</nav>
+
+</header>
+
+
+<div id="newsContainer">
+
+<div class="headline" id="headline"></div>
+
+<div class="content" id="content"></div>
+
+</div>
+
+
+<script>
+
+async function fetchNews() {
+
+  /*
+   * Get filename from URL
+   *
+   * Example:
+   * /xyz.txt
+   */
+
+  const path =
+    window.location.pathname;
+
+  let filename =
+    path.substring(
+      path.lastIndexOf('/') + 1
+    );
+
+  /*
+   * Remove .txt
+   *
+   * xyz.txt -> xyz
+   */
+
+  const title =
+    filename.replace(
+      /\.txt$/i,
+      ''
+    );
+
+  /*
+   * Use filename as headline
+   */
+
+  document.getElementById(
+    'headline'
+  ).innerText = title;
+
+  /*
+   * Use filename as browser title
+   */
+
+  document.title =
+    title || 'BOSTAFLIX News';
+
+  /*
+   * Fetch TXT file
+   */
+
+  try {
+
+    const response =
+      await fetch('/' + filename);
+
+    if (!response.ok) {
+
+      throw new Error(
+        'TXT file not found'
+      );
+
+    }
+
+    const text =
+      await response.text();
+
+    /*
+     * Split text into paragraphs.
+     *
+     * Blank lines create
+     * separate paragraphs.
+     */
+
+    const paragraphs =
+      text
+        .trim()
+        .split(/\r?\n\s*\r?\n/);
+
+    const contentElement =
+      document.getElementById('content');
+
+    contentElement.innerHTML = '';
+
+    paragraphs.forEach(paragraph => {
+
+      const p =
+        document.createElement('p');
+
+      p.innerText =
+        paragraph
+          .replace(/\r?\n/g, ' ')
+          .trim();
+
+      contentElement.appendChild(p);
+
+    });
+
+  } catch (error) {
+
+    console.error(
+      'Error loading TXT:',
+      error
+    );
+
+    document.getElementById(
+      'content'
+    ).innerText =
+      'লোড করা সম্ভব হয়নি।';
+
+  }
+
+}
+
+fetchNews();
+
+</script>
+
+</body>
+
+</html>
+```
