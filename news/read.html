@@ -100,7 +100,7 @@
       margin-bottom: 15px;
     }
 
-    /* Image */
+    /* Images */
     #newsImageContainer {
       width: 100%;
       display: flex;
@@ -121,7 +121,10 @@
 <body>
 
   <header>
-    <a href="https://bostaflix.vercel.app/index.html" class="logo">
+    <a
+      href="https://bostaflix.vercel.app/index.html"
+      class="logo"
+    >
       BOSTAFLIX
     </a>
 
@@ -143,18 +146,18 @@
     <img id="newsImage" alt="News Image">
   </div>
 
-  <!-- News -->
+  <!-- News Content -->
 
   <div id="newsContainer">
 
 ```
-<!-- JSON ContentHeading will appear here -->
+<!-- ContentHeading from JSON -->
 <div class="headline" id="headline"></div>
 
-<!-- JSON ContentBrief will appear here -->
+<!-- ContentBrief from JSON -->
 <div class="brief" id="brief"></div>
 
-<!-- JSON ContentDetails will appear here -->
+<!-- ContentDetails from JSON -->
 <div class="content" id="content"></div>
 ```
 
@@ -163,7 +166,8 @@
   <script>
     async function fetchNews() {
 
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams =
+        new URLSearchParams(window.location.search);
 
       const type = urlParams.get('type');
       const id = urlParams.get('id');
@@ -183,14 +187,16 @@
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
-          throw new Error(`HTTP Error: ${response.status}`);
+          throw new Error(
+            `HTTP Error: ${response.status}`
+          );
         }
 
         const data = await response.json();
 
         if (
           !data.contentDetails ||
-          !data.contentDetails.length
+          data.contentDetails.length === 0
         ) {
           throw new Error('No content found');
         }
@@ -198,29 +204,44 @@
         const news = data.contentDetails[0];
 
         /*
-         * ============================
-         * TITLE FROM JSON
-         * ============================
-         *
-         * ContentHeading:
-         * দিনে ৬ থেকে ৮ বার বিদ্যুৎ বিভ্রাট:
-         * জেনারেটরহীন হাসপাতালগুলোতে দুর্ভোগ চরমে
+         * =========================
+         * TITLE
+         * =========================
          */
 
-        document.getElementById('headline').innerText =
+        const title =
           news.ContentHeading || '';
 
+        document.getElementById('headline').innerText =
+          title;
+
         /*
-         * ContentBrief
+         * Browser tab title
          */
 
-        document.getElementById('brief').innerText =
-          news.ContentBrief || '';
+        document.title =
+          title || 'BOSTAFLIX News';
 
         /*
-         * ============================
+         * =========================
+         * BRIEF
+         * =========================
+         *
+         * Show ContentBrief only here.
+         * It will NOT be inserted into
+         * ContentDetails.
+         */
+
+        const brief =
+          news.ContentBrief || '';
+
+        document.getElementById('brief').innerText =
+          brief;
+
+        /*
+         * =========================
          * IMAGE
-         * ============================
+         * =========================
          */
 
         if (imageParam) {
@@ -232,57 +253,91 @@
             document.getElementById('newsImage');
 
           imgElement.src = imageUrl;
-          imgElement.style.display = 'block';
+
+          imgElement.style.display =
+            'block';
         }
 
         /*
-         * ============================
-         * CONTENT DETAILS
-         * ============================
+         * =========================
+         * ARTICLE CONTENT
+         * =========================
          */
 
-        let rawHtml = news.ContentDetails || '';
+        let rawHtml =
+          news.ContentDetails || '';
 
-        const parser = new DOMParser();
+        const parser =
+          new DOMParser();
 
         const doc =
-          parser.parseFromString(rawHtml, 'text/html');
+          parser.parseFromString(
+            rawHtml,
+            'text/html'
+          );
 
         /*
-         * Remove anchor tags
+         * Remove ALL iframes
          */
 
-        doc.querySelectorAll('a').forEach(el => {
-          el.remove();
-        });
+        doc.querySelectorAll('iframe').forEach(
+          iframe => iframe.remove()
+        );
 
         /*
-         * Remove images
+         * Remove ALL anchor tags
          */
 
-        doc.querySelectorAll('img').forEach(el => {
-          el.remove();
-        });
+        doc.querySelectorAll('a').forEach(
+          anchor => anchor.remove()
+        );
+
+        /*
+         * Remove ALL images
+         */
+
+        doc.querySelectorAll('img').forEach(
+          img => img.remove()
+        );
 
         /*
          * Remove unnecessary paragraphs
          */
 
-        doc.querySelectorAll('p').forEach(p => {
+        doc.querySelectorAll('p').forEach(
+          p => {
 
-          const text =
-            p.textContent.trim();
+            const text =
+              p.textContent.trim();
 
-          if (
-            text.startsWith('আরও পড়ুন:') ||
-            text.includes(
-              'সারাদিনের সর্বশেষ খবর পেতে গুগল প্লে স্টোর এবং অ্যাপল অ্যাপ স্টোর থেকে ডাউনলোড করুন চ্যানেল 24 অ্যাপ-'
-            )
-          ) {
-            p.remove();
+            if (
+              text.startsWith('আরও পড়ুন:') ||
+              text.includes(
+                'সারাদিনের সর্বশেষ খবর পেতে গুগল প্লে স্টোর এবং অ্যাপল অ্যাপ স্টোর থেকে ডাউনলোড করুন চ্যানেল 24 অ্যাপ-'
+              )
+            ) {
+              p.remove();
+            }
+
           }
+        );
 
-        });
+        /*
+         * Remove empty paragraphs
+         */
+
+        doc.querySelectorAll('p').forEach(
+          p => {
+
+            if (
+              !p.textContent.trim() &&
+              !p.querySelector('br')
+            ) {
+              p.remove();
+            }
+
+          }
+        );
 
         /*
          * Display cleaned article
@@ -290,18 +345,6 @@
 
         document.getElementById('content').innerHTML =
           doc.body.innerHTML;
-
-        /*
-         * ============================
-         * PAGE TITLE
-         * ============================
-         *
-         * Browser tab title will also
-         * use ContentHeading from JSON.
-         */
-
-        document.title =
-          news.ContentHeading || 'BOSTAFLIX News';
 
       } catch (error) {
 
@@ -313,6 +356,11 @@
         document.getElementById('headline').innerText =
           'সংবাদ লোড করতে সমস্যা হয়েছে।';
 
+        document.getElementById('brief').innerText =
+          '';
+
+        document.getElementById('content').innerText =
+          '';
       }
     }
 
