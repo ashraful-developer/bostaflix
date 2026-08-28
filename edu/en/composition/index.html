@@ -94,51 +94,41 @@
     }
 
     /* --- Video Grid --- */
-    .video-grid {
-      width: min(80vw, 1200px);
-      margin: 0 auto;
-      padding: 20px 0;
+.video-grid {
+  width: min(90vw, 1200px);
+  margin: 0 auto;
+  padding: 20px 0;
 
-      display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
 
-      /* Automatically adjusts according to viewport */
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+.video-card {
+  flex: 0 1 calc((100% - 60px) / 6);
+  min-width: 150px;
+  min-height: 70px;
 
-      gap: 15px;
-    }
+  background-color: #570303;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    /* --- Video Cards --- */
-    .video-card {
-      min-width: 0;
-      min-height: 70px;
+  text-align: center;
+  font-weight: bold;
+  font-size: clamp(13px, 1.3vw, 17px);
+  line-height: 1.2;
 
-      background-color: #570303;
+  border: 2px solid #fff;
+  text-decoration: none;
+  color: #fff;
+  padding: 10px;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  overflow-wrap: anywhere;
 
-      text-align: center;
-      font-weight: bold;
-
-      font-size: clamp(13px, 1.3vw, 17px);
-      line-height: 1.2;
-
-      border: 2px solid #fff;
-
-      text-decoration: none;
-      color: #fff;
-
-      padding: 10px;
-
-      overflow-wrap: anywhere;
-      word-break: normal;
-
-      transition:
-        background 0.3s ease,
-        transform 0.3s ease;
-    }
-
+  transition: background 0.3s ease, transform 0.3s ease;
+}
     .video-card:hover {
       background-color: #ff3c3c;
       color: #fff;
@@ -195,18 +185,18 @@
         aspect-ratio: 9 / 1;
       }
 
-      .video-grid {
-        width: 100%;
-        padding: 15px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
+ {
+  .video-grid {
+    width: 100%;
+    padding: 15px;
+    gap: 10px;
+  }
 
-      .video-card {
-        min-height: 70px;
-        font-size: 15px;
-        padding: 8px;
-      }
+  .video-card {
+    flex: 0 1 calc((100% - 10px) / 2);
+    min-width: 0;
+    font-size: 15px;
+  }
 
       footer {
         font-size: 13px;
