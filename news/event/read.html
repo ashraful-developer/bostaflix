@@ -1,243 +1,817 @@
 <!DOCTYPE html>
-
 <html lang="bn">
 
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
+/* =========================
+   SIYAM RUPALI
+========================= */
+
+@font-face {
+  font-family: "Siyam Rupali";
+  src: local("Siyam Rupali");
+}
+
+
+/* =========================
+   GLOBAL
+========================= */
 
 * {
   box-sizing: border-box;
 }
 
-/* --- Global --- */
-
+html,
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0f0f0f;
-  color: #eaeaea;
+  min-height: 100%;
+
+  font-family:
+    "Siyam Rupali",
+    "Noto Sans Bengali",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  color: #fff;
 }
 
-/* --- Header --- */
+body {
+  position: relative;
 
-header {
-  background-color: #570303;
-  color: #fff;
-  padding: 10px 20px;
+  min-height: 100vh;
+
+  background: #0f0f0f;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================
+   FULL PAGE BLURRED IMAGE
+========================= */
+
+.page-background {
+  position: fixed;
+
+  z-index: -3;
+
+  top: -40px;
+  left: -40px;
+
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+
+  object-fit: cover;
+
+  filter: blur(25px);
+
+  transform: scale(1.08);
+
+  opacity: 0.55;
+}
+
+
+.page-background-overlay {
+  position: fixed;
+
+  z-index: -2;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.68);
+}
+
+
+/* =========================
+   PAGE
+========================= */
+
+.page {
+  width: 100%;
+
+  padding: 25px 0 35px;
+}
+
+
+/* =========================
+   NEWS CARD
+========================= */
+
+.news-card {
+  position: relative;
+
+  width: 92%;
+  max-width: 1000px;
+
+  height: 450px;
+
+  margin: 0 auto;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  background: rgba(20, 20, 20, 0.70);
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.55);
+
+  backdrop-filter: blur(5px);
+}
+
+
+/* =========================
+   CARD CONTENT
+========================= */
+
+.news-card-inner {
+  position: relative;
+
+  z-index: 2;
+
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #fff;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 22px;
+
+  gap: 25px;
 }
 
-.logo {
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.5em;
-  font-weight: bold;
-  letter-spacing: 0.5px;
+
+/* =========================
+   LEFT IMAGE
+   50% OF CARD
+========================= */
+
+.news-image-box {
+  width: 50%;
+
+  flex: 0 0 50%;
+
+  align-self: center;
+
+  overflow: hidden;
+
+  border-radius: 14px;
+
+  background: #111;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.45);
 }
 
-.nav-links {
+
+.news-image-box img {
+  display: block;
+
+  width: 100%;
+
+  height: 390px;
+
+  object-fit: cover;
+}
+
+
+/* =========================
+   RIGHT TEXT
+========================= */
+
+.news-text {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 100%;
+
   display: flex;
-  gap: 20px;
+
+  flex-direction: column;
 }
 
-.nav-links a {
-  color: #fff;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: background 0.3s ease;
-}
 
-.nav-links a:hover {
-  background-color: #b80000;
-  color: #fff;
-}
-
-@media (max-width: 720px) {
-  .nav-links {
-    display: none;
-  }
-}
-
-/* Headline */
+/* =========================
+   HEADLINE
+========================= */
 
 .headline {
-  font-size: 35px;
-  font-weight: bold;
+  flex-shrink: 0;
+
+  margin: 5px 0 15px;
+
   color: #fff;
-  margin: 20px auto 10px;
-  width: 90%;
-  max-width: 120vh;
-  padding: 10px 0;
+
+  font-family:
+    "Siyam Rupali",
+    "Noto Sans Bengali",
+    sans-serif;
+
+  font-size: 36px;
+
+  line-height: 1.35;
+
+  font-weight: bold;
 }
 
-/* Content */
+
+/* =========================
+   TEXT AREA
+========================= */
+
+.content-area {
+  position: relative;
+
+  flex: 1;
+
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/* =========================
+   SCROLLING CONTENT
+========================= */
 
 .content {
-  font-size: 25px;
-  color: #fff;
-  margin: 10px auto 40px;
-  width: 90%;
-  max-width: 120vh;
-  padding: 10px 0;
+  width: 100%;
+
+  height: 100%;
+
+  overflow-y: auto;
+
+  padding:
+    20px 6px 25px 0;
+
+  color: #eee;
+
+  font-family:
+    "Siyam Rupali",
+    "Noto Sans Bengali",
+    sans-serif;
+
+  font-size: 30px;
+
+  line-height: 1.35;
+
   text-align: justify;
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
+}
+
+
+.content::-webkit-scrollbar {
+  display: none;
+
+  width: 0;
+  height: 0;
+}
+
+
+/* Paragraphs */
+
+.content p {
+  margin-top: 0;
+
+  margin-bottom: 18px;
+}
+
+
+/* =========================
+   TOP + BOTTOM FADE
+========================= */
+
+.content-area::before,
+.content-area::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  height: 45px;
+
+  z-index: 5;
+
+  pointer-events: none;
+}
+
+
+/* Top fade */
+
+.content-area::before {
+  top: 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(20, 20, 20, 0.92),
+      rgba(20, 20, 20, 0)
+    );
+}
+
+
+/* Bottom fade */
+
+.content-area::after {
+  bottom: 0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(20, 20, 20, 0.92),
+      rgba(20, 20, 20, 0)
+    );
+}
+
+
+/* =========================
+   SCROLL BUTTON
+   OUTSIDE CARD
+========================= */
+
+.scroll-button-area {
+  width: 92%;
+
+  max-width: 1100px;
+
+  margin: 12px auto 0;
+
+  display: flex;
+
+  justify-content: flex-end;
+}
+
+
+.scroll-button {
+  width: 52px;
+
+  height: 52px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(184, 0, 0, 0.95);
+
+  color: #fff;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 29px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.5);
+
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease;
+}
+
+
+.scroll-button:hover {
+  background: #e00000;
+}
+
+
+.scroll-button:active {
+  transform: scale(0.90);
+}
+
+
+/* =========================
+   RESPONSIBILITY NOTICE
+========================= */
+
+.responsibility {
+  width: 92%;
+
+  max-width: 1100px;
+
+  margin: 18px auto 0;
+
+  padding: 8px 12px;
+
+  text-align: center;
+
+  color:
+    rgba(255, 255, 255, 0.70);
+
+  font-family:
+    "Siyam Rupali",
+    "Noto Sans Bengali",
+    sans-serif;
+
+  font-size: 17px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 720px) {
+
+  .page {
+    padding-top: 15px;
+  }
+
+
+  .news-card {
+    width: 94%;
+
+    height: 560px;
+
+    border-radius: 15px;
+  }
+
+
+  .news-card-inner {
+    padding: 14px;
+
+    gap: 15px;
+
+    flex-direction: column;
+  }
+
+
+  .news-image-box {
+    width: 100%;
+
+    flex: 0 0 auto;
+
+    height: 210px;
+  }
+
+
+  .news-image-box img {
+    width: 100%;
+
+    height: 210px;
+  }
+
+
+  .news-text {
+    height: auto;
+
+    min-height: 0;
+
+    flex: 1;
+  }
+
+
+  .headline {
+    font-size: 30px;
+
+    line-height: 1.35;
+
+    margin: 0 0 10px;
+  }
+
+
+  .content {
+    font-size: 22px;
+
+    line-height: 1.7;
+
+    padding-top: 18px;
+  }
+
+
+  .content-area::before,
+  .content-area::after {
+    height: 40px;
+  }
+
+
+  .scroll-button-area {
+    width: 94%;
+
+    margin-top: 10px;
+  }
+
+
+  .scroll-button {
+    width: 48px;
+
+    height: 48px;
+
+    font-size: 26px;
+  }
+
+
+  .responsibility {
+    width: 94%;
+
+    font-size: 15px;
+
+    margin-top: 14px;
+  }
+
+}
+
+
+/* =========================
+   VERY SMALL MOBILE
+========================= */
+
+@media (max-width: 400px) {
+
+  .news-card {
+    height: 540px;
+  }
+
+
+  .news-image-box {
+    height: 190px;
+  }
+
+
+  .news-image-box img {
+    height: 190px;
+  }
+
+
+  .headline {
+    font-size: 27px;
+  }
+
+
+  .content {
+    font-size: 21px;
+  }
+
 }
 
 </style>
 
 </head>
 
+
 <body>
 
-<header>
 
-<a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
+<!-- FULL PAGE BACKGROUND -->
 
-<nav class="nav-links">
+<img
+  id="pageBackground"
+  class="page-background"
+  alt=""
+>
 
-<a href="https://bostaflix.vercel.app/sports.html">Sports</a>
+<div class="page-background-overlay"></div>
 
-<a href="https://bostaflix.vercel.app/news.html">News</a>
 
-<a href="https://bostaflix.vercel.app/entertainment.html">Entertainment</a>
+<div class="page">
 
-<a href="https://bostaflix.vercel.app/movies.html">Movies</a>
 
-<a href="https://bostaflix.vercel.app/kids.html">Kids</a>
+  <!-- =========================
+       NEWS CARD
+  ========================= -->
 
-</nav>
+  <div class="news-card">
 
-</header>
+    <div class="news-card-inner">
 
-<div id="newsImageContainer" style="width: 100%; display: flex; justify-content: center; margin: 20px 0;">
 
-<img id="newsImage" style="max-width: 800px; width: 100%; height: auto; display: none;" alt="News Image">
+      <!-- LEFT IMAGE -->
+
+      <div class="news-image-box">
+
+        <img
+          id="newsImage"
+          alt="News Image"
+        >
+
+      </div>
+
+
+      <!-- RIGHT TEXT -->
+
+      <div class="news-text">
+
+
+        <div
+          id="headline"
+          class="headline">
+        </div>
+
+
+        <!-- Scrolling area -->
+
+        <div class="content-area">
+
+          <div
+            id="content"
+            class="content">
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- BUTTON OUTSIDE CARD -->
+
+  <div class="scroll-button-area">
+
+    <button
+      id="scrollButton"
+      class="scroll-button"
+      type="button"
+      aria-label="Scroll text">
+
+      ↓
+
+    </button>
+
+  </div>
+
+
+  <!-- NOTICE -->
+
+  <div class="responsibility">
+
+    BFX
+
+  </div>
+
 
 </div>
 
-<div id="newsContainer">
-
-<div class="headline" id="headline"></div>
-
-<div class="content" id="content"></div>
-
-</div>
 
 <script>
 
+/* =========================
+   FETCH NEWS
+========================= */
+
 async function fetchNews() {
 
-  const urlParams = new URLSearchParams(window.location.search);
+  const urlParams =
+    new URLSearchParams(
+      window.location.search
+    );
 
-  const type = urlParams.get('type');
+  const type =
+    urlParams.get('type');
 
-  const id = urlParams.get('id');
+  const id =
+    urlParams.get('id');
 
   const apiUrl =
     `https://backoffice.channel24bd.tv/api/v2/content-details/${type}/${id}`;
 
-  /* Handle image from query parameter */
+
+  /* =========================
+     IMAGE
+  ========================= */
 
   const imageParam =
     urlParams.get('image');
+
 
   if (imageParam) {
 
     const imageUrl =
       `https://backoffice.channel24bd.tv/media/imgAll/${imageParam}`;
 
-    const imgElement =
-      document.getElementById('newsImage');
+    const image =
+      document.getElementById(
+        'newsImage'
+      );
 
-    imgElement.src = imageUrl;
+    const background =
+      document.getElementById(
+        'pageBackground'
+      );
 
-    imgElement.style.display = 'block';
+
+    image.src =
+      imageUrl;
+
+    background.src =
+      imageUrl;
 
   }
 
+
   try {
 
-    const response = await fetch(apiUrl);
+    const response =
+      await fetch(apiUrl);
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    const content =
+    const news =
       data.contentDetails[0];
 
-    /*
-     * Use ContentHeading from JSON
-     */
 
-    document.getElementById('headline').innerText =
-      content.ContentHeading || '';
+    /* Headline */
 
-    /*
-     * Also use the JSON title for browser tab
-     */
+    document.getElementById(
+      'headline'
+    ).innerText =
+      news.ContentHeading || '';
+
+
+    /* Browser title */
 
     document.title =
-      content.ContentHeading || 'BOSTAFLIX News';
+      news.ContentHeading ||
+      'BOSTAFLIX News';
 
-    /*
-     * ContentDetails
-     */
+
+    /* =========================
+       CONTENT
+    ========================= */
 
     let rawHtml =
-      content.ContentDetails || '';
+      news.ContentDetails || '';
 
-    /*
-     * Parse HTML into a document
-     */
 
     const parser =
       new DOMParser();
 
     const doc =
-      parser.parseFromString(rawHtml, 'text/html');
+      parser.parseFromString(
+        rawHtml,
+        'text/html'
+      );
 
-    /*
-     * Remove ALL iframe elements
-     */
 
-    doc.querySelectorAll('iframe').forEach(el => {
+    /* Remove iframes */
+
+    doc.querySelectorAll(
+      'iframe'
+    ).forEach(el => {
       el.remove();
     });
 
-    /*
-     * Remove all anchor tags
-     */
 
-    doc.querySelectorAll('a').forEach(el => {
+    /* Remove links */
+
+    doc.querySelectorAll(
+      'a'
+    ).forEach(el => {
       el.remove();
     });
 
-    /*
-     * Remove all image tags
-     */
 
-    doc.querySelectorAll('img').forEach(el => {
+    /* Remove images */
+
+    doc.querySelectorAll(
+      'img'
+    ).forEach(el => {
       el.remove();
     });
 
-    /*
-     * Remove "আরও পড়ুন:" and app download paragraphs
-     */
 
-    doc.querySelectorAll('p').forEach(p => {
+    /* Remove unwanted paragraphs */
+
+    doc.querySelectorAll(
+      'p'
+    ).forEach(p => {
 
       const text =
         p.textContent.trim();
 
+
       if (
-        text.startsWith("আরও পড়ুন:") ||
+        text.startsWith(
+          "আরও পড়ুন:"
+        ) ||
         text.includes(
           "সারাদিনের সর্বশেষ খবর পেতে গুগল প্লে স্টোর এবং অ্যাপল অ্যাপ স্টোর থেকে ডাউনলোড করুন চ্যানেল 24 অ্যাপ-"
         )
@@ -249,12 +823,12 @@ async function fetchNews() {
 
     });
 
-    /*
-     * Display cleaned content
-     */
 
-    document.getElementById('content').innerHTML =
+    document.getElementById(
+      'content'
+    ).innerHTML =
       doc.body.innerHTML;
+
 
   } catch (error) {
 
@@ -266,6 +840,154 @@ async function fetchNews() {
   }
 
 }
+
+
+/* =========================
+   SMOOTH SCROLL
+========================= */
+
+const content =
+  document.getElementById(
+    'content'
+  );
+
+const scrollButton =
+  document.getElementById(
+    'scrollButton'
+  );
+
+let animationFrame =
+  null;
+
+
+function smoothScrollBy(distance) {
+
+  if (animationFrame) {
+
+    cancelAnimationFrame(
+      animationFrame
+    );
+
+  }
+
+
+  const start =
+    content.scrollTop;
+
+
+  const maxScroll =
+    content.scrollHeight -
+    content.clientHeight;
+
+
+  const target =
+    Math.min(
+      start + distance,
+      maxScroll
+    );
+
+
+  if (target <= start) {
+    return;
+  }
+
+
+  const duration =
+    700;
+
+
+  const startTime =
+    performance.now();
+
+
+  function animate(currentTime) {
+
+    const elapsed =
+      currentTime -
+      startTime;
+
+
+    const progress =
+      Math.min(
+        elapsed / duration,
+        1
+      );
+
+
+    const eased =
+      progress < 0.5
+        ? 2 * progress * progress
+        : 1 -
+          Math.pow(
+            -2 * progress + 2,
+            2
+          ) / 2;
+
+
+    content.scrollTop =
+      start +
+      (target - start) *
+      eased;
+
+
+    if (progress < 1) {
+
+      animationFrame =
+        requestAnimationFrame(
+          animate
+        );
+
+    } else {
+
+      animationFrame =
+        null;
+
+    }
+
+  }
+
+
+  animationFrame =
+    requestAnimationFrame(
+      animate
+    );
+
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+scrollButton.addEventListener(
+  'click',
+  function () {
+
+    const lineHeight =
+      parseFloat(
+        getComputedStyle(
+          content
+        ).lineHeight
+      );
+
+
+    /*
+      Approximately 4 lines
+    */
+
+    const scrollAmount =
+      lineHeight * 4;
+
+
+    smoothScrollBy(
+      scrollAmount
+    );
+
+  }
+);
+
+
+/* START */
 
 fetchNews();
 
