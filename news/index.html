@@ -176,50 +176,6 @@ header {
   </header>
   <!-- News Container -->
   <div class="news-container" id="news-container"></div>
-
-  <!-- Manual Horizontal Scroll Logo Bar -->
-  <div class="scroll-container">
-    <button class="scroll-btn left" id="btnLeft">&#10094;</button>
-
-    <div class="scroll-wrapper" id="logoScroll">
-      <div class="logo" data-name="Somoy TV">
-        <img src="/logos/somoy.png" alt="Somoy TV">
-      </div>
-      <div class="logo" data-name="Jamuna TV">
-        <img src="/logos/jamuna.png" alt="Jamuna TV">
-      </div>
-      <div class="logo" data-name="DBC News">
-        <img src="/logos/dbc-news.png" alt="DBC News">
-      </div>
-      <div class="logo" data-name="CNN">
-        <img src="https://s3.aynaott.com/storage/9801b88ff036f0ba5607cbe40edb8b80" alt="CNN">
-      </div>
-      <div class="logo" data-name="Channel 24">
-        <img src="/logos/channel24.jpg" alt="Channel 24">
-      </div>
-      <div class="logo" data-name="Desh TV">
-        <img src="/logos/desh.png" alt="Desh TV">
-      </div>
-      <div class="logo" data-name="Ekattor TV">
-        <img src="/logos/ekattor_tv.png" alt="Ekattor TV">
-      </div>
-      <div class="logo" data-name="Ekhon TV">
-        <img src="/logos/ekhon.jpg" alt="Ekhon TV">
-      </div>
-      <div class="logo" data-name="Independent TV">
-        <img src="/logos/independent.png" alt="Independent TV">
-      </div>
-      <div class="logo" data-name="News 24">
-        <img src="/logos/news24.jpg" alt="News 24">
-      </div>
-      <div class="logo" data-name="ATN News">
-        <img src="/logos/atnnews.png" alt="ATN News">
-      </div>
-    </div>
-
-    <button class="scroll-btn right" id="btnRight">&#10095;</button>
-  </div>
-
   <!-- JavaScript -->
   <script>
     // ------------------------
@@ -265,53 +221,6 @@ header {
     }
 
     loadNews();
-
-    // ------------------------
-    // Smooth Scroll for Buttons
-    // ------------------------
-    const scrollBox = document.getElementById("logoScroll");
-    const btnLeft = document.getElementById("btnLeft");
-    const btnRight = document.getElementById("btnRight");
-    const SCROLL_AMOUNT = 250; // px per click
-
-    function smoothScroll(element, distance, duration = 400) {
-      const start = element.scrollLeft;
-      const startTime = performance.now();
-
-      function animate(time) {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        element.scrollLeft = start + distance * progress;
-        if (progress < 1) requestAnimationFrame(animate);
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    btnLeft.onclick = () => smoothScroll(scrollBox, -SCROLL_AMOUNT, 400);
-    btnRight.onclick = () => smoothScroll(scrollBox, SCROLL_AMOUNT, 400);
-
-    // ------------------------
-    // Click → Open Play Page
-    // ------------------------
-    document.addEventListener("click", e => {
-      const logo = e.target.closest(".logo");
-      if (!logo) return;
-      const name = logo.dataset.name;
-      window.location.href =
-        "https://bostaflix.vercel.app/news/play.html?id=" + encodeURIComponent(name);
-    });
-
-    // ------------------------
-    // Swipe support for mobile
-    // ------------------------
-    let startX = 0;
-    scrollBox.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
-    scrollBox.addEventListener("touchmove", e => {
-      let diff = startX - e.touches[0].clientX;
-      scrollBox.scrollLeft += diff;
-      startX = e.touches[0].clientX;
-    });
   </script>
 </body>
 </html>
