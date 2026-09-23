@@ -1,180 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latest News Events - BOSTAFLIX NEWS</title>
-<style>
-    body {
-        background-color: #121212;
-        margin: 0;
-        padding: 0;
-        color: #f0f0f0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        scroll-behavior: smooth;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOSTAFLIX News</title>
+  <style>
+/* --- Global --- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0f0f0f;
+    color: #eaeaea;
+}
+
+/* --- Header --- */
+header {
+    background-color: #570303;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #fff;
+}
+    .banner{
+        width:100%;
+        aspect-ratio: 15 / 1;
+        background:url('https://www.bangladeshguardian.com/static/media/eluctionweb%20bannerban.10e3bee92539dd4e259f.jpeg') center/cover no-repeat;
+        border:2px solid #fff;
     }
 
-    /* Header styling */
-    header {
-        background-color: #1e1e1e;
-        color: #fff;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-    }
+.logo {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
 
-    .logo {
-        color: #ff3c3c;
-        text-decoration: none;
-        font-size: 1.5em;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-    }
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
 
-    .nav-links {
-        display: flex;
-        gap: 20px;
-    }
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
 
-    .nav-links a {
-        color: #e0e0e0;
-        text-decoration: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        transition: background 0.3s ease;
-    }
-
-    .nav-links a:hover {
-        background-color: #ff3c3c;
-        color: #fff;
-    }
-
-    /* Iframe container */
-    .iframe-container {
-        padding-bottom: auto;
-        aspect-ratio: 16 / 9;
-        position: relative;
-        margin: 20px auto;
-        max-width: 100%;
-        color: black;
-    }
-
-    iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-        border-radius: 0; /* No round edges */
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        color: black;
-    }
-
-    /* Server buttons */
-    .server-buttons-container {
-        width: 100%;
-        padding: 15px 0;
-        background: #1a1a1a;
-        text-align: center;
-        display: none;
-        transition: all 0.3s ease;
-        color: #ffffff;
-    }
-
-    .server-buttons-container.show {
-        display: block;
-    }
-
-    .server-buttons-container button {
-        background-color: #2a2a2a;
-        border: 1px solid #ff3c3c;
-        padding: 10px 18px;
-        margin: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        color: #fff;
-        transition: background-color 0.3s ease, transform 0.2s;
-    }
-
-    .server-buttons-container button:hover {
-        background-color: #ff3c3c;
-        transform: scale(1.05);
-    }
-
-    /* Logo container */
-    .logos-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-        padding: 15px;
-        margin: 20px auto;
-    }
-
-    .logos-container img {
-        width: 100px;
-        height: 75px;
-        background-color: #ffffff; /* white image background */
-        object-fit: contain;
-        aspect-ratio: 4 / 3;
-        padding: 6px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s;
-    }
-
-    .logos-container img:hover {
-        transform: scale(1.08);
-        box-shadow: 0 0 12px rgba(255, 60, 60, 0.5);
-    }
-
-    /* Category filter */
-    .category-filter {
-        margin: 25px auto;
-        text-align: center;
-    }
-
-    .category-filter select {
-        padding: 10px 14px;
-        font-size: 16px;
-        border-radius: 6px;
-        background-color: #1e1e1e;
-        color: #fff;
-        border: 1px solid #555;
-        outline: none;
-    }
-
-    @media (min-width: 720px) {
-        .iframe-container {
-            max-height: 70vh;
-            max-width: 80%;
-        }
-    }
+.nav-links a:hover {
+    background-color: #b80000;
+    color: #fff;
+}
 
     @media (max-width: 720px) {
-        .iframe-container {
-            width: 100%;
-        }
-
-        .nav-links {
-            display: none;
-        }
+      .nav-links { display: none; }
+      .banner{
+        aspect-ratio: 9 / 1;
     }
-    @media (max-width: 400px) {
-        .logos-container img {
-        width: 80px;
-        height: 60px;
-        }
-</style>
+    }
+
+    /* News Container */
+    .news-container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    /* News Card */
+    .news-card {
+      background: black;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(255, 60, 60, 0.15);
+      width: 320px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .news-card:hover {
+      transform: scale(1.01);
+      background: #303030;
+    }
+
+    .news-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 2px solid #fff;
+    }
+
+    .news-content {
+      padding: 10px 15px;
+    }
+
+    .news-heading {
+      font-size: 2em;
+      font-weight: bold;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    /* Manual Scroll Logo Bar */
+    .scroll-container {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 10px;
+      background: #111;
+      z-index: 9999;
+    }
+
+    .scroll-wrapper {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: auto; /* we use JS smooth */
+      gap: 25px;
+      padding: 5px 0;
+      scrollbar-width: none;
+    }
+
+    .scroll-wrapper::-webkit-scrollbar { display: none; }
+
+    .logo img {
+      height: 75px;
+      width: auto;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.25s;
+    }
+
+    .logo img:hover { transform: scale(1.12); }
+
+    .scroll-btn {
+      background: #222;
+      color: white;
+      border: none;
+      font-size: 30px;
+      padding: 8px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .3s;
+    }
+
+    .scroll-btn:hover { background: #444; }
+
+    .left { margin-right: 5px; }
+    .right { margin-left: 5px; }
+  </style>
 </head>
+
 <body>
-    <header>
+
+  <header>
     <a href="https://bostaflix.vercel.app/index.html" class="logo">BOSTAFLIX</a>
     <nav class="nav-links">
       <a href="https://bostaflix.vercel.app/sports.html">Sports</a>
@@ -184,66 +174,56 @@
       <a href="https://bostaflix.vercel.app/kids.html">Kids</a>
     </nav>
   </header>
-    <!-- Iframe container for the player -->
-    <div class="iframe-container">
-        <iframe id="videoFrame" allowfullscreen></iframe>
-    </div>
-    </div>
-    <script>
-        // Load iframe with server link
-        function loadIframe(serverLink) {
-            document.getElementById('videoFrame').src = serverLink;
+  <!-- News Container -->
+  <div class="news-container" id="news-container"></div>
+  <!-- JavaScript -->
+  <script>
+    // ------------------------
+    // Load News Cards
+    // ------------------------
+    const container = document.getElementById('news-container');
+    const endpoints = [
+      'https://backoffice.channel24bd.tv/api/json/file/generateSpecial1.json',
+      'https://backoffice.channel24bd.tv/api/json/file/generateSpecial2.json',
+      'https://backoffice.channel24bd.tv/api/json/file/generatePopular.json',
+      'https://backoffice.channel24bd.tv/api/json/file/generateLatest.json',
+    ];
+    const seenNews = new Set();
+
+    async function loadNews() {
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url);
+          const json = await res.json();
+          json.data.forEach(item => {
+            const uniqueKey = `${item.Slug}-${item.ContentID}`;
+            if (seenNews.has(uniqueKey)) return;
+            seenNews.add(uniqueKey);
+
+            const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
+            const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
+
+            const card = document.createElement('a');
+            card.className = 'news-card';
+            card.href = link;
+            card.innerHTML = `
+              <img src="${imageUrl}" alt="${item.ContentHeading}" class="news-image">
+              <div class="news-content">
+                <h3 class="news-heading">${item.ContentHeading}</h3>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        } catch (error) {
+          console.error('Error loading:', url, error);
         }
+      }
+    }
 
-        // Load server buttons dynamically
-        function loadServers(servers, channelName) {
-            const serverButtons = document.getElementById('serverButtons');
-            serverButtons.innerHTML = '';
-
-            // Load first server by default
-            loadIframe(servers[0]);
-
-            // Create server buttons
-            servers.forEach((server, index) => {
-                const button = document.createElement('button');
-                button.innerText = `Server ${index + 1}`;
-                button.onclick = () => loadIframe(server);
-                serverButtons.appendChild(button);
-            });
-
-            serverButtons.classList.add('show');
-            document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Filter channels by category
-        function filterChannels() {
-            const selectedCategory = document.getElementById('categorySelect').value.toLowerCase();
-            const images = document.querySelectorAll('img[data-category]');
-
-            images.forEach(img => {
-                const categories = img.getAttribute('data-category').toLowerCase().split(',').map(c => c.trim());
-                img.style.display = (selectedCategory === 'all' || categories.includes(selectedCategory)) ? '' : 'none';
-            });
-        }
-
-        // Get query parameters
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        // Load default channel from query
-        window.onload = function () {
-            const defaultId = getQueryParam('id') || 'id';
-            const defaultServer = getQueryParam('server') || 'server';
-            loadIframe(`${defaultServer}.html?id=${defaultId}`);
-        };
-    </script>
-
-    <!-- Footer -->
-    <div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
-        &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site is collected from the
-        internet and Bostafull Live is not connected with them. Wait up to 1 min to load, if not, change server.
-    </div>
+    loadNews();
+  </script>
 </body>
 </html>
+<div style="color: white; background-color: rgba(0, 0, 0, 0.5); padding: 10px; text-align: center;">
+  &copy; Bostafull Live by Syed Ashraful Islam Mahbeer. Any embedded content on this site are collected from the internet and Bostafull Live is not Connected with them. Wait up to 1 min to load, if not, change server.
+</div>
