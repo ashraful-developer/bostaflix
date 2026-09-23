@@ -200,7 +200,7 @@ header {
             if (seenNews.has(uniqueKey)) return;
             seenNews.add(uniqueKey);
 
-            const link = `https://bostaflix.vercel.app/news/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
+            const link = `https://bostaflix.vercel.app/news/event/read.html?type=${item.Slug}&id=${item.ContentID}&image=${encodeURIComponent(item.ImageBgPath)}`;
             const imageUrl = `https://backoffice.channel24bd.tv/media/imgAll/${item.ImageBgPath}`;
 
             const card = document.createElement('a');
