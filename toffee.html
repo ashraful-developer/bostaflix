@@ -1,134 +1,415 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bostafull Player | Buddy✘TV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Jadoo | Buddy✘TV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 
-  <!-- Clappr Player Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+<!-- Clappr -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clappr/hlsjs-playback@1.0.1/dist/hlsjs-playback.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/level-selector@0.2.0/dist/level-selector.min.js"></script>
+
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-  }
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
 
-  #player {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+#player{
+  width:100%;
+  height:100%;
+  position:absolute;
+  inset:0;
+}
 
-  /* When screen width is below 400px, scale down entire page */
-  @media (max-width: 400px) {
-    body {
-      transform: scale(0.8);
-      transform-origin: top left;
-      width: 125%;   /* compensate for scaling shrink */
-      height: 125%;
-    }
+@media(max-width:400px){
+  body{
+    transform:scale(.8);
+    transform-origin:top left;
+    width:125%;
+    height:125%;
   }
+}
 </style>
 </head>
+
 <body>
-  <div id="player"></div>
+
+<div id="player"></div>
+
 <script>
-document.addEventListener("contextmenu", e => e.preventDefault());
+(() => {
 
-function getQueryParam(name) {
-  return new URLSearchParams(window.location.search).get(name);
-}
+  /* ---------------- LOADER ---------------- */
 
-function createPlayer(url) {
-  const player = new Clappr.Player({
-    source: url,
-    parentId: "#player",
-    width: "100%",
-    height: "100%",
-    autoPlay: true,
-    mimeType: "application/x-mpegURL",
-    plugins: [HlsjsPlayback, LevelSelector],
-    mediacontrol: { seekbar: "#ff0000", buttons: "#eee" }
-  });
+  const overlay = document.createElement("div");
 
-  player.on(Clappr.Events.PLAYER_ERROR, () => {
-    setTimeout(() => {
-      player.load(player.options.source);
-      player.play();
-    }, 1500);
-  });
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
+  `;
 
-  player.on(Clappr.Events.PLAYER_STOP, () => player.play());
-}
+  overlay.innerHTML = `
+    <div style="
+      width:60px;
+      height:60px;
+      border:6px solid #fff;
+      border-top-color:#777;
+      border-radius:50%;
+      animation:spin 1s linear infinite">
+    </div>
 
-const requestedName = getQueryParam('id');
+    <style>
+      @keyframes spin{
+        to{transform:rotate(360deg)}
+      }
+    </style>
+  `;
 
-if (!requestedName) {
-  document.body.innerHTML =
-    "<h2 style='color:white;text-align:center;margin-top:20%'>No Channel Selected</h2>";
-} else {
+  document.body.appendChild(overlay);
 
-  const SOURCE_HTML = "https://livecdn-bostaflix.global.ssl.fastly.net/";
+  function hideLoader(){
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 400);
+  }
 
-  // STEP 1 — Get channel ID from HTML
-  fetch(SOURCE_HTML)
-    .then(res => res.text())
-    .then(html => {
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
+  /* ---------------- BASE64 PROXY ---------------- */
 
-      const scripts = [...doc.querySelectorAll('script')];
-      const scriptWithChannels = scripts.find(s =>
-        s.textContent.includes('const allChannels')
+  const encodeB64 = (str) =>
+    btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+  const decodeB64 = (str) => {
+    let t = str
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const pad = t.length % 4;
+
+    if(pad){
+      t += "=".repeat(4 - pad);
+    }
+
+    try{
+      return atob(t);
+    }catch(e){
+      return null;
+    }
+  };
+
+
+  /* ---------------- PROXY ---------------- */
+
+  function proxify(
+    slug,
+    url,
+    isFallback = false,
+    channelObj = null,
+    customExt = null
+  ){
+
+    if(!url) return "";
+
+    // Already proxied
+    if(url.includes("/api/key/")){
+      return url;
+    }
+
+    const ext =
+      customExt ||
+      (
+        url.toLowerCase().includes(".mpd")
+          ? ".mpd"
+          : (
+              url.toLowerCase().includes(".mp4")
+                ? ".mp4"
+                : (
+                    url.toLowerCase().includes(".mp3")
+                      ? ".mp3"
+                      : ".m3u8"
+                  )
+            )
       );
 
-      const jsText = scriptWithChannels.textContent;
-      const match = jsText.match(/const allChannels\s*=\s*(\[[\s\S]*?\]);/);
-      const channels = eval(match[1]);
+    let payload = url;
 
-      const found = channels.find(c =>
-        c.name.trim().toLowerCase() === requestedName.trim().toLowerCase()
+    // Optional UA + headers
+    if(channelObj){
+
+      payload =
+        url +
+        "|||" +
+        (channelObj.user_agent || "") +
+        "|||" +
+        JSON.stringify(channelObj.headers || {});
+
+    }
+
+    let filename = (slug || "channel") + ext;
+
+    try{
+
+      const urlObj =
+        new URL(url.split("?")[0]);
+
+      const pathname =
+        urlObj.pathname;
+
+      const fn =
+        pathname.substring(
+          pathname.lastIndexOf("/") + 1
+        );
+
+      if(fn){
+        filename = fn;
+      }
+
+    }catch(e){}
+
+    return `https://biostartvworld.pages.dev//api/key/${encodeB64(payload)}/${filename}`;
+  }
+
+
+  /* ---------------- PLAYLIST ---------------- */
+
+  const M3U_URL = "https://biostartvworld.pages.dev/biostartvworld.m3u";
+
+
+  function normalizeUrl(url){
+
+    return url
+      .replace(/^http:\/\//i, "https://")
+      .trim();
+
+  }
+
+
+  async function loadFromM3U(channel){
+
+    const res = await fetch(
+      M3U_URL,
+      {
+        cache:"no-store"
+      }
+    );
+
+    if(!res.ok){
+      throw new Error(
+        "Unable to load /xyz.m3u"
       );
+    }
 
-      if (!found) throw new Error("Channel not found");
+    const text =
+      await res.text();
 
-      // STEP 2 — Fetch master m3u8 using ID
-      const masterUrl =
-        `https://livecdn-bostaflix.global.ssl.fastly.net/stream.php/${found.id}.m3u8`;
+    const lines =
+      text.split(/\r?\n/);
 
-      return fetch(masterUrl);
-    })
-    .then(res => res.text())
-    .then(masterText => {
 
-      // STEP 3 — Extract playlist token URL
-      const match = masterText.match(/playlist\.m3u8\?token=[^\s]+/);
+    for(let i = 0; i < lines.length; i++){
 
-      if (!match) throw new Error("Playlist token not found");
+      const line =
+        lines[i].trim();
 
-      const tokenPart = match[0];
+      if(
+        !line.toUpperCase().startsWith("#EXTINF")
+      ){
+        continue;
+      }
 
-      // STEP 4 — Replace domain with your CDN
-      const finalUrl =
-        `https://livecdn-bostaflix.global.ssl.fastly.net/segment.php/${tokenPart}`;
 
-      createPlayer(finalUrl);
-    })
-    .catch(err => {
-      console.error(err);
-      document.body.innerHTML =
-        `<h2 style="color:white;text-align:center;margin-top:20%">Stream build failed</h2>`;
+      /* Channel name */
+
+      const displayName =
+        line
+          .substring(
+            line.lastIndexOf(",") + 1
+          )
+          .trim();
+
+
+      /* tvg-name */
+
+      const tvgName =
+        (
+          line.match(
+            /tvg-name="([^"]+)"/i
+          ) || []
+        )[1] || "";
+
+
+      /* Match ?id= */
+
+      if(
+        displayName.toLowerCase() ===
+          channel.toLowerCase() ||
+
+        tvgName.toLowerCase() ===
+          channel.toLowerCase()
+      ){
+
+        /* Find next URL */
+
+        for(
+          let j = i + 1;
+          j < lines.length;
+          j++
+        ){
+
+          const streamUrl =
+            lines[j].trim();
+
+
+          if(
+            streamUrl &&
+            !streamUrl.startsWith("#")
+          ){
+
+            return {
+              name: displayName,
+              url: normalizeUrl(streamUrl)
+            };
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    throw new Error(
+      "Channel not found: " + channel
+    );
+
+  }
+
+
+  /* ---------------- PLAYER ---------------- */
+
+  function startPlayer(url){
+
+    hideLoader();
+
+    document.oncontextmenu =
+      e => e.preventDefault();
+
+
+    new Clappr.Player({
+
+      parentId:"#player",
+
+      source:url,
+
+      autoPlay:true,
+
+      width:"100%",
+
+      height:"100%",
+
+      mimeType:"application/x-mpegURL",
+
+      plugins:[
+        HlsjsPlayback,
+        LevelSelector
+      ],
+
+      mediacontrol:{
+        seekbar:"#ff0000",
+        buttons:"#eee"
+      }
+
     });
-}
+
+  }
+
+
+  /* ---------------- INIT ---------------- */
+
+  (async()=>{
+
+    const id =
+      new URLSearchParams(
+        location.search
+      ).get("id");
+
+
+    if(!id){
+
+      hideLoader();
+
+      alert("Missing ?id");
+
+      return;
+
+    }
+
+
+    try{
+
+      /* Get channel from /xyz.m3u */
+
+      const channel =
+        await loadFromM3U(id);
+
+
+      console.log(
+        "Original stream:",
+        channel.url
+      );
+
+
+      /* Proxy the stream */
+
+      const proxiedUrl =
+        proxify(
+          channel.name || id,
+          channel.url
+        );
+
+
+      console.log(
+        "Proxied stream:",
+        proxiedUrl
+      );
+
+
+      /* Start Clappr */
+
+      startPlayer(proxiedUrl);
+
+
+    }catch(err){
+
+      hideLoader();
+
+      console.error(err);
+
+      alert(err.message);
+
+    }
+
+  })();
+
+})();
 </script>
+
 </body>
 </html>
+```
